@@ -1,0 +1,141 @@
+// Angular Frontend Project Structure Guidelines
+
+// Project Structure
+- Organize the Angular project into the following primary folders:
+  - `src/app/components`: Reusable UI components
+  - `src/app/pages`: Page components that represent different routes
+  - `src/app/services`: Services for API communication and business logic
+  - `src/app/models`: TypeScript interfaces/classes representing data models
+  - `src/app/guards`: Route guards for authentication and authorization
+  - `src/app/interceptors`: HTTP interceptors for request/response handling
+  - `src/app/shared`: Shared utilities, pipes, directives
+  - `src/app/store`: State management (if using NgRx or similar)
+  - `src/assets`: Static assets like images, icons, etc.
+  - `src/environments`: Environment configuration files
+
+// Naming Conventions
+- Use `kebab-case` for file names (e.g., `student-profile.component.ts`)
+- Use `PascalCase` for class names (e.g., `StudentProfileComponent`)
+- Use `camelCase` for method and variable names (e.g., `getStudentProfiles()`)
+- Append appropriate suffixes to files:
+  - Components: `.component.ts`
+  - Services: `.service.ts`
+  - Models: `.model.ts`
+  - Guards: `.guard.ts`
+  - Pipes: `.pipe.ts`
+  - Directives: `.directive.ts`
+
+// Component Structure
+- Follow Angular's component-based architecture
+- Create smart (container) components for pages and dumb (presentational) components for reusable UI elements
+- Use OnPush change detection strategy for better performance where appropriate
+- Implement proper component lifecycle hooks (ngOnInit, ngOnDestroy, etc.)
+- Unsubscribe from observables in ngOnDestroy to prevent memory leaks
+
+// Service Layer
+- Create dedicated services for API communication
+- Use Angular's HttpClient for API requests
+- Implement proper error handling and retry mechanisms
+- Return Observables from service methods for reactive programming
+- Consider using a centralized API service for common HTTP operations
+
+// Models
+- Create TypeScript interfaces/classes that match backend DTOs
+- Use proper typing for all variables and function parameters/returns
+- Consider using enums for fixed sets of values (matching backend enums)
+
+// Routing
+- Implement lazy loading for feature modules
+- Use route guards for protected routes
+- Implement proper route parameters and query parameters handling
+- Consider using route resolvers for pre-loading data
+
+// Available Routes
+- `/login`: Authentication page
+- `/dashboard`: Main dashboard after login
+- `/pfes`: List of all PFEs
+  - `/pfes/new`: Create new PFE form
+  - `/pfes/:id`: View PFE details
+  - `/pfes/:id/edit`: Edit PFE form
+- `/proposals`: List of all proposals
+  - `/proposals/new`: Create new proposal form
+  - `/proposals/:id`: View proposal details
+- `/technical-tests`: List of technical tests
+  - `/technical-tests/:id`: Take or review a technical test
+- `/internship-offers`: List of internship offers
+  - `/internship-offers/new`: Create new internship offer form
+  - `/internship-offers/:id`: View internship offer details
+  - `/internship-offers/:id/edit`: Edit internship offer form
+- `/student-interests`: List of student interests
+  - `/student-interests/new`: Create new student interest form
+  - `/student-interests/:id`: View student interest details
+
+// API Integration
+- Create services that match backend controllers:
+  - `PfeService`: For interacting with `/api/pfe` endpoints
+  - `ProposalService`: For interacting with `/api/proposals` endpoints
+  - `TechnicalTestService`: For interacting with `/api/technical-tests` endpoints
+  - `InternshipOfferService`: For interacting with `/api/internship-offers` endpoints
+  - `StudentInterestService`: For interacting with `/api/student-interests` endpoints
+- Implement proper error handling and loading states
+- Use interceptors for adding authentication tokens to requests
+
+// Authentication & Authorization
+- Implement JWT-based authentication
+- Store tokens securely (preferably in HttpOnly cookies)
+- Create auth guards to protect routes based on user roles
+- Implement token refresh mechanism
+
+// Form Handling
+- Use Reactive Forms for complex forms with validation
+- Implement proper form validation with error messages
+- Create reusable form components where appropriate
+- Handle file uploads for PFE reports using FormData
+
+// State Management
+- Consider using NgRx for complex state management
+- Implement proper actions, reducers, selectors, and effects
+- Use the store for managing application-wide state
+- Consider using component-level state for simpler components
+
+// Error Handling
+- Implement global error handling
+- Create user-friendly error messages
+- Log errors to a monitoring service in production
+- Implement proper retry mechanisms for API calls
+
+// UI/UX Guidelines
+- Create a responsive design that works on all devices
+- Implement proper loading indicators for async operations
+- Use Angular Material or another UI library for consistent design
+- Implement proper form validation feedback
+- Create a user-friendly dashboard with relevant information
+
+// Testing
+- Write unit tests for services and components
+- Implement e2e tests for critical user flows
+- Use TestBed for Angular-specific testing
+- Mock HTTP requests in tests
+
+// Performance Optimization
+- Implement lazy loading for feature modules
+- Use OnPush change detection strategy where appropriate
+- Optimize bundle size with proper tree-shaking
+- Implement proper caching strategies for API responses
+
+// Accessibility
+- Follow WCAG guidelines for accessibility
+- Use proper ARIA attributes
+- Ensure keyboard navigation works properly
+- Test with screen readers
+
+// Internationalization
+- Implement i18n support if needed
+- Use Angular's built-in i18n tools or ngx-translate
+- Externalize all strings for easy translation
+
+// Security Best Practices
+- Sanitize user input to prevent XSS attacks
+- Implement proper CSRF protection
+- Use HTTPS for all API communication
+- Validate all input on both client and server sides
