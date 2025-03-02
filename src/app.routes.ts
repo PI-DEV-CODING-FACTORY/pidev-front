@@ -8,15 +8,15 @@ import { Notfound } from './app/pages/notfound/notfound';
 export const appRoutes: Routes = [
     {
         path: '',
-        component: AppLayout,
+        component: Landing,
         children: [
-            { path: '', component: Dashboard },
+            { path: '', component: Landing },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ]
     },
-    { path: 'landing', component: Landing },
+    { path: 'dashboard', component: Dashboard },
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },
     { path: '**', redirectTo: '/notfound' }
