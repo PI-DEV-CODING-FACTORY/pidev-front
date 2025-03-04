@@ -7,7 +7,7 @@ import { Pfe } from '../models/pfe.model';
   providedIn: 'root'
 })
 export class PfeService {
-  private apiUrl = '/api/pfe';
+  private apiUrl = 'http://localhost:8089/api/pfe';
 
   constructor(private http: HttpClient) { }
 
@@ -23,6 +23,10 @@ export class PfeService {
     return this.http.post<Pfe>(this.apiUrl, pfe);
   }
 
+  createPfeWithFile(formData: FormData): Observable<Pfe> {
+    return this.http.post<Pfe>(this.apiUrl, formData);
+  }
+
   updatePfe(id: number, pfe: Pfe): Observable<Pfe> {
     return this.http.put<Pfe>(`${this.apiUrl}/${id}`, pfe);
   }
@@ -34,6 +38,6 @@ export class PfeService {
   uploadPfeReport(id: number, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<any>(`${this.apiUrl}/${id}/upload-report`, formData);
+    return this.http.post<any>(`${this.apiUrl}/pfe/${id}`, formData);
   }
 } 

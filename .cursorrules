@@ -2,7 +2,6 @@
 
 // Project Structure
 - Organize the Angular project into the following primary folders:
-  - `src/app/components`: Reusable UI components
   - `src/app/pages`: Page components that represent different routes
   - `src/app/services`: Services for API communication and business logic
   - `src/app/models`: TypeScript interfaces/classes representing data models
@@ -27,6 +26,7 @@
 
 // Component Structure
 - Follow Angular's component-based architecture
+- use the libary "PrimeNg" for all of the components (docs :https://primeng.org/installation )
 - Create smart (container) components for pages and dumb (presentational) components for reusable UI elements
 - Use OnPush change detection strategy for better performance where appropriate
 - Implement proper component lifecycle hooks (ngOnInit, ngOnDestroy, etc.)
@@ -106,6 +106,7 @@
 
 // UI/UX Guidelines
 - Create a responsive design that works on all devices
+- Always use Tailwindcss
 - Implement proper loading indicators for async operations
 - Use Angular Material or another UI library for consistent design
 - Implement proper form validation feedback
