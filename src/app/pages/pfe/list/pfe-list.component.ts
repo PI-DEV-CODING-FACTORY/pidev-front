@@ -20,6 +20,7 @@ import { CardModule } from 'primeng/card';
 import { ChipModule } from 'primeng/chip';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
+import { PaginatorModule } from 'primeng/paginator';
 
 // Define OpenFor enum
 enum OpenFor {
@@ -54,7 +55,8 @@ interface ExtendedPfe extends Pfe {
     CardModule,
     ChipModule,
     TooltipModule,
-    SkeletonModule
+    SkeletonModule,
+    PaginatorModule
   ],
   providers: [MessageService, ConfirmationService],
   template: `
@@ -81,126 +83,213 @@ interface ExtendedPfe extends Pfe {
         <!-- Content -->
         <div class="p-6">
           <!-- Filters -->
-          <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="col-span-1">
-              <span class="p-input-icon-left w-full">
-                <i class="pi pi-search"></i>
-                <input 
-                  type="text" 
-                  pInputText 
-                  placeholder="Search by title or description" 
-                  class="w-full p-3 rounded-lg border border-gray-300"
-                  (input)="applyFilter($event, 'global')"
-                />
-              </span>
-            </div>
-            
-            <div class="col-span-1">
-              <p-dropdown 
-                [options]="statusOptions" 
-                placeholder="Filter by Status" 
-                [showClear]="true"
-                class="w-full" 
-                (onChange)="applyFilter($event, 'status')"
-              ></p-dropdown>
-            </div>
-            
-            <div class="col-span-1">
-              <p-dropdown 
-                [options]="openForOptions" 
-                placeholder="Filter by Open For" 
-                [showClear]="true"
-                class="w-full" 
-                (onChange)="applyFilter($event, 'openFor')"
-              ></p-dropdown>
-            </div>
-            
-            <div class="col-span-1">
+          <div class="mb-8 p-5 bg-white rounded-lg border border-gray-200 shadow-sm">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-lg font-semibold text-gray-800">Filter Projects</h2>
               <button 
+                *ngIf="globalFilter || statusFilter || openForFilter"
                 pButton 
                 type="button" 
-                label="Clear Filters" 
+                label="Clear All" 
                 icon="pi pi-filter-slash" 
-                class="p-button-outlined p-0 px-4 py-2.5 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 rounded-md w-full"
+                class="p-button-outlined p-button-sm p-button-secondary"
                 (click)="clearFilters()"
               ></button>
+              <button 
+                *ngIf="!globalFilter && !statusFilter && !openForFilter"
+                pButton 
+                type="button" 
+                label="Filters" 
+                icon="pi pi-filter" 
+                class="p-button-outlined p-button-sm p-button-secondary"
+                disabled
+              ></button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+              <div class="col-span-1 md:col-span-5">
+                <label for="global-search" class="block text-sm font-medium text-gray-600 mb-1">Search</label>
+                <div class="relative w-full">
+                  <i class="pi pi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10"></i>
+                  <input 
+                    id="global-search"
+                    type="text" 
+                    pInputText 
+                    style="padding-left: 2rem;"
+                    placeholder="Search by title, description or technologies" 
+                    class="w-full px-8 p-inputtext-md"
+                    (input)="applyFilter($event, 'global')"
+                  />
+                </div>
+              </div>
+              
+              <div class="col-span-1 md:col-span-3">
+                <label for="status-filter" class="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                <p-dropdown 
+                  id="status-filter"
+                  [options]="statusOptions" 
+                  placeholder="All Statuses" 
+                  [showClear]="true"
+                  styleClass="w-full"
+                  class="w-full" 
+                  (onChange)="applyFilter($event, 'status')"
+                ></p-dropdown>
+              </div>
+              
+              <div class="col-span-1 md:col-span-3">
+                <label for="openfor-filter" class="block text-sm font-medium text-gray-600 mb-1">Open For</label>
+                <p-dropdown 
+                  id="openfor-filter"
+                  [options]="openForOptions" 
+                  placeholder="All Types" 
+                  [showClear]="true"
+                  styleClass="w-full"
+                  class="w-full" 
+                  (onChange)="applyFilter($event, 'openFor')"
+                ></p-dropdown>
+              </div>
+            </div>
+            
+            <!-- Active filters display -->
+            <div *ngIf="globalFilter || statusFilter || openForFilter" class="flex flex-wrap gap-2 mt-4 pt-3 border-t border-gray-200">
+              <span class="text-sm font-medium text-gray-500 mr-2 self-center">Active filters:</span>
+              
+              <p-chip *ngIf="globalFilter" 
+                [label]="'Search: ' + globalFilter" 
+                [removable]="true" 
+                (onRemove)="clearGlobalFilter()"
+                styleClass="bg-blue-50 text-blue-700"
+              ></p-chip>
+              
+              <p-chip *ngIf="statusFilter" 
+                [label]="'Status: ' + statusFilter" 
+                [removable]="true" 
+                (onRemove)="clearStatusFilter()"
+                styleClass="bg-green-50 text-green-700"
+              ></p-chip>
+              
+              <p-chip *ngIf="openForFilter" 
+                [label]="'Open For: ' + openForFilter" 
+                [removable]="true" 
+                (onRemove)="clearOpenForFilter()"
+                styleClass="bg-purple-50 text-purple-700"
+              ></p-chip>
             </div>
           </div>
           
-          <!-- Table -->
-          <p-table 
-            #dt 
-            [value]="pfes" 
-            [rows]="10" 
-            [paginator]="true" 
-            [globalFilterFields]="['title', 'description', 'technologies']"
-            [rowHover]="true"
-            [showCurrentPageReport]="true"
-            [rowsPerPageOptions]="[5, 10, 25, 50]"
-            [loading]="loading"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-            [filterDelay]="0"
-            styleClass="p-datatable-lg"
-          >
-            <ng-template pTemplate="header">
-              <tr class="bg-gray-50">
-                <th pSortableColumn="title" class="text-left p-4">
-                  Title <p-sortIcon field="title"></p-sortIcon>
-                </th>
-                <th pSortableColumn="technologies" class="text-left p-4">
-                  Technologies <p-sortIcon field="technologies"></p-sortIcon>
-                </th>
-                <th pSortableColumn="openFor" class="text-left p-4">
-                  Open For <p-sortIcon field="openFor"></p-sortIcon>
-                </th>
-                <th pSortableColumn="status" class="text-left p-4">
-                  Status <p-sortIcon field="status"></p-sortIcon>
-                </th>
-                <th class="text-center p-4">Actions</th>
-              </tr>
-            </ng-template>
-            
-            <ng-template pTemplate="body" let-pfe>
-              <tr class="border-b border-gray-200">
-                <td class="p-4">
-                  <div class="font-medium text-gray-900">{{pfe.title}}</div>
-                  <div class="text-sm text-gray-500 mt-1 line-clamp-2">{{pfe.description}}</div>
-                </td>
-                <td class="p-4">
-                  <div class="flex flex-wrap gap-1">
-                    <p-chip *ngFor="let tech of getTechnologiesArray(pfe)" [label]="tech" styleClass="mr-1 mb-1"></p-chip>
+          <!-- Loading Skeleton -->
+          <div *ngIf="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div *ngFor="let _ of [1,2,3,4,5,6]" class="col-span-1">
+              <div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <div class="p-4">
+                  <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+                  <p-skeleton height="1rem" width="80%" styleClass="mb-2"></p-skeleton>
+                  <p-skeleton height="4rem" styleClass="mb-2"></p-skeleton>
+                  <div class="flex gap-2 mb-2">
+                    <p-skeleton height="1.5rem" width="25%"></p-skeleton>
+                    <p-skeleton height="1.5rem" width="25%"></p-skeleton>
+                    <p-skeleton height="1.5rem" width="25%"></p-skeleton>
                   </div>
-                </td>
-                <td class="p-4">
-                  <ng-container *ngIf="pfe['openFor']">
-                    <span 
-                      [ngClass]="{
-                        'bg-blue-100 text-blue-800': pfe['openFor'] === 'INTERNSHIP',
-                        'bg-purple-100 text-purple-800': pfe['openFor'] === 'JOB',
-                        'bg-indigo-100 text-indigo-800': pfe['openFor'] === 'BOTH'
-                      }"
-                      class="px-2 py-1 rounded-full text-xs font-medium"
-                    >
-                      {{pfe['openFor']}}
-                    </span>
-                  </ng-container>
-                </td>
-                <td class="p-4">
+                  <div class="flex justify-between mt-4">
+                    <p-skeleton height="2rem" width="30%"></p-skeleton>
+                    <div class="flex gap-2">
+                      <p-skeleton shape="circle" size="2rem"></p-skeleton>
+                      <p-skeleton shape="circle" size="2rem"></p-skeleton>
+                      <p-skeleton shape="circle" size="2rem"></p-skeleton>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- PFE Cards Grid -->
+          <div *ngIf="!loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Empty state -->
+            <div *ngIf="filteredPfes.length === 0" class="col-span-full">
+              <div class="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg">
+                <i class="pi pi-folder-open text-5xl text-gray-300 mb-3"></i>
+                <span class="text-gray-500 text-xl">No PFE projects found</span>
+                <p class="text-gray-400 mt-2">Try clearing filters or add a new PFE project</p>
+                <button 
+                  pButton 
+                  type="button" 
+                  label="Add New PFE" 
+                  icon="pi pi-plus" 
+                  class="p-button-primary mt-4"
+                  (click)="navigateToAddPfe()"
+                ></button>
+              </div>
+            </div>
+            
+            <!-- PFE Cards -->
+            <div *ngFor="let pfe of displayedPfes" class="col-span-1">
+              <div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 h-full flex flex-col">
+                <!-- Card Header with Status Badge -->
+                <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                   <p-tag 
                     [value]="pfe.status" 
                     [severity]="getStatusSeverity(pfe.status)"
                   ></p-tag>
-                </td>
-                <td class="p-4">
-                  <div class="flex justify-center gap-2">
-                    <button 
-                      pButton 
-                      type="button" 
-                      icon="pi pi-eye" 
-                      class="p-button-rounded p-button-text p-button-info"
-                      pTooltip="View Details"
-                      (click)="viewPfeDetails(pfe)"
-                    ></button>
+                  <span 
+                    *ngIf="pfe['openFor']"
+                    [ngClass]="{
+                      'bg-blue-100 text-blue-800': pfe['openFor'] === 'INTERNSHIP',
+                      'bg-purple-100 text-purple-800': pfe['openFor'] === 'JOB',
+                      'bg-indigo-100 text-indigo-800': pfe['openFor'] === 'BOTH'
+                    }"
+                    class="px-2 py-1 rounded-full text-xs font-medium"
+                  >
+                    {{pfe['openFor']}}
+                  </span>
+                </div>
+                
+                <!-- Card Content -->
+                <div class="p-4 flex-grow">
+                  <h3 class="text-xl font-semibold text-gray-800 mb-2 line-clamp-2">{{pfe.title}}</h3>
+                  <p class="text-gray-600 mb-4 line-clamp-3">{{pfe.description}}</p>
+                  
+                  <!-- Technologies -->
+                  <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-500 mb-2">Technologies</h4>
+                    <div class="flex flex-wrap gap-1">
+                      <p-chip 
+                        *ngFor="let tech of getTechnologiesArray(pfe).slice(0, 3)" 
+                        [label]="tech" 
+                        styleClass="mr-1 mb-1"
+                      ></p-chip>
+                      <span 
+                        *ngIf="getTechnologiesArray(pfe).length > 3" 
+                        class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
+                      >
+                        +{{getTechnologiesArray(pfe).length - 3}} more
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- GitHub Link if available -->
+                  <div *ngIf="pfe.githubUrl" class="mb-4">
+                    <a 
+                      [href]="pfe.githubUrl" 
+                      target="_blank" 
+                      class="text-blue-600 hover:text-blue-800 text-sm flex items-center"
+                    >
+                      <i class="pi pi-github mr-1"></i> View on GitHub
+                    </a>
+                  </div>
+                </div>
+                
+                <!-- Card Footer with Actions -->
+                <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
+                  <button 
+                    pButton 
+                    type="button" 
+                    label="View Details" 
+                    icon="pi pi-eye" 
+                    class="p-button-text p-button-sm"
+                    (click)="viewPfeDetails(pfe)"
+                  ></button>
+                  
+                  <div class="flex gap-2">
                     <button 
                       pButton 
                       type="button" 
@@ -218,58 +307,21 @@ interface ExtendedPfe extends Pfe {
                       (click)="confirmDelete(pfe)"
                     ></button>
                   </div>
-                </td>
-              </tr>
-            </ng-template>
-            
-            <ng-template pTemplate="emptymessage">
-              <tr>
-                <td colspan="5" class="text-center p-6">
-                  <div class="flex flex-col items-center">
-                    <i class="pi pi-folder-open text-5xl text-gray-300 mb-3"></i>
-                    <span class="text-gray-500 text-xl">No PFE projects found</span>
-                    <p class="text-gray-400 mt-2">Try clearing filters or add a new PFE project</p>
-                    <button 
-                      pButton 
-                      type="button" 
-                      label="Add New PFE" 
-                      icon="pi pi-plus" 
-                      class="p-button-primary mt-4"
-                      (click)="navigateToAddPfe()"
-                    ></button>
-                  </div>
-                </td>
-              </tr>
-            </ng-template>
-            
-            <ng-template pTemplate="loadingbody">
-              <tr *ngFor="let _ of [1,2,3,4,5]">
-                <td class="p-4">
-                  <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
-                  <p-skeleton height="1rem" width="80%"></p-skeleton>
-                </td>
-                <td class="p-4">
-                  <div class="flex gap-1">
-                    <p-skeleton height="1.5rem" width="4rem" styleClass="mr-1"></p-skeleton>
-                    <p-skeleton height="1.5rem" width="4rem"></p-skeleton>
-                  </div>
-                </td>
-                <td class="p-4">
-                  <p-skeleton height="1.5rem" width="6rem"></p-skeleton>
-                </td>
-                <td class="p-4">
-                  <p-skeleton height="1.5rem" width="5rem"></p-skeleton>
-                </td>
-                <td class="p-4">
-                  <div class="flex justify-center gap-2">
-                    <p-skeleton shape="circle" size="2rem"></p-skeleton>
-                    <p-skeleton shape="circle" size="2rem"></p-skeleton>
-                    <p-skeleton shape="circle" size="2rem"></p-skeleton>
-                  </div>
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pagination -->
+          <div *ngIf="!loading && filteredPfes.length > 0" class="flex justify-center mt-8">
+            <p-paginator 
+              [first]="first"
+              [rows]="rows" 
+              [totalRecords]="totalRecords" 
+              [rowsPerPageOptions]="[6, 9, 12, 15]"
+              (onPageChange)="onPageChange($event)"
+            ></p-paginator>
+          </div>
         </div>
       </div>
     </div>
@@ -394,22 +446,37 @@ interface ExtendedPfe extends Pfe {
       </ng-template>
     </p-dialog>
     
+    <!-- Confirmation Dialog for Delete -->
     <p-confirmDialog 
-      [style]="{width: '450px'}" 
       header="Confirm Deletion" 
-      icon="pi pi-exclamation-triangle"
-      acceptButtonStyleClass="p-button-danger"
+      icon="pi pi-exclamation-triangle" 
+      acceptButtonStyleClass="p-button-danger" 
       rejectButtonStyleClass="p-button-text"
+      acceptLabel="Yes, delete it"
+      rejectLabel="Cancel"
     ></p-confirmDialog>
     
-    <p-toast position="top-right"></p-toast>
+    <!-- Toast for notifications -->
+    <p-toast></p-toast>
   `
 })
 export class PfeListComponent implements OnInit {
   pfes: ExtendedPfe[] = [];
+  filteredPfes: ExtendedPfe[] = [];
+  displayedPfes: ExtendedPfe[] = [];
   loading: boolean = true;
   selectedPfe: ExtendedPfe | null = null;
   displayDialog: boolean = false;
+  totalRecords: number = 0;
+  
+  // Pagination properties
+  first: number = 0;
+  rows: number = 9;
+  
+  // Filters
+  globalFilter: string = '';
+  statusFilter: string = '';
+  openForFilter: string = '';
   
   statusOptions = [
     { label: 'Pending', value: PfeStatus.PENDING },
@@ -440,18 +507,70 @@ export class PfeListComponent implements OnInit {
     this.pfeService.getAllPfes().subscribe({
       next: (data) => {
         this.pfes = data as ExtendedPfe[];
+        this.filteredPfes = [...this.pfes];
+        this.totalRecords = this.filteredPfes.length;
+        this.updateDisplayedPfes();
         this.loading = false;
       },
       error: (error) => {
+        console.error('Error loading PFEs:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
           detail: 'Failed to load PFE projects'
         });
         this.loading = false;
-        console.error('Error loading PFEs:', error);
       }
     });
+  }
+  
+  updateDisplayedPfes() {
+    this.displayedPfes = this.filteredPfes.slice(this.first, this.first + this.rows);
+  }
+  
+  applyFilter(event: any, filterType: string) {
+    if (filterType === 'global') {
+      this.globalFilter = event.target.value.toLowerCase();
+    } else if (filterType === 'status') {
+      this.statusFilter = event.value;
+    } else if (filterType === 'openFor') {
+      this.openForFilter = event.value;
+    }
+    
+    this.applyFilters();
+  }
+  
+  clearFilters() {
+    this.globalFilter = '';
+    this.statusFilter = '';
+    this.openForFilter = '';
+    this.filteredPfes = [...this.pfes];
+    this.totalRecords = this.filteredPfes.length;
+    this.first = 0;
+    this.updateDisplayedPfes();
+    
+    // Clear UI inputs
+    const searchInput = document.querySelector('#global-search') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.value = '';
+    }
+    
+    // Reset dropdowns
+    const statusDropdown = document.querySelector('p-dropdown[id="status-filter"]') as any;
+    if (statusDropdown) {
+      statusDropdown.clear();
+    }
+    
+    const openForDropdown = document.querySelector('p-dropdown[id="openfor-filter"]') as any;
+    if (openForDropdown) {
+      openForDropdown.clear();
+    }
+  }
+  
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+    this.updateDisplayedPfes();
   }
   
   getTechnologiesArray(pfe: Pfe): string[] {
@@ -473,24 +592,6 @@ export class PfeListComponent implements OnInit {
         return 'info';
       default:
         return 'secondary';
-    }
-  }
-  
-  applyFilter(event: any, filterType: string) {
-    const table = document.querySelector('p-table') as any;
-    if (table && table['dt']) {
-      if (filterType === 'global') {
-        table['dt'].filterGlobal(event.target.value, 'contains');
-      } else {
-        table['dt'].filter(event.value, filterType, 'equals');
-      }
-    }
-  }
-  
-  clearFilters() {
-    const table = document.querySelector('p-table') as any;
-    if (table && table['dt']) {
-      table['dt'].reset();
     }
   }
   
@@ -525,19 +626,22 @@ export class PfeListComponent implements OnInit {
     this.pfeService.deletePfe(pfe.id).subscribe({
       next: () => {
         this.pfes = this.pfes.filter(p => p.id !== pfe.id);
+        this.filteredPfes = this.filteredPfes.filter(p => p.id !== pfe.id);
+        this.totalRecords = this.filteredPfes.length;
+        this.updateDisplayedPfes();
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: 'PFE project deleted successfully'
+          detail: 'PFE deleted successfully'
         });
       },
       error: (error) => {
+        console.error('Error deleting PFE:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to delete PFE project'
+          detail: 'Failed to delete PFE'
         });
-        console.error('Error deleting PFE:', error);
       }
     });
   }
@@ -548,5 +652,60 @@ export class PfeListComponent implements OnInit {
     console.log('Navigating to:', '/pfe', pfe.id);
     this.displayDialog = false;
     this.router.navigate(['/pfe', pfe.id]);
+  }
+
+  clearGlobalFilter() {
+    this.globalFilter = '';
+    this.applyFilters();
+    
+    // Clear UI input
+    const searchInput = document.querySelector('#global-search') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.value = '';
+    }
+  }
+  
+  clearStatusFilter() {
+    this.statusFilter = '';
+    this.applyFilters();
+    
+    // Reset dropdown
+    const statusDropdown = document.querySelector('p-dropdown[id="status-filter"]') as any;
+    if (statusDropdown) {
+      statusDropdown.clear();
+    }
+  }
+  
+  clearOpenForFilter() {
+    this.openForFilter = '';
+    this.applyFilters();
+    
+    // Reset dropdown
+    const openForDropdown = document.querySelector('p-dropdown[id="openfor-filter"]') as any;
+    if (openForDropdown) {
+      openForDropdown.clear();
+    }
+  }
+  
+  applyFilters() {
+    this.filteredPfes = this.pfes.filter(pfe => {
+      // Apply global filter
+      const matchesGlobal = !this.globalFilter || 
+        pfe.title.toLowerCase().includes(this.globalFilter) || 
+        pfe.description.toLowerCase().includes(this.globalFilter) ||
+        this.getTechnologiesArray(pfe).some(tech => tech.toLowerCase().includes(this.globalFilter));
+      
+      // Apply status filter
+      const matchesStatus = !this.statusFilter || pfe.status === this.statusFilter;
+      
+      // Apply openFor filter
+      const matchesOpenFor = !this.openForFilter || pfe.openFor === this.openForFilter;
+      
+      return matchesGlobal && matchesStatus && matchesOpenFor;
+    });
+    
+    this.totalRecords = this.filteredPfes.length;
+    this.first = 0; // Reset to first page when filtering
+    this.updateDisplayedPfes();
   }
 } 

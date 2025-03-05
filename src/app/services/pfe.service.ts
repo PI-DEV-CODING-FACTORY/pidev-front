@@ -20,6 +20,7 @@ export class PfeService {
   }
 
   createPfe(pfe: Pfe): Observable<Pfe> {
+    pfe.studentId = 1;
     return this.http.post<Pfe>(this.apiUrl, pfe);
   }
 
@@ -37,7 +38,7 @@ export class PfeService {
 
   uploadPfeReport(id: number, file: File): Observable<any> {
     const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post<any>(`${this.apiUrl}/pfe/${id}`, formData);
+    formData.append('rapport', file);
+    return this.http.post<any>(`${this.apiUrl}/${id}/rapport`, formData);
   }
 } 

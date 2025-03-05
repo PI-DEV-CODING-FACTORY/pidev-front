@@ -439,8 +439,17 @@ export class AddPfeComponent implements OnInit {
   }
   
   populateForm(pfe: any) {
-    // Convert technologies from array to selected values for multiselect
-    const technologies = Array.isArray(pfe.technologies) ? pfe.technologies : [];
+    // Convert technologies from string to array for multiselect
+    let technologies = [];
+    
+    if (pfe.technologies) {
+      if (Array.isArray(pfe.technologies)) {
+        technologies = pfe.technologies;
+      } else if (typeof pfe.technologies === 'string') {
+        // Split comma-separated string into array
+        technologies = pfe.technologies.split(',').map((tech: string) => tech.trim());
+      }
+    }
     
     // Use setTimeout to ensure the form is populated after Angular's change detection cycle
     setTimeout(() => {
@@ -568,20 +577,31 @@ export class AddPfeComponent implements OnInit {
       return;
     }
 
+    // Show loading indicator
+    this.isLoading = true;
+    
     const formData = new FormData();
-    formData.append('file', this.selectedFile);
+    formData.append('rapport', this.selectedFile);
     formData.append('title', this.pfeForm.get('title')?.value);
     formData.append('description', this.pfeForm.get('description')?.value);
     
-    // Convert technologies array to JSON string
+    // Convert technologies array to comma-separated string
     const technologies = this.pfeForm.get('technologies')?.value;
-    formData.append('technologies', JSON.stringify(technologies));
+    if (Array.isArray(technologies)) {
+      formData.append('technologies', technologies.join(','));
+    } else {
+      formData.append('technologies', technologies || '');
+    }
     
-    // These fields are handled by the backend with default values
-    // formData.append('startDate', new Date().toISOString());
-    // formData.append('endDate', new Date().toISOString());
-    // formData.append('supervisor', 'TBD');
-    // formData.append('company', 'TBD');
+    // Add required fields with default values
+    formData.append('startDate', new Date().toISOString());
+    formData.append('endDate', new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString());
+    formData.append('supervisor', 'To be assigned');
+    formData.append('company', 'To be assigned');
+    formData.append('status', PfeStatus.PENDING);
+    
+    // Add studentId with a default value (will be overridden by the backend)
+    formData.append('studentId', '1');
     
     formData.append('openFor', this.pfeForm.get('openFor')?.value);
     
@@ -590,8 +610,15 @@ export class AddPfeComponent implements OnInit {
       formData.append('githubUrl', githubUrl);
     }
 
+    // Log the form data for debugging
+    console.log('Creating PFE with form data:');
+    formData.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    });
+
     this.pfeService.createPfeWithFile(formData).subscribe({
       next: (response: any) => {
+        this.isLoading = false;
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
@@ -600,32 +627,56 @@ export class AddPfeComponent implements OnInit {
         this.router.navigate(['/pfes', response.id]);
       },
       error: (error) => {
+        this.isLoading = false;
+        console.error('Error creating PFE:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to create PFE'
+          detail: error.error?.message || 'Failed to create PFE. Please try again.'
         });
-        console.error('Error creating PFE:', error);
       }
     });
   }
   
   updatePfe() {
-    if (!this.pfeId) return;
+    if (!this.pfeId || !this.existingPfe) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Cannot update PFE: Missing ID or original data'
+      });
+      return;
+    }
+    
+    // Show loading indicator
+    this.isLoading = true;
+    
+    // Get technologies as array and convert to comma-separated string
+    const technologiesArray = this.pfeForm.get('technologies')?.value;
+    const technologiesString = Array.isArray(technologiesArray) 
+      ? technologiesArray.join(',') 
+      : (technologiesArray || '');
     
     // Create a partial Pfe object with the form values
     const pfeData: Partial<Pfe> = {
       id: this.pfeId,
       title: this.pfeForm.get('title')?.value,
       description: this.pfeForm.get('description')?.value,
-      technologies: this.pfeForm.get('technologies')?.value,
-      status: this.existingPfe?.status || PfeStatus.PENDING
+      technologies: technologiesString,
+      status: this.existingPfe?.status || PfeStatus.PENDING,
+      // Preserve existing values for required fields
+      startDate: this.existingPfe.startDate,
+      endDate: this.existingPfe.endDate,
+      supervisor: this.existingPfe.supervisor,
+      company: this.existingPfe.company,
+      // Add studentId with the existing value or a default
+      studentId: this.existingPfe.studentId || 1
     };
     
     // Add additional properties that are not in the Pfe interface
-    // We'll need to use type assertion for these custom properties
     const fullPfeData = {
-      ...pfeData
+      ...pfeData,
+      openFor: this.pfeForm.get('openFor')?.value
     } as any;
     
     // Add optional properties
@@ -634,22 +685,19 @@ export class AddPfeComponent implements OnInit {
       fullPfeData.githubUrl = githubUrl;
     }
     
-    // Add openFor which is not in the Pfe interface
-    fullPfeData.openFor = this.pfeForm.get('openFor')?.value;
-    
     // Preserve existing values that shouldn't be changed during update
     if (this.existingPfe) {
-      fullPfeData.studentId = this.existingPfe.studentId;
-      fullPfeData.reportUrl = this.existingPfe.reportUrl;
+      // Note: studentId is already included in pfeData above
+      fullPfeData.reportUrl = this.existingPfe.reportUrl || this.existingPfe.rapportUrl;
       fullPfeData.createdAt = this.existingPfe.createdAt;
-      fullPfeData.startDate = this.existingPfe.startDate;
-      fullPfeData.endDate = this.existingPfe.endDate;
-      fullPfeData.supervisor = this.existingPfe.supervisor;
-      fullPfeData.company = this.existingPfe.company;
     }
+
+    // Log the update data for debugging
+    console.log('Updating PFE with data:', fullPfeData);
 
     this.pfeService.updatePfe(this.pfeId, fullPfeData).subscribe({
       next: (updatedPfe) => {
+        this.isLoading = false;
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
@@ -658,12 +706,13 @@ export class AddPfeComponent implements OnInit {
         this.router.navigate(['/pfes', this.pfeId]);
       },
       error: (error) => {
+        this.isLoading = false;
+        console.error('Error updating PFE:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to update PFE'
+          detail: error.error?.message || 'Failed to update PFE. Please try again.'
         });
-        console.error('Error updating PFE:', error);
       }
     });
   }
