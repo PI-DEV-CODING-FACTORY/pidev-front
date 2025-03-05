@@ -29,9 +29,20 @@ export class AppMenu {
                 items: [
                     { label: 'Add a Pfe', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pfe/add'] },
                     { label: 'Internships', icon: 'pi pi-fw pi-briefcase', routerLink: ['/pfe/Internships'] },
-                    { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/pfe/Proposals'] },
+                    { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/pfe/Proposals'] }
                 ]
             },
+            {
+                label: 'Learning',
+                items: [
+                    {
+                        label: 'My Courses',
+                        icon: 'pi pi-book',
+                        routerLink: ['/courses'] // Replace '1' with actual course ID
+                    }
+                ]
+            }
+
             // {
             //     label: 'UI Components',
             //     items: [
