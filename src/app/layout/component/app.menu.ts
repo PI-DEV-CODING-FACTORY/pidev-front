@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
+import { AuthService } from '../../pages/service/auth.service';
 
 @Component({
     selector: 'app-menu',
@@ -17,20 +18,25 @@ import { AppMenuitem } from './app.menuitem';
 })
 export class AppMenu {
     model: MenuItem[] = [];
-
+    constructor(private authService: AuthService) { }
     ngOnInit() {
+        const user = this.authService.currentUserValue;
         this.model = [
             {
                 label: 'Home',
-                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
-            },
-            {
-                label: 'Pfe',
                 items: [
-                    { label: 'Add a Pfe', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pfe/add'] },
-                    { label: 'Internships', icon: 'pi pi-fw pi-briefcase', routerLink: ['/pfe/Internships'] },
-                    { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/pfe/Proposals'] }
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
+                    { label: 'Discussion Forum', icon: 'pi pi-comments', routerLink: ['/pages/post'] },
+                    ...(user != null ? [{ label: 'Own Posts', icon: 'pi pi-user-edit', routerLink: ['/pages/userPosts'] }] : []),
+                    { label: 'News', icon: 'pi pi-globe', routerLink: ['/pages/hackerNews'] },
+                    { label: 'Statistics', icon: 'pi pi-chart-bar', routerLink: ['/pages/userStatistics'] },
+                    {
+                        label: 'Login',
+                        icon: 'pi pi-fw pi-sign-in',
+                        routerLink: ['/auth/login']
+                    },
                 ]
+
             },
             {
                 label: 'Learning',

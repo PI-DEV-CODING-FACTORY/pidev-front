@@ -1,0 +1,72 @@
+<!-- user-statistics.component.html -->
+<div class="user-statistics-container">
+    <div *ngIf="isLoading" class="loading-spinner">
+      <mat-spinner></mat-spinner>
+    </div>
+  
+    <div  class="statistics-dashboard">
+      <!-- En-tête avec résumé des statistiques -->
+      <div class="header-card">
+        <mat-card >
+          <mat-card-header>
+            <div mat-card-avatar class="user-avatar">{{ currentUser?.username?.charAt(0) }}</div>
+            <mat-card-title>user</mat-card-title>
+            <mat-card-subtitle>Rang: #{{ currentUser ? getUserRank(currentUser) : 'N/A' }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="user-stats-summary">
+              <div class="stat-item">
+                <div class="stat-value">{{ currentUser?.totalPosts }}</div>
+                <div class="stat-label">Publications</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">{{ currentUser?.totalAnswers }}</div>
+                <div class="stat-label">Réponses</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">{{ currentUser?.reputation }}</div>
+                <div class="stat-label">Réputation</div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+  
+      <!-- Graphique d'activité -->
+      <div class="activity-chart-container">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Évolution de votre activité</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container">
+              <canvas id="activityChart" height="250"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+  
+      <!-- Classement des utilisateurs -->
+      <div class="top-users-container">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Utilisateurs les plus actifs</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-list>
+              <mat-list-item *ngFor="let user of topUsers; let i = index" class="top-user-item">
+                <div class="rank-number">{{ i + 1 }}</div>
+                <div mat-line class="user-info">
+                  <span class="username">{{ user.username }}</span>
+                  <span class="user-activity-count">
+                    <mat-icon>forum</mat-icon> {{ user.totalPosts + user.totalAnswers }}
+                  </span>
+                </div>
+                <mat-divider *ngIf="i < topUsers.length - 1"></mat-divider>
+              </mat-list-item>
+            </mat-list>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>

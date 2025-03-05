@@ -1,0 +1,99 @@
+body {
+    background-color: #f8f9fa;
+  }
+  .news-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 4px solid #007bff;
+    margin-bottom: 16px;
+  }
+  .news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+  .news-header {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+  .author-badge {
+    background-color: #f8f9fa;
+    color: #495057;
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    margin-top: 10px;
+    display: inline-block;
+  }
+  .news-type {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .type-story {
+    background-color: #dcf5dc;
+    color: #28a745;
+  }
+  .type-job {
+    background-color: #ffeeba;
+    color: #ffc107;
+  }
+  .type-poll {
+    background-color: #d6d8ff;
+    color: #6610f2;
+  }
+  .refresh-button {
+    position: relative;
+    overflow: hidden;
+  }
+  .refresh-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+  }
+  .refresh-button:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+  }
+  @keyframes ripple {
+    0% {
+      transform: scale(0, 0);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(100, 100);
+      opacity: 0;
+    }
+  }
+  .skeleton-loader {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    height: 24px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  @keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .news-title {
+    color: #343a40;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .news-title:hover {
+    color: #007bff;
+  }
