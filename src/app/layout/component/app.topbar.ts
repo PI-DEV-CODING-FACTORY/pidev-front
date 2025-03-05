@@ -5,12 +5,32 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
+import { animate, style, transition, trigger } from '@angular/animations';
+import { interval, Subject, Subscription, takeUntil } from 'rxjs';
+import { AuthService } from '../../pages/service/auth.service';
+
+
+
+interface Notification {
+    id: number;
+    message: string;
+    timestamp: Date;
+    read: boolean;
+    type: 'comment' | 'mention';
+    postId?: number;
+    userId?: number;
+    avatar?: string;
+    userName?: string;
+}
+
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
     imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
-    template: ` <div class="layout-topbar">
+    template: `
+    
+     <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
                 <i class="pi pi-bars"></i>
@@ -38,6 +58,84 @@ import { LayoutService } from '../service/layout.service';
         </div>
 
         <div class="layout-topbar-actions">
+        <div class="notifications-container">
+      <button 
+        class="layout-topbar-action" 
+        pStyleClass="@next" 
+        enterFromClass="hidden" 
+        enterActiveClass="animate-scalein" 
+        leaveToClass="hidden" 
+        leaveActiveClass="animate-fadeout" 
+        [hideOnOutsideClick]="true"
+        pTooltip="Notifications"
+        tooltipPosition="bottom"
+      >
+        <i class="pi pi-bell"></i>
+        <span *ngIf="unreadCount > 0" class="p-badge p-badge-danger">{{ unreadCount }}</span>
+      </button>
+
+      <div class="notifications-panel hidden">
+        <div class="notifications-header">
+          <h5>Notifications</h5>
+          <button *ngIf="hasUnread" class="mark-all-read" (click)="markAllAsRead()">
+            Tout marquer comme lu
+          </button>
+        </div>
+        
+        <div class="notifications-tabs">
+          <button 
+            [class.active]="activeTab === 'all'" 
+            (click)="setActiveTab('all')"
+          >
+            Tous
+          </button>
+          <button 
+            [class.active]="activeTab === 'comments'" 
+            (click)="setActiveTab('comments')"
+          >
+            Commentaires
+          </button>
+          <button 
+            [class.active]="activeTab === 'mentions'" 
+            (click)="setActiveTab('mentions')"
+          >
+            Mentions
+          </button>
+        </div>
+
+        <div class="notifications-list" *ngIf="filteredNotifications.length > 0; else emptyState">
+          <div 
+            *ngFor="let notification of filteredNotifications" 
+            class="notification-item" 
+            [class.unread]="!notification.read"
+            [@notificationAnimation]
+            (click)="readNotification(notification)"
+          >
+            <div class="notification-avatar" *ngIf="notification.avatar">
+              <img [src]="notification.avatar" alt="User avatar">
+            </div>
+            <div class="notification-content">
+              <div class="notification-message" [innerHTML]="notification.message"></div>
+              <div class="notification-time">{{ getTimeAgo(notification.timestamp) }}</div>
+            </div>
+            <div class="notification-icon">
+              <i class="pi" [ngClass]="{'pi-comments': notification.type === 'comment', 'pi-at': notification.type === 'mention'}"></i>
+            </div>
+          </div>
+        </div>
+        
+        <ng-template #emptyState>
+          <div class="empty-state">
+            <i class="pi pi-bell-slash"></i>
+            <p>Aucune notification pour le moment</p>
+          </div>
+        </ng-template>
+        
+        <!-- <div class="notifications-footer">
+          <a routerLink="/notifications">Voir toutes les notifications</a>
+        </div> -->
+      </div>
+    </div>
             <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
@@ -76,17 +174,362 @@ import { LayoutService } from '../service/layout.service';
                         <i class="pi pi-user"></i>
                         <span>Profile</span>
                     </button>
+                    <button type="button" class="layout-topbar-action" (click)="logout()">
+                        <i class="pi pi-sign-out"></i>
+                        <span>Déconnexion</span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>`
+    ,
+    styles: [`
+      .notifications-container {
+        position: relative;
+      }
+      
+      .notifications-panel {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        width: 350px;
+        background: var(--surface-card);
+        border-radius: 6px;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        overflow: hidden;
+        margin-top: 0.5rem;
+        border: 1px solid var(--surface-border);
+      }
+      
+      .notifications-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid var(--surface-border);
+      }
+      
+      .notifications-header h5 {
+        margin: 0;
+        font-weight: 600;
+      }
+      
+      .mark-all-read {
+        background: transparent;
+        border: none;
+        color: var(--primary-color);
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+      
+      .mark-all-read:hover {
+        opacity: 0.8;
+      }
+      
+      .notifications-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--surface-border);
+      }
+      
+      .notifications-tabs button {
+        flex: 1;
+        padding: 0.75rem;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--text-color-secondary);
+        transition: all 0.2s;
+      }
+      
+      .notifications-tabs button.active {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
+      }
+      
+      .notifications-list {
+        max-height: 350px;
+        overflow-y: auto;
+      }
+      
+      .notification-item {
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--surface-border);
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      
+      .notification-item:hover {
+        background-color: var(--surface-hover);
+      }
+      
+      .notification-item.unread {
+        background-color: var(--surface-hover);
+      }
+      
+      .notification-item.unread::before {
+        content: '';
+        display: block;
+        position: absolute;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background-color: var(--primary-color);
+      }
+      
+      .notification-avatar {
+        margin-right: 1rem;
+      }
+      
+      .notification-avatar img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      
+      .notification-content {
+        flex: 1;
+        min-width: 0;
+      }
+      
+      .notification-message {
+        margin-bottom: 0.25rem;
+        white-space: normal;
+        word-break: break-word;
+      }
+      
+      .notification-message b {
+        font-weight: 600;
+      }
+      
+      .notification-time {
+        font-size: 0.75rem;
+        color: var(--text-color-secondary);
+      }
+      
+      .notification-icon {
+        margin-left: 0.5rem;
+        color: var(--text-color-secondary);
+      }
+      
+      .empty-state {
+        padding: 2rem;
+        text-align: center;
+        color: var(--text-color-secondary);
+      }
+      
+      .empty-state i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+      
+      .notifications-footer {
+        padding: 0.75rem;
+        text-align: center;
+        border-top: 1px solid var(--surface-border);
+      }
+      
+      .notifications-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-size: 0.875rem;
+      }
+      
+      .p-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translate(25%, -25%);
+        font-size: 0.75rem;
+        min-width: 1.25rem;
+        height: 1.25rem;
+        line-height: 1.25rem;
+      }
+    `],
+    animations: [
+        trigger('notificationAnimation', [
+            transition(':enter', [
+                style({ transform: 'translateX(100%)', opacity: 0 }),
+                animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
+            ])
+        ])
+    ]
 })
 export class AppTopbar {
     items!: MenuItem[];
-
-    constructor(public layoutService: LayoutService) { }
+    notifications: Notification[] = [];
+    filteredNotifications: Notification[] = [];
+    unreadCount: number = 0;
+    activeTab: 'all' | 'comments' | 'mentions' = 'all';
+    private destroy$ = new Subject<void>();
+    private refreshSubscription: Subscription | null = null;
+    constructor(public layoutService: LayoutService,    private authService: AuthService) { }
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
     }
+
+
+    logout(): void {
+      this.authService.logout();
+      // Redirect to login page or home page after logout
+      window.location.href = '/';
+    }
+    get hasUnread(): boolean {
+        return this.notifications.some(notification => !notification.read);
+    }
+
+    ngOnInit() {
+        // Simuler la récupération des notifications depuis le serveur
+        this.loadNotifications();
+
+        // Mettre en place une actualisation périodique
+        this.refreshSubscription = interval(30000) // 30 secondes
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => {
+                this.checkForNewNotifications();
+            });
+    }
+
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
+
+        if (this.refreshSubscription) {
+            this.refreshSubscription.unsubscribe();
+        }
+    }
+
+    loadNotifications() {
+        // Simuler des données - à remplacer par votre appel API
+        this.notifications = [
+            {
+                id: 1,
+                message: '<b>Ahmed Kaddour</b> a commenté sur votre post "Mise à jour Spring 3.0"',
+                timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+                read: false,
+                type: 'comment',
+                postId: 123,
+                userId: 456,
+                avatar: 'assets/images/avatar1.jpg',
+                userName: 'Ahmed Kaddour'
+            },
+            {
+                id: 2,
+                message: '<b>Sophia Benali</b> vous a mentionné dans un commentaire: "Je pense que @votreNom a raison concernant..."',
+                timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+                read: false,
+                type: 'mention',
+                postId: 124,
+                userId: 457,
+                avatar: 'assets/images/avatar2.jpg',
+                userName: 'Sophia Benali'
+            },
+            {
+                id: 3,
+                message: '<b>Karim Halim</b> a commenté sur votre post "Les meilleures pratiques avec Angular"',
+                timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+                read: true,
+                type: 'comment',
+                postId: 125,
+                userId: 458,
+                avatar: 'assets/images/avatar3.jpg',
+                userName: 'Karim Halim'
+            }
+        ];
+
+        this.updateFilteredNotifications();
+        this.updateUnreadCount();
+    }
+
+    checkForNewNotifications() {
+        // Simuler la vérification des nouvelles notifications - à remplacer par votre appel API
+        const randomChance = Math.random();
+
+        if (randomChance > 0.7) {
+            const newNotification: Notification = {
+                id: this.notifications.length + 1,
+                message: '<b>Nouvel utilisateur</b> a commenté sur votre post récent',
+                timestamp: new Date(),
+                read: false,
+                type: Math.random() > 0.5 ? 'comment' : 'mention',
+                postId: 126,
+                userId: 459,
+                avatar: 'assets/images/avatar4.jpg',
+                userName: 'Nouvel utilisateur'
+            };
+
+            this.notifications.unshift(newNotification);
+            this.updateFilteredNotifications();
+            this.updateUnreadCount();
+
+            // Ajouter une notification système
+            // Cette partie serait intégrée avec votre service de notifications système
+        }
+    }
+
+    setActiveTab(tab: 'all' | 'comments' | 'mentions') {
+        this.activeTab = tab;
+        this.updateFilteredNotifications();
+    }
+
+    updateFilteredNotifications() {
+        switch (this.activeTab) {
+            case 'comments':
+                this.filteredNotifications = this.notifications.filter(n => n.type === 'comment');
+                break;
+            case 'mentions':
+                this.filteredNotifications = this.notifications.filter(n => n.type === 'mention');
+                break;
+            default:
+                this.filteredNotifications = [...this.notifications];
+        }
+    }
+
+    updateUnreadCount() {
+        this.unreadCount = this.notifications.filter(n => !n.read).length;
+    }
+
+    readNotification(notification: Notification) {
+        // Dans un cas réel, vous appelleriez votre API ici
+        notification.read = true;
+        this.updateUnreadCount();
+
+        // Naviguer vers le post ou autre action
+        console.log(`Navigating to post ${notification.postId}`);
+        // this.router.navigate(['/posts', notification.postId]);
+    }
+
+    markAllAsRead() {
+        this.notifications.forEach(notification => {
+            notification.read = true;
+        });
+        this.updateUnreadCount();
+
+        // Dans un cas réel, vous appelleriez votre API ici
+    }
+
+    getTimeAgo(date: Date): string {
+        const now = new Date();
+        const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+        if (diff < 60) {
+            return 'À l\'instant';
+        } else if (diff < 3600) {
+            const minutes = Math.floor(diff / 60);
+            return `Il y a ${minutes} minute${minutes > 1 ? 's' : ''}`;
+        } else if (diff < 86400) {
+            const hours = Math.floor(diff / 3600);
+            return `Il y a ${hours} heure${hours > 1 ? 's' : ''}`;
+        } else {
+            const days = Math.floor(diff / 86400);
+            return `Il y a ${days} jour${days > 1 ? 's' : ''}`;
+        }
+    }
+
 }

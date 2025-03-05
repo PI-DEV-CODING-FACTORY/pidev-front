@@ -7,45 +7,76 @@ import { FormsModule } from '@angular/forms';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { SplitPipe } from '../post/split.pipe';
-
+import { format } from 'date-fns';
 import { VoiceRecognitionService } from '../service/voice-recognition.service';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { AuthService, User } from '../service/auth.service';
 @Component({
   selector: 'app-post',
-  imports: [CommonModule, FormsModule, SplitPipe],
+  imports: [CommonModule, FormsModule, SplitPipe, ToastModule,],
   templateUrl: './post.component.html',
-  styleUrl: './post.component.scss'
+  styleUrl: './post.component.scss',
+  providers: [MessageService]
 })
 export class PostComponent {
-
+  user!: User;
   message: string = '';
-  constructor(private router: Router, private postService: PostService, private voiceRecognitionService: VoiceRecognitionService) {
+  loggedIn: boolean = false;
+  constructor(private router: Router, private postService: PostService, private voiceRecognitionService: VoiceRecognitionService, private messageService: MessageService, private authService: AuthService) {
 
     if (this.inputSubject) {
       this.inputSubject.pipe(
         debounceTime(500),  // Attendez 500ms après la dernière frappe
-        switchMap(value => this.postService.getResponse("Pseudo Code: \n" + value + " \n A partir de ce pseudo code detecte la ou les  technologie(s) de programmation utilisé(s) sans détails et votre réponse doit etre sous la forme de 'technologie:pourcentage'."))// Appeler l'API pour obtenir la réponse)
+        switchMap(
+          value =>
+            this.postService.getResponse("Est ce que ce contenu : " + value + "  contient du code de programmation  . Repondre par vrai ou faux sans details. \n"))// Appeler l'API pour obtenir la réponse)
       ).subscribe((response: string) => {
-        if (response != null) {
+        console.log("Code :", response);
+        if (response == "Vrai.") {
+          const inputElement = this.detailsInput.nativeElement.value;
+          console.log(inputElement);
+          this.postService
+            .getResponse("Pseudo Code: \n" + inputElement + " \n A partir de ce pseudo code detecte la ou les  technologie(s) de programmation utilisé(s) sans détails et votre réponse doit etre sous la forme de 'technologie:pourcentage'.")
+            .subscribe((response: string) => {
 
-          this.technologie = response.split(',').map(item => {
-            // For each pair, split by ':' to separate technology from percentage
-            const parts = item.split(':');
-            return parts[0].trim(); // Return just the technology name (trim to remove extra spaces)
-          }).join(', ');
+              if (response != null) {
+                console.log(response);
+                this.technologie = response.split(',').map(item => {
+                  // For each pair, split by ':' to separate technology from percentage
+                  const parts = item.split(':');
+                  return parts[0].trim(); // Return just the technology name (trim to remove extra spaces)
+                }).join(', ');
 
-          const badge = document.getElementById('badge');
-          if (badge) {
-            badge.classList.toggle("d-none");
-          }
-          const languageDetectedElement = document.getElementById('language-detected');
-          if (languageDetectedElement) {
-            languageDetectedElement.textContent = `${response}`;
-          }
+                const badge = document.getElementById('badge');
+                if (badge) {
+                  badge.classList.toggle("d-none");
+                }
+                const languageDetectedElement = document.getElementById('language-detected');
+                if (languageDetectedElement) {
+                  languageDetectedElement.textContent = `${response}`;
+                }
+              }
+            })
         }
+
+
       });
 
 
     }
+    console.log(this.loggedIn);
+    this.authService.currentUser.subscribe((currentUser: User | null) => {
+      if (currentUser) {
+
+        this.user = currentUser;
+        this.loggedIn = true;
+        console.log("Current user: ", currentUser);
+      } else {
+        // Handle the case where currentUser is null
+        console.error('User is not logged in');
+      }
+    });
     this.voiceRecognitionService.init();
   }
   @ViewChild('titleInput') titleInput!: ElementRef;
@@ -98,10 +129,18 @@ export class PostComponent {
   }
 
   public getPosts(): void {
-    this.postService.findAllPosts().subscribe((response: Post[]) => {
-      this.posts = response;
-      console.log("Posts:", this.posts);
-    });
+    if (this.user != null) {
+      this.postService.findAllPostsWithoutUser().subscribe((response: Post[]) => {
+        this.posts = response;
+        console.log("Posts:", this.posts);
+      });
+    } else {
+      this.postService.findAllPostss().subscribe((response: Post[]) => {
+        this.posts = response;
+        console.log("Posts:", this.posts);
+      });
+    }
+
   }
   public getTechnologies(): void {
     this.postService.findDistinctTechnologies().subscribe((response: string[]) => {
@@ -118,15 +157,48 @@ export class PostComponent {
     const title = this.titleInput.nativeElement.value;
     const details = this.detailsInput.nativeElement.value;
 
+    if (!title.trim()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Title is required'
+      });
+      return;
+    }
+
+    if (!details.trim()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Details are required'
+      });
+      return;
+    }
+
+    if (details.trim().length < 20) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Details must be at least 20 characters long'
+      });
+      return;
+    }
+
 
     if (this.selectedFile != null) {
       const formData = new FormData();
       formData.append('file', this.selectedFile, this.selectedFile.name);
       this.postService.uploadImage(formData).subscribe(
         (imageName: string) => {
-          const post: Post = new Post(0, title, details, 0, new Date(), TypePost.question, 0, this.technologie, imageName.toString());
+          const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+          const post: Post = new Post(0, title, details, this.user, formattedDate, TypePost.question, 0, this.technologie, imageName.toString());
           if (post != null) {
             this.postService.addPost(post).subscribe((response: Post) => {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Succès',
+                detail: 'Post added sucessfully.'
+              });
               console.log(response);
               this.getPosts();
               this.getTechnologies();
@@ -140,6 +212,26 @@ export class PostComponent {
 
 
         });
+    } else {
+      const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+      console.log(formattedDate);
+      const post: Post = new Post(0, title, details, this.user, formattedDate, TypePost.question, 0, this.technologie, '');
+
+      this.postService.addPost(post).subscribe((response: Post) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Succès',
+          detail: 'Post added sucessfully.'
+        });
+        console.log(response);
+        this.getPosts();
+        this.getTechnologies();
+        this.selectedFileName = "";
+        this.selectedFile = null;
+        this.titleInput.nativeElement.value = '';
+        this.detailsInput.nativeElement.value = '';
+        this.toggleQuestionForm();
+      });
     }
   }
   onFileSelected(event: any): void {

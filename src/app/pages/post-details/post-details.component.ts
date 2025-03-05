@@ -5,7 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Post, TypePost } from '../../interfaces/Post';
 import { SplitPipe } from '../post/split.pipe';
-
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { format } from 'date-fns';
+import { AuthService, User } from '../service/auth.service';
 interface MentionUser {
   id: number;
   name: string;
@@ -20,9 +23,10 @@ interface UploadedFile {
 }
 @Component({
   selector: 'app-post-details',
-  imports: [CommonModule, FormsModule, SplitPipe],
+  imports: [CommonModule, FormsModule, SplitPipe, ToastModule],
   templateUrl: './post-details.component.html',
-  styleUrl: './post-details.component.scss'
+  styleUrl: './post-details.component.scss',
+  providers: [MessageService]
 })
 export class PostDetailsComponent {
   post!: Post;
@@ -40,18 +44,30 @@ export class PostDetailsComponent {
   selectedFileName: string | undefined;
   // Emoji picker properties
   showEmojiPicker: boolean = false;
+  user!: User;
   emojis: string[] = ['😀', '😂', '😊', '❤️', '👍', '🔥', '🎉', '🤔', '😎', '👏',
     '😃', '🥰', '😇', '🙂', '😋', '😉', '😍', '😘', '🤗', '😈',
     '👋', '👌', '✌️', '🤞', '👏', '🙏', '🤝', '💪', '✨', '⭐'];
 
+
+  // likes: number = 0;
   @ViewChild('commentInput') commentInput!: ElementRef;
-  constructor(private postService: PostService, private route: ActivatedRoute ,) {
+  constructor(private postService: PostService, private route: ActivatedRoute, private messageService: MessageService, private authService: AuthService) {
     this.route.params.subscribe(params => {
       this.postService.findPostById(params['id']).subscribe((post: Post) => {
         this.post = post;
         this.getComments(post.id);
         console.log("Post details: ", this.post);
       });
+    });
+    this.authService.currentUser.subscribe((currentUser: User | null) => {
+      if (currentUser) {
+        this.user = currentUser;
+        console.log("Current user: ", currentUser);
+      } else {
+        // Handle the case where currentUser is null
+        console.error('User is not logged in');
+      }
     });
 
   }
@@ -87,7 +103,13 @@ export class PostDetailsComponent {
   //   }
   // }
 
-
+  // like() {
+  //   if (this.post != null) {
+  //     this.likes++;
+  //   }
+  //   this.post.likes = this.likes;
+  //   this.postService.updatePostById(this.post, this.post.id);
+  // }
 
   // Comment form properties
 
@@ -192,7 +214,12 @@ export class PostDetailsComponent {
   // SUBMIT COMMENT FUNCTION
   postComment(): void {
     if (!this.commentText.trim()) {
-      return; // Don't submit empty comments
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Comment is required'
+      });
+      return;// Don't submit empty comments
     }
     if (this.selectedFile != null) {
       const formData = new FormData();
@@ -200,9 +227,15 @@ export class PostDetailsComponent {
       this.postService.uploadImage(formData).subscribe(
         (imageName: string) => {
           this.isSubmitting = true;
-          const post: Post = new Post(0, "", this.commentText, 0, new Date(), TypePost.response, this.post.id, "this.technologie", imageName);
+          const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+          const post: Post = new Post(0, "", this.commentText, this.user, formattedDate, TypePost.response, this.post.id, "this.technologie", imageName);
           if (post != null) {
             this.postService.addPost(post).subscribe((response: Post) => {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Succès',
+                detail: 'Comment added sucessfully.'
+              });
               console.log(response);
               this.getComments(this.post.id);
               this.resetForm();
@@ -213,6 +246,26 @@ export class PostDetailsComponent {
             });
           }
         });
+    } else {
+      this.isSubmitting = true;
+      const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+      const post: Post = new Post(0, "", this.commentText, this.user, formattedDate, TypePost.response, this.post.id, "this.technologie", '');
+      if (post != null) {
+        this.postService.addPost(post).subscribe((response: Post) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Comment added sucessfully.'
+          });
+          console.log(response);
+          this.getComments(this.post.id);
+          this.resetForm();
+          this.isSubmitting = false;
+          this.uploadedFile = null;
+          // this.getTechnologies();
+          this.commentInput.nativeElement.value = '';
+        });
+      }
     }
   }
 

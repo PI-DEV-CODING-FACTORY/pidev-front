@@ -19,8 +19,8 @@
         <img class="post-image" [src]="post.image ? 'http://localhost:8081/images/' + post.image : ''" alt="Post Image">
     </div>
     <p id="post-content" class="animate__animated animate__fadeIn">{{post.content}}</p>
-    <p id="post-user" class="animate__animated animate__fadeIn">Posted by User</p>
-    <div class="tags-container">
+    <p id="post-user" class="animate__animated animate__fadeIn" *ngIf="user!=null">Posted by {{user.username}}</p>
+    <div class="tags-container" *ngIf="post.tags.length!=0">
         <div *ngFor="let l of post.tags | split: ', '; let i = index" class="animate__animated animate__fadeIn"
             [style.animation-delay]="i * 0.1 + 's'">
             <div class="tag-badge">
@@ -37,7 +37,7 @@
         </div>
         <div>
             <button class="btn btn-sm btn-outline-primary rounded-pill">
-                <i class="fas fa-share-alt me-1"></i> Share
+                <i class="fas fa-robot"></i> Generate solution with AI
             </button>
         </div>
     </div>
@@ -52,7 +52,8 @@
                 [style.animation-delay]="i * 0.1 + 's'">
                 <div class="card-body">
                     <div class="post-image-container animate__animated animate__fadeIn" *ngIf="c.image">
-                        <img class="post-image" [src]="c.image ? 'http://localhost:8081/images/' + c.image : ''" alt="Post Image">
+                        <img class="post-image" [src]="c.image ? 'http://localhost:8081/images/' + c.image : ''"
+                            alt="Post Image">
                     </div>
                     <p class="comment-content">{{c.content}}</p>
                     <div class="comment-footer">
@@ -153,6 +154,7 @@
         </div>
     </div>
 </div>
+<p-toast></p-toast>
 <script>
 
 </script>
