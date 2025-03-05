@@ -14,7 +14,15 @@ export const appRoutes: Routes = [
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
-            { path: 'pfe', loadChildren: () => import('./app/pages/pfe/pfe.routes').then(m => m.PFE_ROUTES) }
+            { path: 'pfe', loadChildren: () => import('./app/pages/pfe/pfe.routes').then((m) => m.PFE_ROUTES) },
+            {
+                path: 'internships',
+                loadComponent: () => import('./app/pages/pfe/internships/internships.component').then((m) => m.InternshipsComponent)
+            },
+            {
+                path: 'proposals',
+                loadComponent: () => import('./app/pages/pfe/proposals/proposals.component').then((m) => m.ProposalsComponent)
+            }
         ]
     },
     { path: 'landing', component: Landing },

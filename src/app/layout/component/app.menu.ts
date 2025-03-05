@@ -28,8 +28,8 @@ export class AppMenu {
                 label: 'Pfe',
                 items: [
                     { label: 'Add a Pfe', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pfe/add'] },
-                    { label: 'Internships', icon: 'pi pi-fw pi-briefcase', routerLink: ['/pfe/Internships'] },
-                    { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/pfe/Proposals'] },
+                    { label: 'Internships', icon: 'pi pi-fw pi-briefcase', routerLink: ['/pfe/internships'] },
+                    { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/pfe/proposals'] },
                 ]
             },
             // {

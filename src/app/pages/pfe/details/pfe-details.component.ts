@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PfeService } from '../../../services/pfe.service';
 import { Pfe, PfeStatus } from '../../../models/pfe.model';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 // PrimeNG Imports
 import { ButtonModule } from 'primeng/button';
@@ -19,6 +21,8 @@ import { DividerModule } from 'primeng/divider';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { AvatarModule } from 'primeng/avatar';
+import { DialogModule } from 'primeng/dialog';
+import { Textarea, TextareaModule } from 'primeng/textarea';
 
 // Define OpenFor enum
 enum OpenFor {
@@ -39,7 +43,23 @@ interface ExtendedPfe extends Pfe {
 @Component({
     selector: 'app-pfe-details',
     standalone: true,
-    imports: [CommonModule, ButtonModule, CardModule, TagModule, ToastModule, ConfirmDialogModule, ChipModule, SkeletonModule, DividerModule, ProgressBarModule, TooltipModule, AvatarModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ButtonModule,
+        CardModule,
+        TagModule,
+        ToastModule,
+        ConfirmDialogModule,
+        ChipModule,
+        SkeletonModule,
+        DividerModule,
+        ProgressBarModule,
+        TooltipModule,
+        AvatarModule,
+        DialogModule,
+        TextareaModule
+    ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './pfe-details.component.html'
 })
@@ -51,6 +71,10 @@ export class PfeDetailsComponent implements OnInit {
     pdfLoading: boolean = true;
     pdfLoadError: boolean = false;
     useIframe: boolean = false;
+    studentName: string = 'Achraf Sekri'; // Hardcoded student name for now
+    showProposalDialog: boolean = false;
+    proposalMessage: string = '';
+    submittingProposal: boolean = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -59,8 +83,9 @@ export class PfeDetailsComponent implements OnInit {
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private location: Location,
-        private sanitizer: DomSanitizer
-    ) {}
+        private sanitizer: DomSanitizer,
+        private http: HttpClient
+    ) { }
 
     ngOnInit() {
         this.route.paramMap.subscribe((params) => {
@@ -86,12 +111,12 @@ export class PfeDetailsComponent implements OnInit {
         this.loading = true;
         this.pdfLoading = true;
         this.pdfLoadError = false;
-        
+
         this.pfeService.getPfeById(this.pfeId).subscribe({
             next: (data) => {
                 this.pfe = data;
                 this.loading = false;
-                
+
                 // Initialize sanitizedReportUrl if rapportUrl exists
                 if (this.pfe.rapportUrl) {
                     this.sanitizeReportUrl();
@@ -103,7 +128,7 @@ export class PfeDetailsComponent implements OnInit {
                 console.error('Error loading PFE details:', error);
                 this.loading = false;
                 this.pdfLoading = false;
-                
+
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
@@ -129,12 +154,12 @@ export class PfeDetailsComponent implements OnInit {
         this.useIframe = !this.useIframe;
         this.pdfLoading = true;
         this.pdfLoadError = false;
-        
+
         if (this.useIframe && this.pfe?.rapportUrl) {
             // When switching to iframe, we need to sanitize the URL
             this.sanitizedReportUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pfe.rapportUrl);
         }
-        
+
         this.messageService.add({
             severity: 'info',
             summary: 'Viewer Changed',
@@ -145,7 +170,7 @@ export class PfeDetailsComponent implements OnInit {
 
     sanitizeReportUrl() {
         if (!this.pfe?.rapportUrl) return;
-        
+
         try {
             this.sanitizedReportUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pfe.rapportUrl);
         } catch (error) {
@@ -159,10 +184,10 @@ export class PfeDetailsComponent implements OnInit {
      */
     checkS3UrlAccessibility(url: string) {
         console.log('Checking S3 URL accessibility:', url);
-        
+
         const xhr = new XMLHttpRequest();
         xhr.open('HEAD', url, true);
-        
+
         xhr.onload = () => {
             if (xhr.status >= 200 && xhr.status < 300) {
                 console.log('S3 URL is accessible');
@@ -255,21 +280,21 @@ export class PfeDetailsComponent implements OnInit {
         }
 
         console.log('Downloading report from URL:', this.pfe.rapportUrl);
-        
+
         try {
             // Create an anchor element and trigger download
             const link = document.createElement('a');
             link.href = this.pfe.rapportUrl;
-            
+
             // Try to extract filename from URL or use a default
             const fileName = this.extractFileNameFromUrl(this.pfe.rapportUrl) || `${this.pfe.title.replace(/\s+/g, '_')}_report.pdf`;
             link.download = fileName;
-            
+
             // Append to body, click and remove
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             this.messageService.add({
                 severity: 'success',
                 summary: 'Download Started',
@@ -284,7 +309,7 @@ export class PfeDetailsComponent implements OnInit {
                 detail: 'Failed to download the report. Try opening it in a new tab instead.',
                 life: 5000
             });
-            
+
             // Fallback: open in new tab
             window.open(this.pfe.rapportUrl, '_blank');
         }
@@ -358,5 +383,89 @@ export class PfeDetailsComponent implements OnInit {
 
     goBack() {
         this.location.back();
+    }
+
+    savePfe() {
+        if (!this.pfe || !this.pfe.id) return;
+
+        this.pfeService.updatePfe(this.pfe.id, this.pfe).subscribe({
+            next: (updatedPfe) => {
+                this.pfe = updatedPfe;
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'PFE project saved successfully'
+                });
+            },
+            error: (error) => {
+                console.error('Error saving PFE:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to save PFE project'
+                });
+            }
+        });
+    }
+
+    getStudentInitials(): string {
+        return this.studentName
+            .split(' ')
+            .map(name => name.charAt(0))
+            .join('')
+            .toUpperCase();
+    }
+
+    sendProposal() {
+        if (!this.pfe) return;
+        this.showProposalDialog = true;
+    }
+
+    submitProposal() {
+        if (!this.pfe || !this.proposalMessage.trim()) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please enter a message for your proposal'
+            });
+            return;
+        }
+
+        this.submittingProposal = true;
+
+        const proposal = {
+            studentId: this.pfe.studentId, //TODO: change to the student id
+            companyId: "1",//TODO: change to the company id
+            pfeId: this.pfe.id,
+            message: this.proposalMessage
+        };
+
+        this.http.post('http://localhost:8089/api/proposals', proposal).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Proposal sent successfully'
+                });
+                this.showProposalDialog = false;
+                this.proposalMessage = '';
+            },
+            error: (error) => {
+                console.error('Error sending proposal:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to send proposal'
+                });
+            },
+            complete: () => {
+                this.submittingProposal = false;
+            }
+        });
+    }
+
+    cancelProposal() {
+        this.showProposalDialog = false;
+        this.proposalMessage = '';
     }
 }

@@ -69,6 +69,25 @@
           <button 
             pButton 
             type="button" 
+            label="Send Proposal" 
+            icon="pi pi-send" 
+            class="p-button-primary"
+            (click)="sendProposal()"
+            [disabled]="pfe.processing"
+          ></button>
+
+          <button 
+            pButton 
+            type="button" 
+            label="Save" 
+            icon="pi pi-save" 
+            class="p-button-outlined p-button-success"
+            (click)="savePfe()"
+            [disabled]="pfe.processing"
+          ></button>
+          <button 
+            pButton 
+            type="button" 
             label="Edit" 
             icon="pi pi-pencil" 
             class="p-button-outlined"
@@ -274,6 +293,25 @@
         <!-- Sidebar -->
         <div class="col-span-1">
           <div class="bg-gray-50 rounded-lg p-6 shadow-sm border border-gray-200">
+            <!-- Student Section -->
+            <div class="mb-6 pb-4 border-b border-gray-200">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">
+                Student
+              </h2>
+              <div class="flex items-center gap-3">
+                <p-avatar 
+                  [label]="getStudentInitials()" 
+                  styleClass="bg-blue-500"
+                  shape="circle"
+                  size="large"
+                ></p-avatar>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">{{studentName}}</h3>
+                  <p class="text-sm text-gray-500">Project Creator</p>
+                </div>
+              </div>
+            </div>
+
             <h2 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">
               Project Details
             </h2>
@@ -330,6 +368,15 @@
               <div>
                 <h3 class="text-sm font-medium text-gray-500 mb-2">Actions</h3>
                 <div class="space-y-2">
+                  <button 
+                    pButton 
+                    type="button" 
+                    label="Send Proposal" 
+                    icon="pi pi-send" 
+                    class="p-button-primary w-full"
+                    (click)="sendProposal()"
+                    [disabled]="pfe.processing"
+                  ></button>
                   <a 
                     *ngIf="pfe.rapportUrl && !pfe.processing"
                     pButton 
@@ -400,4 +447,51 @@
   rejectButtonStyleClass="p-button-text"
 ></p-confirmDialog>
 
-<p-toast position="top-right"></p-toast> 
+<p-toast position="top-right"></p-toast>
+
+<p-dialog 
+    [(visible)]="showProposalDialog" 
+    [modal]="true" 
+    header="Send Proposal" 
+    [style]="{ width: '500px' }"
+    [closeOnEscape]="true"
+    [closable]="!submittingProposal"
+    [draggable]="false"
+>
+    <div class="p-fluid">
+        <div class="mb-4">
+            <label for="message" class="block text-gray-700 font-medium mb-2">Message</label>
+            <textarea 
+                pTextarea 
+                id="message" 
+                [(ngModel)]="proposalMessage" 
+                [rows]="5" 
+                [autoResize]="true"
+                placeholder="Write your proposal message here..."
+                class="w-full"
+                [disabled]="submittingProposal"
+            ></textarea>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2">
+            <button 
+                pButton 
+                type="button" 
+                label="Cancel" 
+                class="p-button-outlined p-button-secondary"
+                (click)="cancelProposal()"
+                [disabled]="submittingProposal"
+            ></button>
+            <button 
+                pButton 
+                type="button" 
+                label="Send Proposal" 
+                icon="pi pi-send"
+                (click)="submitProposal()"
+                [loading]="submittingProposal"
+            ></button>
+        </div>
+    </ng-template>
+</p-dialog>
