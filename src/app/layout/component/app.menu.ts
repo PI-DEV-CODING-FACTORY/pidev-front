@@ -25,11 +25,14 @@ export class AppMenu {
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
             },
             {
-                label: 'Pfe',
+                label: 'PFE Management',
                 items: [
-                    { label: 'Add a Pfe', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pfe/add'] },
-                    { label: 'Internships', icon: 'pi pi-fw pi-briefcase', routerLink: ['/pfe/internships'] },
-                    { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/pfe/proposals'] },
+                    { label: 'Search PFEs', icon: 'pi pi-fw pi-search', routerLink: ['/pfe'] },
+                    { label: 'Add PFE', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pfe/add'] },
+                    // { label: 'Internship Offers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/internship-offers'] },
+                    { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/proposals'] },
+                    { label: 'Technical Tests', icon: 'pi pi-fw pi-file-edit', routerLink: ['/technical-tests'] },
+                    { label: 'Student Interests', icon: 'pi pi-fw pi-heart', routerLink: ['/student-interests'] },
                 ]
             },
             // {

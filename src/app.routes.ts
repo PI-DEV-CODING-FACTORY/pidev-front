@@ -22,7 +22,15 @@ export const appRoutes: Routes = [
             {
                 path: 'proposals',
                 loadComponent: () => import('./app/pages/pfe/proposals/proposals.component').then((m) => m.ProposalsComponent)
-            }
+            },
+            { 
+                path: 'technical-tests', 
+                loadComponent: () => import('./app/pages/technical-tests/technical-tests.component').then(m => m.TechnicalTestsComponent) 
+            },
+            { 
+                path: 'technical-tests/:id', 
+                loadComponent: () => import('./app/pages/technical-tests/technical-test-detail/technical-test-detail.component').then(m => m.TechnicalTestDetailComponent) 
+            },
         ]
     },
     { path: 'landing', component: Landing },

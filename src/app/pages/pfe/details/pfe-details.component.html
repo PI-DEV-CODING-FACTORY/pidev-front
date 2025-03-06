@@ -1,11 +1,11 @@
-<div class="container mx-auto px-4 py-6">
+<div class="container px-4 py-6 mx-auto">
   <!-- Loading Skeleton -->
-  <div *ngIf="loading" class="bg-white rounded-xl shadow-lg overflow-hidden">
+  <div *ngIf="loading" class="overflow-hidden bg-white shadow-lg rounded-xl">
     <div class="p-6">
       <p-skeleton height="3rem" width="50%" styleClass="mb-4"></p-skeleton>
       <p-skeleton height="1.5rem" width="30%" styleClass="mb-6"></p-skeleton>
       
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
         <div class="col-span-2">
           <p-skeleton height="2rem" width="40%" styleClass="mb-3"></p-skeleton>
           <p-skeleton height="1rem" styleClass="mb-2"></p-skeleton>
@@ -40,30 +40,30 @@
   </div>
   
   <!-- Processing State -->
-  <div *ngIf="!loading && pfe && pfe.processing" class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+  <div *ngIf="!loading && pfe && pfe.processing" class="mb-6 overflow-hidden bg-white shadow-lg rounded-xl">
     <div class="p-6 text-center">
-      <i class="pi pi-spin pi-spinner text-5xl text-blue-500 mb-4"></i>
-      <h2 class="text-2xl font-bold text-gray-800 mb-2">Processing PFE Project</h2>
-      <p class="text-gray-600 mb-4">The project is currently being processed. Some features may be limited until processing is complete.</p>
+      <i class="mb-4 text-5xl text-blue-500 pi pi-spin pi-spinner"></i>
+      <h2 class="mb-2 text-2xl font-bold text-gray-800">Processing PFE Project</h2>
+      <p class="mb-4 text-gray-600">The project is currently being processed. Some features may be limited until processing is complete.</p>
       <p-progressBar mode="indeterminate" [style]="{'height': '6px'}" styleClass="mb-4"></p-progressBar>
     </div>
   </div>
   
   <!-- PFE Details Content -->
-  <div *ngIf="!loading && pfe" class="bg-white rounded-xl shadow-lg overflow-hidden">
+  <div *ngIf="!loading && pfe" class="overflow-hidden bg-white shadow-lg rounded-xl">
     <!-- Header -->
     <div class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
-      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+      <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <div class="flex items-center gap-3 mb-2">
-            <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">{{pfe.title}}</h1>
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-800">{{pfe.title}}</h1>
             <p-tag 
               [value]="pfe.status" 
               [severity]="getStatusSeverity(pfe.status)"
             ></p-tag>
             <p-tag *ngIf="pfe.processing" severity="warn" value="Processing"></p-tag>
           </div>
-          <p class="text-gray-600 text-lg">{{pfe.description}}</p>
+          <p class="text-lg text-gray-600">{{pfe.description}}</p>
         </div>
         <div class="flex gap-2">
           <button 
@@ -117,12 +117,12 @@
     
     <!-- Content -->
     <div class="p-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
         <!-- Main Content -->
         <div class="col-span-2 space-y-8">
           <!-- Technologies Section -->
           <div>
-            <h2 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+            <h2 class="pb-2 mb-4 text-xl font-bold text-gray-800 border-b border-gray-200">
               Technologies
             </h2>
             <div class="flex flex-wrap gap-2">
@@ -132,13 +132,13 @@
           
           <!-- Links Section -->
           <div>
-            <h2 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+            <h2 class="pb-2 mb-4 text-xl font-bold text-gray-800 border-b border-gray-200">
               Project Resources
             </h2>
             <div class="space-y-4">
               <div *ngIf="pfe.githubUrl" class="flex items-center">
-                <div class="bg-gray-100 p-3 rounded-full mr-4">
-                  <i class="pi pi-github text-xl text-gray-700"></i>
+                <div class="p-3 mr-4 bg-gray-100 rounded-full">
+                  <i class="text-xl text-gray-700 pi pi-github"></i>
                 </div>
                 <div>
                   <h3 class="font-medium text-gray-800">GitHub Repository</h3>
@@ -149,8 +149,8 @@
               </div>
               
               <div *ngIf="pfe.videoUrl" class="flex items-center">
-                <div class="bg-gray-100 p-3 rounded-full mr-4">
-                  <i class="pi pi-video text-xl text-gray-700"></i>
+                <div class="p-3 mr-4 bg-gray-100 rounded-full">
+                  <i class="text-xl text-gray-700 pi pi-video"></i>
                 </div>
                 <div>
                   <h3 class="font-medium text-gray-800">Video Presentation</h3>
@@ -164,13 +164,13 @@
           
           <!-- PDF Preview Section -->
           <div *ngIf="pfe.rapportUrl">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+            <h2 class="pb-2 mb-4 text-xl font-bold text-gray-800 border-b border-gray-200">
               Project Report
             </h2>
-            <div class="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
-              <div class="flex items-center justify-between bg-gray-100 p-3 border-b border-gray-200">
+            <div class="overflow-hidden border border-gray-200 rounded-lg bg-gray-50">
+              <div class="flex items-center justify-between p-3 bg-gray-100 border-b border-gray-200">
                 <div class="flex items-center">
-                  <i class="pi pi-file-pdf text-red-500 mr-2"></i>
+                  <i class="mr-2 text-red-500 pi pi-file-pdf"></i>
                   <span class="font-medium">Project Report</span>
                 </div>
                 <div>
@@ -207,8 +207,8 @@
               <div class="pdf-container" style="height: 500px; width: 100%;">
                 <!-- PDF Loading Indicator -->
                 <div *ngIf="pdfLoading" class="flex items-center justify-center h-full">
-                  <div class="text-center p-6">
-                    <i class="pi pi-spin pi-spinner text-4xl text-blue-500 mb-3"></i>
+                  <div class="p-6 text-center">
+                    <i class="mb-3 text-4xl text-blue-500 pi pi-spin pi-spinner"></i>
                     <p class="text-gray-600">Loading PDF preview...</p>
                   </div>
                 </div>
@@ -236,9 +236,9 @@
                   (load)="onPdfLoad()"
                 >
                   <div class="flex items-center justify-center h-full bg-gray-100">
-                    <div class="text-center p-6">
-                      <i class="pi pi-exclamation-circle text-4xl text-yellow-500 mb-3"></i>
-                      <p class="text-gray-600 mb-4">Your browser doesn't support embedded PDFs. Please use the buttons above to view or download the report.</p>
+                    <div class="p-6 text-center">
+                      <i class="mb-3 text-4xl text-yellow-500 pi pi-exclamation-circle"></i>
+                      <p class="mb-4 text-gray-600">Your browser doesn't support embedded PDFs. Please use the buttons above to view or download the report.</p>
                       <a 
                         [href]="pfe.rapportUrl" 
                         target="_blank" 
@@ -253,10 +253,10 @@
                 
                 <!-- Fallback Message -->
                 <div *ngIf="(pdfLoadError || (!pfe.rapportUrl && !pdfLoading))" class="flex items-center justify-center h-full">
-                  <div class="text-center p-6">
-                    <i class="pi pi-exclamation-circle text-4xl text-yellow-500 mb-3"></i>
-                    <p class="text-gray-600 mb-4">PDF preview is not available. Please try the alternative viewer or use the buttons above.</p>
-                    <div class="flex flex-col sm:flex-row gap-2 justify-center">
+                  <div class="p-6 text-center">
+                    <i class="mb-3 text-4xl text-yellow-500 pi pi-exclamation-circle"></i>
+                    <p class="mb-4 text-gray-600">PDF preview is not available. Please try the alternative viewer or use the buttons above.</p>
+                    <div class="flex flex-col justify-center gap-2 sm:flex-row">
                       <a 
                         [href]="pfe.rapportUrl" 
                         target="_blank" 
@@ -292,10 +292,10 @@
         
         <!-- Sidebar -->
         <div class="col-span-1">
-          <div class="bg-gray-50 rounded-lg p-6 shadow-sm border border-gray-200">
+          <div class="p-6 border border-gray-200 rounded-lg shadow-sm bg-gray-50">
             <!-- Student Section -->
-            <div class="mb-6 pb-4 border-b border-gray-200">
-              <h2 class="text-xl font-bold text-gray-800 mb-4">
+            <div class="pb-4 mb-6 border-b border-gray-200">
+              <h2 class="mb-4 text-xl font-bold text-gray-800">
                 Student
               </h2>
               <div class="flex items-center gap-3">
@@ -312,14 +312,14 @@
               </div>
             </div>
 
-            <h2 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+            <h2 class="pb-2 mb-4 text-xl font-bold text-gray-800 border-b border-gray-200">
               Project Details
             </h2>
             
             <div class="space-y-4">
               <div>
                 <h3 class="text-sm font-medium text-gray-500">Student ID</h3>
-                <p class="text-gray-800 font-medium">{{pfe.studentId}}</p>
+                <p class="font-medium text-gray-800">{{pfe.studentId}}</p>
               </div>
               
               <div *ngIf="pfe.openFor">
@@ -330,28 +330,13 @@
                     'bg-purple-100 text-purple-800': pfe.openFor === 'JOB',
                     'bg-indigo-100 text-indigo-800': pfe.openFor === 'BOTH'
                   }"
-                  class="px-3 py-1 rounded-full text-sm font-medium inline-block mt-1"
+                  class="inline-block px-3 py-1 mt-1 text-sm font-medium rounded-full"
                 >
                   {{pfe.openFor}}
                 </span>
               </div>
               
-              <div>
-                <h3 class="text-sm font-medium text-gray-500">Project Duration</h3>
-                <p class="text-gray-800">
-                  {{pfe.startDate | date:'mediumDate'}} - {{pfe.endDate | date:'mediumDate'}}
-                </p>
-              </div>
               
-              <div>
-                <h3 class="text-sm font-medium text-gray-500">Supervisor</h3>
-                <p class="text-gray-800">{{pfe.supervisor}}</p>
-              </div>
-              
-              <div>
-                <h3 class="text-sm font-medium text-gray-500">Company</h3>
-                <p class="text-gray-800">{{pfe.company}}</p>
-              </div>
               
               <div *ngIf="pfe.createdAt">
                 <h3 class="text-sm font-medium text-gray-500">Created At</h3>
@@ -366,14 +351,14 @@
               <p-divider></p-divider>
               
               <div>
-                <h3 class="text-sm font-medium text-gray-500 mb-2">Actions</h3>
+                <h3 class="mb-2 text-sm font-medium text-gray-500">Actions</h3>
                 <div class="space-y-2">
                   <button 
                     pButton 
                     type="button" 
                     label="Send Proposal" 
                     icon="pi pi-send" 
-                    class="p-button-primary w-full"
+                    class="w-full p-button-primary"
                     (click)="sendProposal()"
                     [disabled]="pfe.processing"
                   ></button>
@@ -383,7 +368,7 @@
                     type="button" 
                     label="View Report" 
                     icon="pi pi-eye" 
-                    class="p-button-outlined p-button-info w-full"
+                    class="w-full p-button-outlined p-button-info"
                     [href]="pfe.rapportUrl"
                     target="_blank"
                   ></a>
@@ -393,7 +378,7 @@
                     type="button" 
                     label="View Report" 
                     icon="pi pi-eye" 
-                    class="p-button-outlined p-button-info w-full"
+                    class="w-full p-button-outlined p-button-info"
                     disabled
                   ></button>
                   <button 
@@ -401,7 +386,7 @@
                     type="button" 
                     label="Download Report" 
                     icon="pi pi-download" 
-                    class="p-button-outlined w-full"
+                    class="w-full p-button-outlined"
                     [disabled]="!pfe.rapportUrl || pfe.processing"
                     (click)="downloadReport()"
                   ></button>
@@ -410,7 +395,7 @@
                     type="button" 
                     label="Share Project" 
                     icon="pi pi-share-alt" 
-                    class="p-button-outlined p-button-secondary w-full"
+                    class="w-full p-button-outlined p-button-secondary"
                     [disabled]="pfe.processing"
                     (click)="shareProject()"
                   ></button>
@@ -424,10 +409,10 @@
   </div>
   
   <!-- Not Found Message -->
-  <div *ngIf="!loading && !pfe" class="bg-white rounded-xl shadow-lg overflow-hidden p-8 text-center">
-    <i class="pi pi-exclamation-circle text-5xl text-yellow-500 mb-4"></i>
-    <h2 class="text-2xl font-bold text-gray-800 mb-2">PFE Project Not Found</h2>
-    <p class="text-gray-600 mb-6">The PFE project you're looking for doesn't exist or has been removed.</p>
+  <div *ngIf="!loading && !pfe" class="p-8 overflow-hidden text-center bg-white shadow-lg rounded-xl">
+    <i class="mb-4 text-5xl text-yellow-500 pi pi-exclamation-circle"></i>
+    <h2 class="mb-2 text-2xl font-bold text-gray-800">PFE Project Not Found</h2>
+    <p class="mb-6 text-gray-600">The PFE project you're looking for doesn't exist or has been removed.</p>
     <button 
       pButton 
       type="button" 
@@ -460,7 +445,7 @@
 >
     <div class="p-fluid">
         <div class="mb-4">
-            <label for="message" class="block text-gray-700 font-medium mb-2">Message</label>
+            <label for="message" class="block mb-2 font-medium text-gray-700">Message</label>
             <textarea 
                 pTextarea 
                 id="message" 

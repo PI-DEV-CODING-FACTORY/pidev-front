@@ -167,23 +167,26 @@ export class ProposalsComponent implements OnInit {
     this.confirmationService.confirm({
       message: 'Are you sure you want to accept this proposal?',
       accept: () => {
-        this.proposalService.updateProposalStatus(proposal.id, ProposalStatus.ACCEPTED).subscribe({
-          next: () => {
+        console.log(`Attempting to accept proposal with ID: ${proposal.id}`);
+        this.proposalService.acceptProposal(proposal.id).subscribe({
+          next: (response) => {
+            console.log('Accept proposal response:', response);
             proposal.status = ProposalStatus.ACCEPTED;
             proposal.respondedAt = new Date().toISOString();
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
-              detail: 'Proposal accepted successfully'
+              detail: response.message || 'Proposal accepted successfully'
             });
+            this.loadProposals();
           },
           error: (error: HttpErrorResponse) => {
+            console.error('Error accepting proposal:', error);
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: 'Failed to accept proposal'
+              detail: `Failed to accept proposal: ${error.message}`
             });
-            console.error('Error accepting proposal:', error);
           }
         });
       }
@@ -194,23 +197,26 @@ export class ProposalsComponent implements OnInit {
     this.confirmationService.confirm({
       message: 'Are you sure you want to decline this proposal?',
       accept: () => {
-        this.proposalService.updateProposalStatus(proposal.id, ProposalStatus.DECLINED).subscribe({
-          next: () => {
+        console.log(`Attempting to decline proposal with ID: ${proposal.id}`);
+        this.proposalService.declineProposal(proposal.id).subscribe({
+          next: (response) => {
+            console.log('Decline proposal response:', response);
             proposal.status = ProposalStatus.DECLINED;
             proposal.respondedAt = new Date().toISOString();
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
-              detail: 'Proposal declined successfully'
+              detail: response.message || 'Proposal declined successfully'
             });
+            this.loadProposals();
           },
           error: (error: HttpErrorResponse) => {
+            console.error('Error declining proposal:', error);
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: 'Failed to decline proposal'
+              detail: `Failed to decline proposal: ${error.message}`
             });
-            console.error('Error declining proposal:', error);
           }
         });
       }

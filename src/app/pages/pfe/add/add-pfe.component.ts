@@ -624,7 +624,7 @@ export class AddPfeComponent implements OnInit {
           summary: 'Success',
           detail: 'PFE created successfully'
         });
-        this.router.navigate(['/pfes', response.id]);
+        this.router.navigate(['/pfe', response.id]);
       },
       error: (error) => {
         this.isLoading = false;
