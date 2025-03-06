@@ -36,8 +36,8 @@ export class PostDetailsComponent {
 
   // Mention system properties
   showMentionDropdown: boolean = false;
-  mentionUsers: MentionUser[] = [];
-  filteredMentionUsers: MentionUser[] = [];
+  mentionUsers: User[] = [];
+  filteredMentionUsers: User[] = [];
   mentionSearchTerm: string = '';
   uploadedFile: UploadedFile | null = null;
   selectedFile: File | null = null;
@@ -69,6 +69,7 @@ export class PostDetailsComponent {
         console.error('User is not logged in');
       }
     });
+    this.loadMentionUsers();
 
   }
   ngOnInit(): void {
@@ -117,14 +118,18 @@ export class PostDetailsComponent {
   // MENTION SYSTEM FUNCTIONS
   loadMentionUsers(): void {
     // In a real app, this would be an API call
-    this.mentionUsers = [
-      { id: 1, name: 'John Doe', avatar: '/api/placeholder/30/30' },
-      { id: 2, name: 'Jane Smith', avatar: '/api/placeholder/30/30' },
-      { id: 3, name: 'Mike Johnson', avatar: '/api/placeholder/30/30' },
-      { id: 4, name: 'Sarah Williams', avatar: '/api/placeholder/30/30' },
-      { id: 5, name: 'David Brown', avatar: '/api/placeholder/30/30' }
-    ];
-    this.filteredMentionUsers = [...this.mentionUsers];
+    this.authService.findAllUsers().subscribe((response: User[]) => {
+      this.mentionUsers = response;
+      this.filteredMentionUsers = [...this.mentionUsers];
+    });
+    // this.mentionUsers = [
+    //   { id: 1, name: 'John Doe', avatar: '/api/placeholder/30/30' },
+    //   { id: 2, name: 'Jane Smith', avatar: '/api/placeholder/30/30' },
+    //   { id: 3, name: 'Mike Johnson', avatar: '/api/placeholder/30/30' },
+    //   { id: 4, name: 'Sarah Williams', avatar: '/api/placeholder/30/30' },
+    //   { id: 5, name: 'David Brown', avatar: '/api/placeholder/30/30' }
+    // ];
+
   }
 
   toggleMentionDropdown(): void {
@@ -142,12 +147,12 @@ export class PostDetailsComponent {
 
     const searchTerm = this.mentionSearchTerm.toLowerCase();
     this.filteredMentionUsers = this.mentionUsers.filter(user =>
-      user.name.toLowerCase().includes(searchTerm)
+      user.username.toLowerCase().includes(searchTerm)
     );
   }
 
-  addMention(user: MentionUser): void {
-    this.commentText += ` @${user.name} `;
+  addMention(user: User): void {
+    this.commentText += ` @${user.username} `;
     this.showMentionDropdown = false;
     this.mentionSearchTerm = '';
   }
@@ -228,7 +233,7 @@ export class PostDetailsComponent {
         (imageName: string) => {
           this.isSubmitting = true;
           const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-          const post: Post = new Post(0, "", this.commentText, this.user, formattedDate, TypePost.response, this.post.id, "this.technologie", imageName);
+          const post: Post = new Post(0, "", this.commentText, this.user, formattedDate, TypePost.response, this.post.id, "", imageName);
           if (post != null) {
             this.postService.addPost(post).subscribe((response: Post) => {
               this.messageService.add({
@@ -241,6 +246,7 @@ export class PostDetailsComponent {
               this.resetForm();
               this.isSubmitting = false;
               this.uploadedFile = null;
+              this.selectedFile = null;
               // this.getTechnologies();
               this.commentInput.nativeElement.value = '';
             });
@@ -262,6 +268,7 @@ export class PostDetailsComponent {
           this.resetForm();
           this.isSubmitting = false;
           this.uploadedFile = null;
+          this.selectedFile = null;
           // this.getTechnologies();
           this.commentInput.nativeElement.value = '';
         });

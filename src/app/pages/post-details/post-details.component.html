@@ -57,7 +57,7 @@
                     </div>
                     <p class="comment-content">{{c.content}}</p>
                     <div class="comment-footer">
-                        <small class="comment-author">Posted by User</small>
+                        <small class="comment-author">Posted by {{user.username}}</small>
                         <small>{{c.createdAt }}</small>
                     </div>
                     <!-- <div class="d-flex justify-content-between align-items-center mt-2">
@@ -84,7 +84,7 @@
         <i class="far fa-comment-dots"></i>
         <p>No comments yet. Be the first to share your thoughts!</p>
     </div>
-    <div class="comment-form">
+    <div class="comment-form" *ngIf="user!=null">
         <div class="mention-toolbar mb-2">
             <button type="button" class="btn btn-sm btn-outline-secondary me-2" (click)="toggleMentionDropdown()">
                 <i class="fas fa-at me-1"></i>Mention
@@ -97,9 +97,8 @@
                         <div class="mention-list">
                             <div *ngFor="let user of filteredMentionUsers"
                                 class="mention-item d-flex align-items-center p-2" (click)="addMention(user)">
-                                <img [src]="user.avatar || '/api/placeholder/30/30'" class="rounded-circle me-2"
-                                    alt="User">
-                                <span>{{user.name}}</span>
+
+                                <span>{{user.username}}</span>
                             </div>
                         </div>
                     </div>

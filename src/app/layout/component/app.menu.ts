@@ -27,14 +27,18 @@ export class AppMenu {
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
                     { label: 'Discussion Forum', icon: 'pi pi-comments', routerLink: ['/pages/post'] },
-                    ...(user != null ? [{ label: 'Own Posts', icon: 'pi pi-user-edit', routerLink: ['/pages/userPosts'] }] : []),
+                    ...(user != null ? [
+                        { label: 'Own Posts', icon: 'pi pi-user-edit', routerLink: ['/pages/userPosts'] }
+                    ] : []),
                     { label: 'News', icon: 'pi pi-globe', routerLink: ['/pages/hackerNews'] },
                     { label: 'Statistics', icon: 'pi pi-chart-bar', routerLink: ['/pages/userStatistics'] },
-                    {
-                        label: 'Login',
-                        icon: 'pi pi-fw pi-sign-in',
-                        routerLink: ['/auth/login']
-                    },
+                    ...(user == null ? [
+                        {
+                            label: 'Login',
+                            icon: 'pi pi-fw pi-sign-in',
+                            routerLink: ['/auth/login']
+                        }
+                    ] : []),
                 ]
 
             },

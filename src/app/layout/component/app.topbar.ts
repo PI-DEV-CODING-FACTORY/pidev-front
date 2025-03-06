@@ -7,28 +7,28 @@ import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { interval, Subject, Subscription, takeUntil } from 'rxjs';
-import { AuthService } from '../../pages/service/auth.service';
+import { AuthService, User } from '../../pages/service/auth.service';
 
 
 
 interface Notification {
-    id: number;
-    message: string;
-    timestamp: Date;
-    read: boolean;
-    type: 'comment' | 'mention';
-    postId?: number;
-    userId?: number;
-    avatar?: string;
-    userName?: string;
+  id: number;
+  message: string;
+  timestamp: Date;
+  read: boolean;
+  type: 'comment' | 'mention';
+  postId?: number;
+  userId?: number;
+  avatar?: string;
+  userName?: string;
 }
 
 
 @Component({
-    selector: 'app-topbar',
-    standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
-    template: `
+  selector: 'app-topbar',
+  standalone: true,
+  imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+  template: `
     
      <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
@@ -174,7 +174,7 @@ interface Notification {
                         <i class="pi pi-user"></i>
                         <span>Profile</span>
                     </button>
-                    <button type="button" class="layout-topbar-action" (click)="logout()">
+                    <button type="button" class="layout-topbar-action" (click)="logout()" *ngIf="user!=null">
                         <i class="pi pi-sign-out"></i>
                         <span>Déconnexion</span>
                     </button>
@@ -182,8 +182,8 @@ interface Notification {
             </div>
         </div>
     </div>`
-    ,
-    styles: [`
+  ,
+  styles: [`
       .notifications-container {
         position: relative;
       }
@@ -351,185 +351,188 @@ interface Notification {
         line-height: 1.25rem;
       }
     `],
-    animations: [
-        trigger('notificationAnimation', [
-            transition(':enter', [
-                style({ transform: 'translateX(100%)', opacity: 0 }),
-                animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
-            ])
-        ])
-    ]
+  animations: [
+    trigger('notificationAnimation', [
+      transition(':enter', [
+        style({ transform: 'translateX(100%)', opacity: 0 }),
+        animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
+      ])
+    ])
+  ]
 })
 export class AppTopbar {
-    items!: MenuItem[];
-    notifications: Notification[] = [];
-    filteredNotifications: Notification[] = [];
-    unreadCount: number = 0;
-    activeTab: 'all' | 'comments' | 'mentions' = 'all';
-    private destroy$ = new Subject<void>();
-    private refreshSubscription: Subscription | null = null;
-    constructor(public layoutService: LayoutService,    private authService: AuthService) { }
+  items!: MenuItem[];
+  notifications: Notification[] = [];
+  filteredNotifications: Notification[] = [];
+  unreadCount: number = 0;
+  activeTab: 'all' | 'comments' | 'mentions' = 'all';
+  private destroy$ = new Subject<void>();
+  private refreshSubscription: Subscription | null = null;
+  constructor(public layoutService: LayoutService, private authService: AuthService) { }
+  user!: User;
+  toggleDarkMode() {
+    this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
+  }
 
-    toggleDarkMode() {
-        this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
+
+  logout(): void {
+    this.authService.logout();
+    // Redirect to login page or home page after logout
+    window.location.href = '/';
+  }
+  get hasUnread(): boolean {
+    return this.notifications.some(notification => !notification.read);
+  }
+
+  ngOnInit() {
+    // Simuler la récupération des notifications depuis le serveur
+    this.loadNotifications();
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser) {
+      this.user = currentUser;
     }
+    // Mettre en place une actualisation périodique
+    this.refreshSubscription = interval(30000) // 30 secondes
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.checkForNewNotifications();
+      });
+  }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
 
-    logout(): void {
-      this.authService.logout();
-      // Redirect to login page or home page after logout
-      window.location.href = '/';
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
     }
-    get hasUnread(): boolean {
-        return this.notifications.some(notification => !notification.read);
+  }
+
+  loadNotifications() {
+    // Simuler des données - à remplacer par votre appel API
+    this.notifications = [
+      {
+        id: 1,
+        message: '<b>Ahmed Kaddour</b> a commenté sur votre post "Mise à jour Spring 3.0"',
+        timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+        read: false,
+        type: 'comment',
+        postId: 123,
+        userId: 456,
+        avatar: 'assets/images/avatar1.jpg',
+        userName: 'Ahmed Kaddour'
+      },
+      {
+        id: 2,
+        message: '<b>Sophia Benali</b> vous a mentionné dans un commentaire: "Je pense que @votreNom a raison concernant..."',
+        timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+        read: false,
+        type: 'mention',
+        postId: 124,
+        userId: 457,
+        avatar: 'assets/images/avatar2.jpg',
+        userName: 'Sophia Benali'
+      },
+      {
+        id: 3,
+        message: '<b>Karim Halim</b> a commenté sur votre post "Les meilleures pratiques avec Angular"',
+        timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+        read: true,
+        type: 'comment',
+        postId: 125,
+        userId: 458,
+        avatar: 'assets/images/avatar3.jpg',
+        userName: 'Karim Halim'
+      }
+    ];
+
+    this.updateFilteredNotifications();
+    this.updateUnreadCount();
+  }
+
+  checkForNewNotifications() {
+    // Simuler la vérification des nouvelles notifications - à remplacer par votre appel API
+    const randomChance = Math.random();
+
+    if (randomChance > 0.7) {
+      const newNotification: Notification = {
+        id: this.notifications.length + 1,
+        message: '<b>Nouvel utilisateur</b> a commenté sur votre post récent',
+        timestamp: new Date(),
+        read: false,
+        type: Math.random() > 0.5 ? 'comment' : 'mention',
+        postId: 126,
+        userId: 459,
+        avatar: 'assets/images/avatar4.jpg',
+        userName: 'Nouvel utilisateur'
+      };
+
+      this.notifications.unshift(newNotification);
+      this.updateFilteredNotifications();
+      this.updateUnreadCount();
+
+      // Ajouter une notification système
+      // Cette partie serait intégrée avec votre service de notifications système
     }
+  }
 
-    ngOnInit() {
-        // Simuler la récupération des notifications depuis le serveur
-        this.loadNotifications();
+  setActiveTab(tab: 'all' | 'comments' | 'mentions') {
+    this.activeTab = tab;
+    this.updateFilteredNotifications();
+  }
 
-        // Mettre en place une actualisation périodique
-        this.refreshSubscription = interval(30000) // 30 secondes
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(() => {
-                this.checkForNewNotifications();
-            });
+  updateFilteredNotifications() {
+    switch (this.activeTab) {
+      case 'comments':
+        this.filteredNotifications = this.notifications.filter(n => n.type === 'comment');
+        break;
+      case 'mentions':
+        this.filteredNotifications = this.notifications.filter(n => n.type === 'mention');
+        break;
+      default:
+        this.filteredNotifications = [...this.notifications];
     }
+  }
 
-    ngOnDestroy() {
-        this.destroy$.next();
-        this.destroy$.complete();
+  updateUnreadCount() {
+    this.unreadCount = this.notifications.filter(n => !n.read).length;
+  }
 
-        if (this.refreshSubscription) {
-            this.refreshSubscription.unsubscribe();
-        }
+  readNotification(notification: Notification) {
+    // Dans un cas réel, vous appelleriez votre API ici
+    notification.read = true;
+    this.updateUnreadCount();
+
+    // Naviguer vers le post ou autre action
+    console.log(`Navigating to post ${notification.postId}`);
+    // this.router.navigate(['/posts', notification.postId]);
+  }
+
+  markAllAsRead() {
+    this.notifications.forEach(notification => {
+      notification.read = true;
+    });
+    this.updateUnreadCount();
+
+    // Dans un cas réel, vous appelleriez votre API ici
+  }
+
+  getTimeAgo(date: Date): string {
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diff < 60) {
+      return 'À l\'instant';
+    } else if (diff < 3600) {
+      const minutes = Math.floor(diff / 60);
+      return `Il y a ${minutes} minute${minutes > 1 ? 's' : ''}`;
+    } else if (diff < 86400) {
+      const hours = Math.floor(diff / 3600);
+      return `Il y a ${hours} heure${hours > 1 ? 's' : ''}`;
+    } else {
+      const days = Math.floor(diff / 86400);
+      return `Il y a ${days} jour${days > 1 ? 's' : ''}`;
     }
-
-    loadNotifications() {
-        // Simuler des données - à remplacer par votre appel API
-        this.notifications = [
-            {
-                id: 1,
-                message: '<b>Ahmed Kaddour</b> a commenté sur votre post "Mise à jour Spring 3.0"',
-                timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-                read: false,
-                type: 'comment',
-                postId: 123,
-                userId: 456,
-                avatar: 'assets/images/avatar1.jpg',
-                userName: 'Ahmed Kaddour'
-            },
-            {
-                id: 2,
-                message: '<b>Sophia Benali</b> vous a mentionné dans un commentaire: "Je pense que @votreNom a raison concernant..."',
-                timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-                read: false,
-                type: 'mention',
-                postId: 124,
-                userId: 457,
-                avatar: 'assets/images/avatar2.jpg',
-                userName: 'Sophia Benali'
-            },
-            {
-                id: 3,
-                message: '<b>Karim Halim</b> a commenté sur votre post "Les meilleures pratiques avec Angular"',
-                timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
-                read: true,
-                type: 'comment',
-                postId: 125,
-                userId: 458,
-                avatar: 'assets/images/avatar3.jpg',
-                userName: 'Karim Halim'
-            }
-        ];
-
-        this.updateFilteredNotifications();
-        this.updateUnreadCount();
-    }
-
-    checkForNewNotifications() {
-        // Simuler la vérification des nouvelles notifications - à remplacer par votre appel API
-        const randomChance = Math.random();
-
-        if (randomChance > 0.7) {
-            const newNotification: Notification = {
-                id: this.notifications.length + 1,
-                message: '<b>Nouvel utilisateur</b> a commenté sur votre post récent',
-                timestamp: new Date(),
-                read: false,
-                type: Math.random() > 0.5 ? 'comment' : 'mention',
-                postId: 126,
-                userId: 459,
-                avatar: 'assets/images/avatar4.jpg',
-                userName: 'Nouvel utilisateur'
-            };
-
-            this.notifications.unshift(newNotification);
-            this.updateFilteredNotifications();
-            this.updateUnreadCount();
-
-            // Ajouter une notification système
-            // Cette partie serait intégrée avec votre service de notifications système
-        }
-    }
-
-    setActiveTab(tab: 'all' | 'comments' | 'mentions') {
-        this.activeTab = tab;
-        this.updateFilteredNotifications();
-    }
-
-    updateFilteredNotifications() {
-        switch (this.activeTab) {
-            case 'comments':
-                this.filteredNotifications = this.notifications.filter(n => n.type === 'comment');
-                break;
-            case 'mentions':
-                this.filteredNotifications = this.notifications.filter(n => n.type === 'mention');
-                break;
-            default:
-                this.filteredNotifications = [...this.notifications];
-        }
-    }
-
-    updateUnreadCount() {
-        this.unreadCount = this.notifications.filter(n => !n.read).length;
-    }
-
-    readNotification(notification: Notification) {
-        // Dans un cas réel, vous appelleriez votre API ici
-        notification.read = true;
-        this.updateUnreadCount();
-
-        // Naviguer vers le post ou autre action
-        console.log(`Navigating to post ${notification.postId}`);
-        // this.router.navigate(['/posts', notification.postId]);
-    }
-
-    markAllAsRead() {
-        this.notifications.forEach(notification => {
-            notification.read = true;
-        });
-        this.updateUnreadCount();
-
-        // Dans un cas réel, vous appelleriez votre API ici
-    }
-
-    getTimeAgo(date: Date): string {
-        const now = new Date();
-        const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-        if (diff < 60) {
-            return 'À l\'instant';
-        } else if (diff < 3600) {
-            const minutes = Math.floor(diff / 60);
-            return `Il y a ${minutes} minute${minutes > 1 ? 's' : ''}`;
-        } else if (diff < 86400) {
-            const hours = Math.floor(diff / 3600);
-            return `Il y a ${hours} heure${hours > 1 ? 's' : ''}`;
-        } else {
-            const days = Math.floor(diff / 86400);
-            return `Il y a ${days} jour${days > 1 ? 's' : ''}`;
-        }
-    }
+  }
 
 }

@@ -1,87 +1,139 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { PostService } from '../service/post.service';
-import { Post } from '../../interfaces/Post';
-// import { AuthService } from '../../services/auth.service';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
+import { Router, RouterModule } from '@angular/router';
+import { Modal } from 'bootstrap';
+import { CommonModule } from '@angular/common';
+import { Post } from '../../interfaces/Post';
+import { PostService } from '../service/post.service';
+import { FormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 @Component({
   selector: 'app-user-posts',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule, ToastModule],
   templateUrl: './user-posts.component.html',
-  styleUrls: ['./user-posts.component.scss']
+  styleUrls: ['./user-posts.component.scss'],
+  providers: [MessageService]
 })
 export class UserPostsComponent implements OnInit {
   posts: Post[] = [];
-  loading: boolean = true;
-  error: string | null = null;
-  currentPage: number = 1;
-  itemsPerPage: number = 5;
+  loading = false;
+  error = '';
+  currentPage = 1;
+  itemsPerPage = 5;
+  totalPages = 0;
+  editingPost: Post | null = null;
+  private editModal: Modal | null = null;
 
-  constructor(
-    private postService: PostService,
-    // private authService: AuthService
-  ) { this.loadUserPosts(); }
+  constructor(private postService: PostService, private router: Router, private messageService: MessageService) { }
 
-  ngOnInit(): void {
-    this.loadUserPosts();
+  ngOnInit() {
+    this.loadPosts();
+    this.initializeModal();
   }
 
-  loadUserPosts(): void {
-    this.loading = true;
-    this.error = null;
-
-    this.postService.findPostsByCurrentUser().subscribe((response: Post[]) => {
-      this.posts = response;
-      console.log("own posts:", this.posts);
-      this.loading = false;
+  private initializeModal() {
+    const modalElement = document.getElementById('editPostModal');
+    if (modalElement) {
+      this.editModal = new Modal(modalElement);
     }
-    );
   }
 
-  get paginatedPosts(): Post[] {
+  loadPosts() {
+    this.loading = true;
+    this.error = '';
+    this.postService.findPostsByCurrentUser().subscribe({
+      next: (posts: Post[]) => {
+        this.posts = posts;
+        this.totalPages = Math.ceil(this.posts.length / this.itemsPerPage);
+        this.loading = false;
+      },
+
+    });
+  }
+
+  get paginatedPosts() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.posts.slice(startIndex, endIndex);
+    return this.posts.slice(startIndex, startIndex + this.itemsPerPage);
   }
 
-  get totalPages(): number {
-    return Math.ceil(this.posts.length / this.itemsPerPage);
-  }
-
-  goToPage(page: number): void {
+  goToPage(page: number) {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
     }
   }
 
   getPagesArray(): number[] {
-    const pages = [];
-    for (let i = 1; i <= this.totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
-  goToPostDetails(post: Post): void {
-    if (post && post.id) {
-      console.log(`Navigating to details of post with ID: ${post.id}`);
-      // Navigation will be handled by the router link in the template
-    } else {
-      console.error('Post or Post ID is undefined');
+  editPost(post: Post) {
+    this.editingPost = { ...post };
+    this.editModal?.show();
+  }
+  @ViewChild('editTitle') editTitle!: ElementRef;
+  @ViewChild('editContent') editContent!: ElementRef;
+  updatePost() {
+    const title = this.editTitle.nativeElement.value;
+    const content = this.editContent.nativeElement.value;
+    if (this.editingPost) {
+      if (!title.trim()) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'title is required'
+        });
+        return;// Don't submit empty comments
+      }
+      if (!content.trim()) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'content is required'
+        });
+        return;// Don't submit empty comments
+      }
+      this.postService.updatePostById(this.editingPost, this.editingPost.id).subscribe({
+        next: () => {
+          const index = this.posts.findIndex(p => p.id === this.editingPost?.id);
+          if (index !== -1) {
+            this.posts[index] = { ...this.editingPost! };
+
+          }
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Post updated sucessfully.'
+          });
+          this.editModal?.hide();
+          this.editingPost = null;
+        },
+
+      });
     }
   }
 
-  deletePost(post: Post): void {
+  deletePost(post: Post) {
     if (confirm('Are you sure you want to delete this post?')) {
       this.postService.deletePost(post.id).subscribe({
         next: () => {
           this.posts = this.posts.filter(p => p.id !== post.id);
+          this.totalPages = Math.ceil(this.posts.length / this.itemsPerPage);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Post deleted sucessfully.'
+          });
+          if (this.currentPage > this.totalPages) {
+            this.currentPage = this.totalPages || 1;
+
+          }
+
         },
-        error: (err) => {
-          console.error('Error deleting post:', err);
-          alert('Failed to delete post. Please try again.');
+        error: (error: any) => {
+          console.error('Error deleting post:', error);
+          // Handle error appropriately
         }
       });
     }
