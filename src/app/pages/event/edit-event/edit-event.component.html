@@ -1,0 +1,39 @@
+<form (ngSubmit)="updateEvent()">
+    <label>Nom de l'événement:</label>
+    <input type="text" [(ngModel)]="event.title" name="title" required />
+    
+    <label>Type:</label>
+    <select [(ngModel)]="event.eventType" name="eventType" required>
+      <option value="WORKSHOP">Workshop</option>
+      <option value="SEMINAR">Seminar</option>
+      <option value="CONFERENCE">Conference</option>
+    </select>
+  
+    <label>Description:</label>
+    <textarea [(ngModel)]="event.description" name="description"></textarea>
+  
+    <label>Date:</label>
+    <input type="datetime-local" [(ngModel)]="event.eventDate" name="eventDate" required />
+    
+    <label>Lieu:</label>
+    <input type="text" [(ngModel)]="event.location" name="location" required />
+    
+    <label>Capacité:</label>
+    <input type="number" [(ngModel)]="event.capacity" name="capacity" required min="1" />
+    
+    <label>Objectifs:</label>
+    <textarea [(ngModel)]="event.objectives" name="objectives"></textarea>
+  
+    <label>Prix (€):</label>
+    <input type="number" [(ngModel)]="event.prizes" name="prizes" required min="0" />
+    
+    <label>Statut:</label>
+    <select [(ngModel)]="event.status" name="status">
+      <option value="PLANNED">Planned</option>
+      <option value="ONGOING">Ongoing</option>
+      <option value="COMPLETED">Completed</option>
+    </select>
+  
+    <button type="submit">Mettre à jour</button>
+  </form>
+  

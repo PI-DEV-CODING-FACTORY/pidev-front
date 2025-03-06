@@ -1,0 +1,115 @@
+<div class="container">
+  <div class="header">
+    <h2>Event List</h2>
+  </div>
+
+  <!-- Liste des événements -->
+  <div class="events-grid">
+    <div class="event-card" *ngFor="let event of events" [ngClass]="'theme-' + (event.eventType | lowercase)">
+      <div class="card-header">
+        <h3 class="event-title">{{ event.title }}</h3>
+      </div>
+
+      <div class="card-body">
+        <!-- Détails de l'événement -->
+        <div class="event-info-container">
+          <div class="info-column">
+            <div class="info-item">
+              <i class="icon-calendar"></i>
+              <span>{{ event.eventDate | date:'mediumDate' }}</span>
+            </div>
+            <div class="info-item">
+              <i class="icon-location"></i>
+              <span>{{ event.location }}</span>
+            </div>
+          </div>
+
+          <div class="info-divider"></div>
+
+          <div class="info-column">
+            <div class="info-item">
+              <i class="icon-people"></i>
+              <span>Capacity: {{ event.capacity }}</span>
+            </div>
+            <div class="info-item">
+              <i class="icon-tag"></i>
+              <span>{{ event.eventType }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="event-description">
+          <p>{{ event.description }}</p>
+        </div>
+
+        <div class="event-details" *ngIf="event.objectives || event.prizes">
+          <div class="detail-section" *ngIf="event.objectives">
+            <h4>Objectives</h4>
+            <p>{{ event.objectives }}</p>
+          </div>
+
+          <div class="detail-section" *ngIf="event.prizes">
+            <h4>Prizes</h4>
+            <p>{{ event.prizes }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bouton Réserver -->
+      <div class="card-actions">
+        <button class="btn-reserve" (click)="oopenReservationModal(event)">Réserver ma place</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" *ngIf="isModalOpen">
+    <div class="modal-content">
+      <span class="close" (click)="closeReservationModal()">&times;</span>
+      <h3>Réserver pour l'événement {{ selectedEvent?.title }}</h3>
+  
+      <!-- Formulaire de réservation -->
+      <form (ngSubmit)="submitReservation()">
+        <div class="form-group">
+          <label for="name">Nom:</label>
+          <input type="text" id="name" [(ngModel)]="name" name="name" required />
+        </div>
+  
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" [(ngModel)]="email" name="email" required />
+        </div>
+  
+        <!-- Affichage des questions -->
+        <div *ngIf="questions.length > 0">
+          <h4>Répondez aux questions :</h4>
+          <div *ngFor="let question of questions; let i = index" class="form-group">
+            <label for="answer{{ i }}">{{ question }}</label>
+            <input
+              type="text"
+              [(ngModel)]="answers[i]"
+              name="answer{{ i }}"
+              id="answer{{ i }}"
+              required
+            />
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <button type="submit" class="btn-submit">Soumettre la réservation</button>
+        </div>
+      </form>
+  
+      <!-- Bouton Fermer ajouté ici -->
+      <div class="modal-footer">
+        <button class="btn-close" (click)="closeReservationModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- État vide lorsque aucun événement n'est trouvé -->
+  <div class="empty-state" *ngIf="events.length === 0">
+    <div class="empty-icon">📅</div>
+    <h3>No events found</h3>
+    <p>Create your first event to get started.</p>
+  </div>
+</div>

@@ -1,0 +1,32 @@
+<!-- participants-page.component.html -->
+<h2>Participants de l'événement</h2>
+
+<!-- Bouton pour changer la direction du tri -->
+<button (click)="toggleSortDirection()">Trier par Score moyen</button>
+
+<!-- Bouton pour récupérer les emails des participants sélectionnés -->
+<button (click)="getSelectedEmails()">Récupérer les emails sélectionnés</button>
+<button (click)="sendEmails()">Envoyer les emails</button>
+
+<table *ngIf="participants.length > 0">
+  <thead>
+    <tr>
+      <th>Sélectionner</th>
+      <th>Nom</th>
+      <th>Email</th>
+      <th>Score moyen</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let participant of participants">
+      <td><input type="checkbox" (change)="onSelectParticipant(participant)" [checked]="participant.selected"></td>
+      <td>{{ participant.participant.name }}</td>
+      <td>{{ participant.participant.email }}</td>
+      <td>{{ participant.participant.averageScore | number: '1.1-1' }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<ng-template #noParticipants>
+  <p>Aucun participant trouvé pour cet événement.</p>
+</ng-template>

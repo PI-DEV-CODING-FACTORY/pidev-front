@@ -1,0 +1,34 @@
+<!-- participants-modal.component.html -->
+<h2 class="modal-title">Participants pour l'événement</h2>
+
+<div *ngIf="participants.length > 0; else noParticipants" class="participants-list">
+  <div *ngFor="let eventParticipant of participants;let i = index;" class="participant-card">
+    <div class="participant-header">
+      <strong>{{ eventParticipant.participant?.name || 'Nom non disponible' }}</strong>
+      <span class="participant-email">{{ eventParticipant.participant?.email || 'Email non disponible' }}</span>
+    </div>
+    <p><strong>Réponses:</strong></p>
+    <ul>
+      <li *ngFor="let answer of eventParticipant.answers;let idx = index; " class="answer-item">
+        <strong>Question:</strong> {{ questions[idx] }}<br />
+        <strong>Réponse:</strong> {{ answer }}
+        <!-- Champ pour ajouter une note -->
+        <label for="note-{{i}}-{{idx}}">Note (1-5): </label>
+        <input 
+          type="number" 
+          id="note-{{i}}-{{idx}}" 
+          [(ngModel)]="participantNotes[i][idx]" 
+          min="1" max="5" 
+          (ngModelChange)="updateNote(i, idx, $event)" />
+    </li>
+    </ul>
+    <p><strong>Moyenne des notes :</strong> {{ calculateAverage(i) | number: '1.1-1' }}</p>
+    <button mat-button (click)="saveSingleParticipantScore(i)">Enregistrer les notes</button>
+  </div>
+</div>
+
+<ng-template #noParticipants>
+  <p>Aucun participant trouvé pour cet événement.</p>
+</ng-template>
+
+<button mat-button (click)="close()" class="close-btn">Fermer</button>

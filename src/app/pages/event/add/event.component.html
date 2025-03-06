@@ -1,0 +1,86 @@
+<div class="container">
+  <mat-card class="event-form-card">
+    <mat-card-header>
+      <mat-card-title>Create New Event</mat-card-title>
+      <mat-card-subtitle>Fill in the details to create your event</mat-card-subtitle>
+    </mat-card-header>
+
+    <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="event-form">
+      <div class="form-row">
+        <div class="form-field-container">
+          <label class="field-label">Event Title</label>
+          <mat-form-field appearance="outline">
+            <input matInput formControlName="title" placeholder="Enter event title">
+          </mat-form-field>
+        </div>
+
+        <div class="form-field-container">
+          <label class="field-label">Event Type</label>
+          <mat-form-field appearance="outline">
+            <mat-select formControlName="eventType">
+              <mat-option *ngFor="let type of eventTypes" [value]="type">
+                {{type}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-field-container">
+        <label class="field-label">Description</label>
+        <mat-form-field appearance="outline">
+          <textarea matInput formControlName="description" rows="4"></textarea>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field-container">
+          <label class="field-label">Event Date</label>
+          <mat-form-field appearance="outline">
+            <input matInput [matDatepicker]="picker" formControlName="eventDate">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="form-field-container">
+          <label class="field-label">Location</label>
+          <mat-form-field appearance="outline">
+            <input matInput formControlName="location">
+            <mat-icon matSuffix>location_on</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field-container">
+          <label class="field-label">Capacity</label>
+          <mat-form-field appearance="outline">
+            <input matInput type="number" formControlName="capacity">
+          </mat-form-field>
+        </div>
+
+        <div class="form-field-container">
+          <label class="field-label">Prizes</label>
+          <mat-form-field appearance="outline">
+            <input matInput formControlName="prizes">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-field-container">
+        <label class="field-label">Objectives</label>
+        <mat-form-field appearance="outline">
+          <textarea matInput formControlName="objectives" rows="3"></textarea>
+        </mat-form-field>
+      </div>
+
+      <div class="button-container">
+        <button mat-stroked-button type="reset" color="warn">Clear Form</button>
+        <button mat-raised-button type="submit" color="primary" [disabled]="!eventForm.valid">
+          Create Event
+        </button>
+      </div>
+    </form>
+  </mat-card>
+</div>

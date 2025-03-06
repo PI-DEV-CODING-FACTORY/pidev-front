@@ -1,0 +1,34 @@
+<div class="question-form-container">
+    <div class="form-header">
+      <div>
+        <h2>Create Questions Form</h2>
+        <p>Add questions for event participants</p>
+      </div>
+      <button class="close-button" (click)="onClose()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  
+    <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+      <div formArrayName="questions" class="questions-list">
+        <div *ngFor="let question of questions.controls; let i=index">
+          <input [formControlName]="i" 
+                 class="question-input"
+                 placeholder="Enter question {{i + 1}}"
+                 type="text">
+        </div>
+      </div>
+  
+      <div class="form-actions">
+        <button type="button" class="add-question-btn" (click)="addQuestion()">
+          <i class="fas fa-plus"></i>
+          Add Question
+        </button>
+        <button type="submit" 
+                class="save-btn" 
+                [disabled]="!questionForm.valid">
+          Save Questions
+        </button>
+      </div>
+    </form>
+  </div>
