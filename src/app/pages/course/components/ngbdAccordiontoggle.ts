@@ -1,0 +1,74 @@
+import { Component } from '@angular/core';
+import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
+import { CodeDisplayComponent } from './codedisplay';
+import { QuizComponent } from './quiz.component';
+
+@Component({
+    selector: 'ngbd-accordion-toggle',
+    imports: [NgbAccordionModule, CodeDisplayComponent, QuizComponent],
+    template: `
+        <div ngbAccordion #accordion="ngbAccordion" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden ml-4">
+            <div ngbAccordionItem="Quiz" class="mb-2">
+                <button
+                    ngbAccordionButton
+                    class="w-full px-6 py-5 font-semibold text-lg text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 flex items-center justify-between"
+                >
+                    <span>Exemples</span>
+                    <svg (click)="onRefresh($event)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 cursor-pointer hover:rotate-180 transition-transform duration-300">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                </button>
+
+                <div ngbAccordionCollapse class="border-t border-gray-200 dark:border-gray-600">
+                    <div ngbAccordionBody>
+                        <ng-template>
+                            <div class="p-6 text-gray-600 dark:text-gray-300 text-base leading-7 bg-white dark:bg-gray-800">
+                                <code>console.log("rami")</code>
+                                <app-code-display></app-code-display>
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+
+            <div ngbAccordionItem="second" class="mb-2">
+                <button
+                    ngbAccordionButton
+                    class="w-full px-6 py-5 font-semibold text-lg text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 flex items-center justify-between"
+                >
+                    Quiz
+                </button>
+
+                <div ngbAccordionCollapse class="border-t border-gray-200 dark:border-gray-600">
+                    <div ngbAccordionBody>
+                        <ng-template>
+                            <div class="p-6 text-gray-600 dark:text-gray-300 text-base leading-7 bg-white dark:bg-gray-800">
+                                <app-quiz [quizzes]="quizData"></app-quiz>
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
+    styles: [``]
+})
+export class NgbdAccordionToggle {
+    onRefresh(event: MouseEvent) {
+        event.stopPropagation(); // Prevents the accordion from toggling
+        console.log('i work');
+    }
+    quizData = [
+        {
+            question: 'What is the capital of France?',
+            options: ['London', 'Paris', 'Berlin', 'Madrid'],
+            correctAnswer: 'Paris'
+        },
+        {
+            question: 'Which planet is closest to the sun?',
+            options: ['Earth', 'Mars', 'Mercury', 'Venus'],
+            correctAnswer: 'Mercury'
+        }
+        // Add more questions as needed
+    ];
+}

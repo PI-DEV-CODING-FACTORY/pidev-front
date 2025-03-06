@@ -6,11 +6,12 @@ import { AccordionModule } from 'primeng/accordion';
 import { CardModule } from 'primeng/card';
 import { ActivatedRoute } from '@angular/router';
 import { NgbdScrollSpyItems } from './ngbdscrollspyItems';
+import { NgbdAccordionToggle } from './ngbdAccordiontoggle';
 
 @Component({
     selector: 'app-course-details',
     standalone: true,
-    imports: [CommonModule, AccordionModule, CardModule, NgbdScrollSpyItems],
+    imports: [CommonModule, AccordionModule, CardModule, NgbdScrollSpyItems, NgbdAccordionToggle],
     template: `
         <div class="card">
             <div class="course-details p-4">
