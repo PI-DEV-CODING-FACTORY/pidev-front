@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CourseType } from '../models/course.model';
+import { CourseType, ExampleHistoryType } from '../models/course.model';
 
 @Injectable({
     providedIn: 'root'
@@ -14,7 +14,13 @@ export class CourseService {
         return this.http.get<CourseType[]>(this.apiUrl);
     }
 
-getCourseById(id: number) {
-    return this.http.get<CourseType>(`${this.apiUrl}/${id}`);
-}
+    getCourseById(id: number) {
+        return this.http.get<CourseType>(`${this.apiUrl}/${id}`);
+    }
+
+    createCourse(courseData: Partial<CourseType>) {
+        return this.http.post<CourseType>(this.apiUrl, courseData);
+    }
+
+  
 }

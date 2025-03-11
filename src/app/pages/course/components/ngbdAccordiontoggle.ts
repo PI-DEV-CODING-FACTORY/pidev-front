@@ -1,11 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodeDisplayComponent } from './codedisplay';
 import { QuizComponent } from './quiz.component';
+import { CourseService } from '../../../services/course.service';
+import { ExampleHistoryType } from '../../../models/course.model';
+import { CommonModule } from '@angular/common';
+import { ExampleService } from '../../../services/example.service';
 
 @Component({
     selector: 'ngbd-accordion-toggle',
-    imports: [NgbAccordionModule, CodeDisplayComponent, QuizComponent],
+    standalone: true,
+    imports: [NgbAccordionModule, CodeDisplayComponent, QuizComponent, CommonModule],
     template: `
         <div ngbAccordion #accordion="ngbAccordion" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden ml-4">
             <div ngbAccordionItem="Quiz" class="mb-2">
@@ -23,8 +28,9 @@ import { QuizComponent } from './quiz.component';
                     <div ngbAccordionBody>
                         <ng-template>
                             <div class="p-6 text-gray-600 dark:text-gray-300 text-base leading-7 bg-white dark:bg-gray-800">
-                                <code>console.log("rami")</code>
-                                <app-code-display></app-code-display>
+                                <div *ngFor="let example of examples">
+                                    <app-code-display [code]="example.newExample"></app-code-display>
+                                </div>
                             </div>
                         </ng-template>
                     </div>
@@ -54,10 +60,30 @@ import { QuizComponent } from './quiz.component';
     styles: [``]
 })
 export class NgbdAccordionToggle {
+    @Input() courseId!: number;
+    @Input() lessonId!: number;
+
+    private courseService = inject(CourseService);
+    private examapleService = inject(ExampleService);
+    examples: ExampleHistoryType[] = [];
+
     onRefresh(event: MouseEvent) {
-        event.stopPropagation(); // Prevents the accordion from toggling
-        console.log('i work');
+        event.stopPropagation();
+        if (this.courseId && this.lessonId) {
+            this.examapleService.getExampleHistories(this.courseId, this.lessonId).subscribe({
+                next: (data) => {
+                    console.log('course id', 'lessonid');
+                    console.log(this.courseId, this.lessonId);
+                    this.examples = data;
+                    console.log('Examples:', data);
+                },
+                error: (error) => {
+                    console.error('Error fetching examples:', error);
+                }
+            });
+        }
     }
+
     quizData = [
         {
             question: 'What is the capital of France?',

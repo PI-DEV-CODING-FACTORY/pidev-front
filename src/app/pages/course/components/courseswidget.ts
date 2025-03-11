@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormGroup, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 import { CourseType } from '../../../models/course.model';
 import { CourseService } from '../../../services/course.service';
@@ -7,16 +8,37 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { RouterModule } from '@angular/router';
-
+import { Dialog, DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
 @Component({
     selector: 'courses-widget',
     standalone: true,
-    imports: [CommonModule, RouterModule, ButtonModule, CardModule, TagModule],
+    imports: [CommonModule, RouterModule, ButtonModule, CardModule, TagModule, Dialog, ButtonModule, InputTextModule, ReactiveFormsModule],
     template: `
         <div class="widget-container">
             <div class="header-section">
                 <div class="title">Your courses</div>
                 <span class="subtitle">Choose a course and start your learning journey!</span>
+                <button (click)="createCourseModal()">Generate your costumized course</button>
+
+                <p-button (click)="showDialog()" label="Show" />
+                <p-dialog header="Edit Profile" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+                    <span class="p-text-secondary block mb-8">Update your information.</span>
+                    <form [formGroup]="courseForm" (ngSubmit)="onSubmit()">
+                        <div class="flex items-center gap-4 mb-4">
+                            <label for="subject" class="font-semibold w-24">Subject you want to learn</label>
+                            <input pInputText id="subject" formControlName="subject" class="flex-auto" autocomplete="off" />
+                        </div>
+                        <div class="flex items-center gap-4 mb-8">
+                            <label for="level" class="font-semibold w-24">your level </label>
+                            <input pInputText id="level" formControlName="level" class="flex-auto" autocomplete="off" />
+                        </div>
+                        <div class="flex justify-end gap-2">
+                            <p-button label="Cancel" severity="secondary" type="button" (click)="visible = false" />
+                            <p-button type="submit" label="Save" />
+                        </div>
+                    </form>
+                </p-dialog>
             </div>
             <div class="courses-grid">
                 <div *ngFor="let course of courses" class="course-item">
@@ -180,7 +202,11 @@ import { RouterModule } from '@angular/router';
 })
 export class CoursesWidget {
     courseService: CourseService = inject(CourseService);
+    private fb = inject(FormBuilder);
     courses!: CourseType[];
+    visible: boolean = false;
+    courseForm: FormGroup;
+
     constructor() {
         this.courseService.fetchCoursesFromApi().subscribe({
             next: (data) => {
@@ -190,6 +216,13 @@ export class CoursesWidget {
                 console.error('Error fetching courses:', error);
             }
         });
+        this.courseForm = this.fb.group({
+            subject: [''],
+            level: ['']
+        });
+    }
+    createCourseModal() {
+        console.log('Create course modal');
     }
 
     getDifficultySeverity(difficulty: string): string {
@@ -202,6 +235,46 @@ export class CoursesWidget {
                 return 'danger';
             default:
                 return 'info';
+        }
+    }
+
+    showDialog() {
+        this.visible = true;
+    }
+
+    onSubmit() {
+        if (this.courseForm.valid) {
+            const newCourse: Partial<CourseType> = {
+                title: 'not generated',
+                description: this.courseForm.value.subject,
+                generatedByAi: true,
+                difficultyLevel: 'BEGINNER',
+                examples: '',
+                content: '',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                lessons: [],
+                quizzes: [],
+                studentProgresses: [],
+                exampleHistories: []
+            };
+
+            this.courseService.createCourse(newCourse).subscribe({
+                next: (response) => {
+                    console.log('Course created:', response);
+                    this.visible = false;
+                    this.courseForm.reset();
+                    // Refresh the courses list
+                    this.courseService.fetchCoursesFromApi().subscribe({
+                        next: (data) => {
+                            this.courses = data;
+                        }
+                    });
+                },
+                error: (error) => {
+                    console.error('Error creating course:', error);
+                }
+            });
         }
     }
 }

@@ -41,6 +41,16 @@ export class AppMenu {
                         routerLink: ['/courses'] // Replace '1' with actual course ID
                     }
                 ]
+            },
+            {
+                label: '',
+                items: [
+                    {
+                        label: 'create course',
+                        icon: 'pi pi-book',
+                        routerLink: ['/courses/create'] // Replace '1' with actual course ID
+                    }
+                ]
             }
 
             // {

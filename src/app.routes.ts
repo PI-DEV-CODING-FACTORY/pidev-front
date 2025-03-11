@@ -19,7 +19,7 @@ export const appRoutes: Routes = [
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
             { path: 'pfe', loadChildren: () => import('./app/pages/pfe/pfe.routes').then((m) => m.PFE_ROUTES) },
-            { 
+            {
                 path: 'courses',
                 component: Course,
                 children: [
@@ -29,6 +29,7 @@ export const appRoutes: Routes = [
             }
         ]
     },
+
     { path: 'landing', component: Landing },
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },

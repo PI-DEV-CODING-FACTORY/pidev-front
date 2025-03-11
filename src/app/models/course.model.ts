@@ -47,7 +47,6 @@ export interface StudentProgressType {
 export interface ExampleHistoryType {
     id: number;
     studentId: number;
-    previousExample: string;
     newExample: string;
     regeneratedAt: string;
 }
