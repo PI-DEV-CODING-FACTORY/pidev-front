@@ -1,18 +1,23 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
+import { ToastModule } from 'primeng/toast';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
+import { HttpClient } from '@angular/common/http';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
+    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, ToastModule],
+    providers: [MessageService],
     template: `
+        <p-toast></p-toast>
         <app-floating-configurator />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
             <div class="flex flex-col items-center justify-center">
@@ -36,25 +41,25 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
                                     />
                                 </g>
                             </svg>
-                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to PrimeLand!</div>
-                            <span class="text-muted-color font-medium">Sign in to continue</span>
+                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Bienvenue sur PrimeLand!</div>
+                            <span class="text-muted-color font-medium">Connectez-vous pour continuer</span>
                         </div>
 
                         <div>
                             <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                            <input pInputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" [(ngModel)]="email" />
+                            <input pInputText id="email1" type="text" placeholder="Adresse email" class="w-full md:w-[30rem] mb-8" [(ngModel)]="email" />
 
-                            <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-                            <p-password id="password1" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
+                            <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Mot de passe</label>
+                            <p-password id="password1" [(ngModel)]="password" placeholder="Mot de passe" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
 
                             <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                                 <div class="flex items-center">
                                     <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
-                                    <label for="rememberme1">Remember me</label>
+                                    <label for="rememberme1">Se souvenir de moi</label>
                                 </div>
-                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
+                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" routerLink="/auth/reset-password">Mot de passe oublié?</span>
                             </div>
-                            <p-button label="Sign In" styleClass="w-full" routerLink="/"></p-button>
+                            <p-button label="Se connecter" [loading]="loading" styleClass="w-full" (onClick)="login()"></p-button>
                         </div>
                     </div>
                 </div>
@@ -63,9 +68,58 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
     `
 })
 export class Login {
+    constructor(
+        private http:HttpClient,
+        private router:Router,
+        private messageService: MessageService
+    ){}
     email: string = '';
 
     password: string = '';
 
     checked: boolean = false;
+    loading: boolean = false;
+    login() {
+        if (!this.email || !this.password) {
+            this.messageService.add({ 
+                severity: 'error', 
+                summary: 'Erreur', 
+                detail: 'Veuillez saisir votre email et mot de passe' 
+            });
+            return;
+        }
+        this.loading = true;
+        const url = `http://localhost:8080/auth/login?email=${this.email}&password=${this.password}`;
+    
+        this.http.post(url, null, { responseType: 'text' }).subscribe({
+            next: (response: string) => {
+                this.loading = false;
+                if (response && response !== 'invalid credentials') {
+                    // Store JWT token
+                    localStorage.setItem('token', response);
+                    this.messageService.add({ 
+                        severity: 'success', 
+                        summary: 'Succès', 
+                        detail: 'Connexion réussie' 
+                    });
+                    this.router.navigate(['/']);
+                } else {
+                    this.messageService.add({ 
+                        severity: 'error', 
+                        summary: 'Erreur', 
+                        detail: 'Email ou mot de passe invalide' 
+                    });
+                }
+            },
+            error: (error) => {
+                this.loading = false;
+                console.error('Erreur de connexion:', error);
+                this.messageService.add({ 
+                    severity: 'error', 
+                    summary: 'Erreur', 
+                    detail: 'La connexion a échoué. Veuillez réessayer.'
+                });
+            }
+        });
+    }
 }
