@@ -1,46 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
-import { CardModule } from 'primeng/card';
-import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { ToastModule } from 'primeng/toast';
-import { InscriptionService } from '../service/inscription.service';
-import { MessageService } from 'primeng/api';
-
-interface MaritalStatus {
-  label: string;
-  value: string;
-}
-
-interface HealthStatus {
-  label: string;
-  value: string;
-}
-
-@Component({
-  selector: 'app-subscription',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    CardModule,
-    InputTextModule,
-    ButtonModule,
-    CalendarModule,
-    FileUploadModule,
-    ToastModule,
-    RippleModule,
-    DividerModule,
-    DropdownModule
-  ],
-  template: `
-  <p-toast></p-toast>
+<p-toast></p-toast>
         <div class="min-h-screen bg-surface-50 dark:bg-surface-900">
             <!-- Header Section with Background -->
             <div class="bg-primary py-12 px-4 md:px-6 lg:px-8 mb-8">
@@ -134,7 +92,6 @@ interface HealthStatus {
                                     [style]="{ width: '100%' }"
                                     [inputStyle]="{ width: '100%' }"
                                     [touchUI]="true"
-                                    appendTo="body"
                                     placeholder="Sélectionnez votre date de naissance"
                                     [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('dateOfBirth')?.invalid && subscriptionForm.get('dateOfBirth')?.touched}"
                                 ></p-calendar>
@@ -209,7 +166,7 @@ interface HealthStatus {
                                     <p-fileUpload
                                         #degreeUpload
                                         mode="basic"
-                                        chooseLabel="Télécharger le Diplôme (PDF)"
+                                        chooseLabel="Télécharger le Diplôme "
                                         [maxFileSize]="1000000"
                                         accept="application/pdf,image/*"
                                         [auto]="true"
@@ -221,7 +178,7 @@ interface HealthStatus {
                                         <span class="text-600">{{degreeFileName}}</span>
                                     </div>
                                 </div>
-                                <small class="text-600 block mt-2">Taille max: 1MB. Formats acceptés: PDF, Images</small>
+                                <small class="text-600 block mt-2">Taille max: 1MB. Formats acceptés: PDF, Images(jpg, jpeg)</small>
                             </div>
 
                             <!-- Grades/Transcripts Upload -->
@@ -233,19 +190,19 @@ interface HealthStatus {
                                     <p-fileUpload
                                         #notesUpload
                                         mode="basic"
-                                        chooseLabel="Télécharger le Relevé (PDF)"
+                                        chooseLabel="Télécharger le Relevé"
                                         [maxFileSize]="1000000"
                                         accept="application/pdf,image/*"
                                         [auto]="true"
-                                        
                                         [customUpload]="true"
+                                        (uploadHandler)="onNotesUpload($event)"
                                     ></p-fileUpload>
                                     <div *ngIf="transcriptsFileName" class="flex align-items-center gap-2">
                                         <i class="pi pi-file text-primary"></i>
                                         <span class="text-600">{{transcriptsFileName}}</span>
                                     </div>
                                 </div>
-                                <small class="text-600 block mt-2">Taille max: 1MB. Formats acceptés: PDF, Images</small>
+                                <small class="text-600 block mt-2">Taille max: 1MB. Formats acceptés: PDF, Images(jpg, jpeg)</small>
                             </div>
 
                             <div class="col-span-12 mt-4">
@@ -277,94 +234,3 @@ interface HealthStatus {
             </div>
         </div>
 
-
-    
-  `,
-  providers: [MessageService]
-})
-export class SubscriptionComponent implements OnInit {
-    isSubmitting: boolean = false;
-    degreeFileName: string = '';
-    degreeFile: File | null = null;
-    transcriptsFileName: string = '';
-    maxDate : Date = new Date();
-    maritalStatusOptions: MaritalStatus[] = [
-      { label: 'Célibataire', value: 'SINGLE' },
-      { label: 'Marié(e)', value: 'MARRIED' },
-      { label: 'Divorcé(e)', value: 'DIVORCED' },
-      { label: 'Veuf/Veuve', value: 'WIDOWED' }
-  ];
-    healthStatusOptions: HealthStatus[] = [
-      { label: 'Normal', value: 'SAFE' },
-      { label: 'Diabétique', value: 'DIABETIC' }
-  ];
-    
-    subscriptionForm!: FormGroup;
-    loading: boolean = false;  // Add this line
-
-  constructor(
-    private fb: FormBuilder,
-    private inscriptionService: InscriptionService,
-    private messageService: MessageService
-  ) {}
-
-  // Update the ngOnInit method
-  ngOnInit() {
-      this.maxDate = new Date(); // Initialize maxDate
-      this.subscriptionForm = this.fb.group({
-          firstName: ['', Validators.required],
-          lastName: ['', Validators.required],
-          personalEmail: ['', [Validators.required, Validators.email]],
-          dateOfBirth: ['', Validators.required],
-          maritalStatus: ['', Validators.required], // Add maritalStatus control
-          healthStatus: [''], // Add healthStatus control
-          healthDescription: [''],
-          bachelorDegree: ['', Validators.required],
-          notesDocument: [null]
-      });
-  }
-
-  onProfilePictureSelect(event: any) {
-    if (event.files && event.files[0]) {
-      this.subscriptionForm.patchValue({
-        profilePicture: event.files[0]
-      });
-    }
-  }
-
-  onNotesDocumentSelect(event: any) {
-    if (event.files && event.files[0]) {
-      this.subscriptionForm.patchValue({
-        notesDocument: event.files[0]
-      });
-    }
-  }
-
-  onSubmit() {
-    if (this.subscriptionForm.valid) {
-      const formData = this.subscriptionForm.value;
-      // Handle form submission here
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Registration submitted successfully'
-      });
-    }
-  }
-
-
-
-  onDegreeUpload(event: any) {
-    if (event.files && event.files.length > 0) {
-        const file = event.files[0];
-        this.degreeFileName = file.name;
-        this.degreeFile = file;
-        
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Succès',
-            detail: 'Fichier sélectionné avec succès'
-        });
-    }
-}
-}
