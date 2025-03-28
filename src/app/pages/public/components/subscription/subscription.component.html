@@ -1,0 +1,546 @@
+<p-toast></p-toast>
+<div class="min-h-screen bg-surface-50 dark:bg-surface-900">
+    <!-- Header Section remains the same -->
+    <div class="bg-primary py-12 px-4 md:px-6 lg:px-8 mb-8">
+        <div class="text-center">
+            <div class="text-white font-bold mb-3 text-5xl">Inscription Étudiant</div>
+            <div class="text-white text-2xl font-medium mb-2">Licence (Bac + 3)</div>
+            <span class="text-white text-xl font-light">Commencez votre parcours avec nous</span>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="px-4 md:px-6 lg:px-8 mx-auto" style="max-width: 800px; margin-top: -4rem;">
+        <div class="surface-card p-8 shadow-2 border-round-2xl">
+            <form [formGroup]="subscriptionForm" (ngSubmit)="onSubmit()">
+                <!-- Steps -->
+                <p-steps [model]="items" [activeIndex]="activeIndex" [readonly]="true"></p-steps>
+
+                <!-- Step 1: Personal Information -->
+                <div *ngIf="activeIndex === 0" class="mt-4">
+                    <div class="grid grid-cols-12 gap-4">
+                        <!-- First Name -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="firstName" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-user mr-2"></i>Prénom
+                            </label>
+                            <input 
+                                id="firstName" 
+                                type="text" 
+                                pInputText 
+                                class="w-full" 
+                                formControlName="firstName"
+                                placeholder="Entrez votre prénom"
+                                [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('firstName')?.invalid && subscriptionForm.get('firstName')?.touched}"
+                            />
+                            <small class="text-red-500" *ngIf="subscriptionForm.get('firstName')?.invalid && subscriptionForm.get('firstName')?.touched">
+                                Le prénom est requis
+                            </small>
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="lastName" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-user mr-2"></i>Nom
+                            </label>
+                            <input 
+                                id="lastName" 
+                                type="text" 
+                                pInputText 
+                                class="w-full" 
+                                formControlName="lastName"
+                                placeholder="Entrez votre nom"
+                                [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('lastName')?.invalid && subscriptionForm.get('lastName')?.touched}"
+                            />
+                            <small class="text-red-500" *ngIf="subscriptionForm.get('lastName')?.invalid && subscriptionForm.get('lastName')?.touched">
+                                Le nom est requis
+                            </small>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="email" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-envelope mr-2"></i>Adresse Email
+                            </label>
+                            <input 
+                                id="email" 
+                                type="email" 
+                                pInputText 
+                                class="w-full" 
+                                formControlName="personalEmail"
+                                placeholder="Entrez votre adresse email"
+                                [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('personalEmail')?.invalid && subscriptionForm.get('personalEmail')?.touched}"
+                            />
+                            <small class="text-red-500" *ngIf="subscriptionForm.get('personalEmail')?.invalid && subscriptionForm.get('personalEmail')?.touched">
+                                Veuillez entrer une adresse email valide
+                            </small>
+                        </div>
+
+                        <!-- Confirm Email -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="confirmEmail" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-envelope mr-2"></i>Confirmer Email
+                            </label>
+                            <input 
+                                id="confirmEmail" 
+                                type="email" 
+                                pInputText 
+                                class="w-full" 
+                                formControlName="confirmEmail"
+                                placeholder="Confirmez votre adresse email"
+                                [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('confirmEmail')?.invalid && subscriptionForm.get('confirmEmail')?.touched}"
+                            />
+                            <small class="text-red-500" *ngIf="subscriptionForm.get('confirmEmail')?.invalid && subscriptionForm.get('confirmEmail')?.touched">
+                                <span *ngIf="subscriptionForm.get('confirmEmail')?.errors?.['required']">La confirmation de l'email est requise</span>
+                                <span *ngIf="subscriptionForm.get('confirmEmail')?.errors?.['emailMismatch']">Les adresses email ne correspondent pas</span>
+                            </small>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="phoneNumber" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-phone mr-2"></i>Numéro de Téléphone
+                            </label>
+                            <input 
+                                id="phoneNumber" 
+                                type="tel" 
+                                pInputText 
+                                class="w-full" 
+                                formControlName="phoneNumber"
+                                placeholder="Entrez votre numéro de téléphone"
+                                [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('phoneNumber')?.invalid && subscriptionForm.get('phoneNumber')?.touched}"
+                            />
+                            <small class="text-red-500" *ngIf="subscriptionForm.get('phoneNumber')?.invalid && subscriptionForm.get('phoneNumber')?.touched">
+                                Le numéro de téléphone est requis
+                            </small>
+                        </div>
+                    <br>
+                        <!-- Date of Birth -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="dateOfBirth" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-calendar mr-2"></i>Date de Naissance
+                            </label>
+                            <p-calendar 
+                                id="dateOfBirth" 
+                                formControlName="dateOfBirth"
+                                [showIcon]="true"
+                                dateFormat="dd/mm/yy"
+                                [maxDate]="maxDate"
+                                [style]="{ width: '100%' }"
+                                [inputStyle]="{ width: '100%' }"
+                                [touchUI]="true"
+                                placeholder="Sélectionnez votre date de naissance"
+                                [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('dateOfBirth')?.invalid && subscriptionForm.get('dateOfBirth')?.touched}"
+                            ></p-calendar>
+                            <small class="text-red-500" *ngIf="subscriptionForm.get('dateOfBirth')?.invalid && subscriptionForm.get('dateOfBirth')?.touched">
+                                La date de naissance est requise
+                            </small>
+                        </div>
+                    <br>
+                        <!-- Marital Status -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="maritalStatus" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-heart mr-2"></i>Situation Familiale
+                            </label>
+                            <p-dropdown
+                                id="maritalStatus"
+                                formControlName="maritalStatus"
+                                [options]="maritalStatusOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Sélectionnez votre situation"
+                                [style]="{'width':'100%'}"
+                                [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('maritalStatus')?.invalid && subscriptionForm.get('maritalStatus')?.touched}"
+                            ></p-dropdown>
+                            <small class="text-red-500" *ngIf="subscriptionForm.get('maritalStatus')?.invalid && subscriptionForm.get('maritalStatus')?.touched">
+                                La situation familiale est requise
+                            </small>
+                        </div>
+
+                        <!-- Health Status -->
+                        <div class="col-span-12 md:col-span-6">
+                            <label for="healthStatus" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-heart-fill mr-2"></i>État de Santé
+                            </label>
+                            <p-dropdown
+                                id="healthStatus"
+                                formControlName="healthStatus"
+                                [options]="healthStatusOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Sélectionnez votre état de santé"
+                                [style]="{'width':'100%'}"
+                            ></p-dropdown>
+                        </div>
+
+                        <!-- Health Description -->
+                        <div class="col-span-12" *ngIf="subscriptionForm.get('healthStatus')?.value === 'DIABETIC'">
+                            <label for="healthDescription" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-info-circle mr-2"></i>Description de l'État de Santé
+                            </label>
+                            <textarea
+                                id="healthDescription"
+                                pInputTextarea
+                                class="w-full"
+                                formControlName="healthDescription"
+                                placeholder="Veuillez décrire votre condition"
+                                rows="3"
+                            ></textarea>
+                        </div>
+
+                        <!-- Address Fields - All in one line at the end -->
+                        <div class="col-span-12 md:col-span-4">
+                            <label for="city" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-map-marker mr-2"></i>Ville
+                            </label>
+                            <input 
+                                id="city" 
+                                type="text" 
+                                pInputText 
+                                class="w-full" 
+                                formControlName="city"
+                                placeholder="Entrez votre ville"
+                                [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('city')?.invalid && subscriptionForm.get('city')?.touched}"
+                            />
+                            <small class="text-red-500" *ngIf="subscriptionForm.get('city')?.invalid && subscriptionForm.get('city')?.touched">
+                                La ville est requise
+                            </small>
+                        </div>
+
+                        <div class="col-span-12 md:col-span-4">
+                            <label for="address" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-home mr-2"></i>Adresse
+                            </label>
+                            <input 
+                                id="address" 
+                                type="text" 
+                                pInputText 
+                                class="w-full" 
+                                formControlName="address"
+                                placeholder="Entrez votre adresse"
+                                [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('address')?.invalid && subscriptionForm.get('address')?.touched}"
+                            />
+                            <small class="text-red-500" *ngIf="subscriptionForm.get('address')?.invalid && subscriptionForm.get('address')?.touched">
+                                L'adresse est requise
+                            </small>
+                        </div>
+
+                        <div class="col-span-12 md:col-span-4">
+                            <label for="postalCode" class="block text-900 font-medium mb-2">
+                                <i class="pi pi-id-card mr-2"></i>Code Postal
+                            </label>
+                            <input 
+                                id="postalCode" 
+                                type="text" 
+                                pInputText 
+                                class="w-full" 
+                                formControlName="postalCode"
+                                placeholder="Entrez le code postal"
+                                [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('postalCode')?.invalid && subscriptionForm.get('postalCode')?.touched}"
+                            />
+                            <small class="text-red-500" *ngIf="subscriptionForm.get('postalCode')?.invalid && subscriptionForm.get('postalCode')?.touched">
+                                Le code postal est requis
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Academic Documents -->
+                <div *ngIf="activeIndex === 1" class="mt-4">
+                    <div class="grid grid-cols-12 gap-6">
+                        <!-- Last Diploma -->
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label for="lastDiploma" class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-id-card mr-2"></i>Dernier Diplôme Obtenu
+                                </label>
+                                <p-dropdown
+                                    id="lastDiploma"
+                                    formControlName="lastDiploma"
+                                    [options]="[
+                                        {label: 'Baccalauréat', value: 'BAC'},
+                                        {label: 'Licence', value: 'LICENCE'},
+                                        {label: 'Master', value: 'MASTER'}
+                                    ]"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="Sélectionnez votre dernier diplôme"
+                                    [style]="{'width':'100%'}"
+                                    [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('lastDiploma')?.invalid && subscriptionForm.get('lastDiploma')?.touched}"
+                                ></p-dropdown>
+                                <small class="text-red-500" *ngIf="subscriptionForm.get('lastDiploma')?.invalid && subscriptionForm.get('lastDiploma')?.touched">
+                                    Le dernier diplôme est requis
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Current/Last Institution -->
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label for="institution" class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-building mr-2"></i>Établissement Actuel/Dernier Fréquenté
+                                </label>
+                                <input 
+                                    id="institution" 
+                                    type="text" 
+                                    pInputText 
+                                    class="w-full" 
+                                    formControlName="institution"
+                                    placeholder="Nom de l'établissement"
+                                    [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('institution')?.invalid && subscriptionForm.get('institution')?.touched}"
+                                />
+                                <small class="text-red-500" *ngIf="subscriptionForm.get('institution')?.invalid && subscriptionForm.get('institution')?.touched">
+                                    L'établissement est requis
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Academic Description -->
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label for="academicDescription" class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-info-circle mr-2"></i>Description du Parcours Académique
+                                </label>
+                                <textarea
+                                    id="academicDescription"
+                                    pInputTextarea
+                                    class="w-full"
+                                    formControlName="academicDescription"
+                                    placeholder="Décrivez brièvement votre parcours académique"
+                                    rows="3"
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Document Upload Field -->
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-file mr-2"></i>Relevé de Notes
+                                </label>
+                                <div class="flex align-items-center gap-3">
+                                    <p-fileUpload
+                                        #notesUpload
+                                        mode="basic"
+                                        chooseLabel="Télécharger le Relevé"
+                                        [maxFileSize]="1000000"
+                                        accept="application/pdf,image/*"
+                                        [auto]="true"
+                                        [customUpload]="true"
+                                        (uploadHandler)="onNotesUpload($event)"
+                                    ></p-fileUpload>
+                                    <div *ngIf="transcriptsFileName" class="flex align-items-center gap-2">
+                                        <i class="pi pi-file text-primary"></i>
+                                        <span class="text-600">{{transcriptsFileName}}</span>
+                                    </div>
+                                </div>
+                                <small class="text-600 block mt-2">Taille max: 1MB. Formats acceptés: PDF, Images(jpg, jpeg)</small>
+                            </div>
+                        </div>
+
+                        <!-- Additional Documents Upload -->
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-file mr-2"></i>Diplome 
+                                </label>
+                                <div class="flex align-items-center gap-3">
+                                    <p-fileUpload
+                                        #diplomaUpload
+                                        mode="basic"
+                                        chooseLabel="Télécharger le Diplôme"
+                                        [maxFileSize]="1000000"
+                                        accept="application/pdf,image/*"
+                                        [auto]="true"
+                                        [customUpload]="true"
+                                        (uploadHandler)="onDegreeUpload($event)"
+                                    ></p-fileUpload>
+                                    <div *ngIf="degreeFileName" class="flex align-items-center gap-2">
+                                        <i class="pi pi-file text-primary"></i>
+                                        <span class="text-600">{{degreeFileName}}</span>
+                                    </div>
+                                </div>
+                                <small class="text-600 block mt-2">Taille max: 1MB. Formats acceptés: PDF, Images(jpg, jpeg)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Parents Information -->
+                <div *ngIf="activeIndex === 2" class="mt-4">
+                    <div class="grid grid-cols-12 gap-6">
+                        <!-- Father's Information -->
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label for="fatherName" class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-user mr-2"></i>Nom du Père
+                                </label>
+                                <input 
+                                    id="fatherName" 
+                                    type="text" 
+                                    pInputText 
+                                    class="w-full" 
+                                    formControlName="fatherName"
+                                    placeholder="Nom complet du père"
+                                />
+                                <small class="text-red-500" *ngIf="subscriptionForm.get('fatherName')?.invalid && subscriptionForm.get('fatherName')?.touched">
+                                    Le nom du père est requis
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label for="fatherPhone" class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-phone mr-2"></i>Téléphone du Père
+                                </label>
+                                <input 
+                                    id="fatherPhone" 
+                                    type="tel" 
+                                    pInputText 
+                                    class="w-full" 
+                                    formControlName="fatherPhone"
+                                    placeholder="Numéro de téléphone du père"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label for="fatherProfession" class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-briefcase mr-2"></i>Profession du Père
+                                </label>
+                                <input 
+                                    id="fatherProfession" 
+                                    type="text" 
+                                    pInputText 
+                                    class="w-full" 
+                                    formControlName="fatherProfession"
+                                    placeholder="Profession du père"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Mother's Information -->
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label for="motherName" class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-user mr-2"></i>Nom de la Mère
+                                </label>
+                                <input 
+                                    id="motherName" 
+                                    type="text" 
+                                    pInputText 
+                                    class="w-full" 
+                                    formControlName="motherName"
+                                    placeholder="Nom complet de la mère"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label for="motherPhone" class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-phone mr-2"></i>Téléphone de la Mère
+                                </label>
+                                <input 
+                                    id="motherPhone" 
+                                    type="tel" 
+                                    pInputText 
+                                    class="w-full" 
+                                    formControlName="motherPhone"
+                                    placeholder="Numéro de téléphone de la mère"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label for="motherProfession" class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-briefcase mr-2"></i>Profession de la Mère
+                                </label>
+                                <input 
+                                    id="motherProfession" 
+                                    type="text" 
+                                    pInputText 
+                                    class="w-full" 
+                                    formControlName="motherProfession"
+                                    placeholder="Profession de la mère"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Confirmation -->
+                <div *ngIf="activeIndex === 3" class="mt-4">
+                    <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                        <h2 class="text-center text-primary mb-4">Confirmation de la Candidature</h2>
+                        <p class="text-center mb-4">
+                            Veuillez vérifier que toutes les informations saisies sont correctes avant de soumettre votre candidature.
+                        </p>
+                        <div class="flex justify-content-center mb-4">
+                            <i class="pi pi-check-circle text-primary" style="font-size: 3rem;"></i>
+                        </div>
+
+                        <!-- Legal Mentions Checkbox -->
+                        <div class="mt-4">
+                            <div class="text-sm text-justify mb-4">
+                                Conformément à la Loi n°78 - 17 du 6 janvier 1978 modifiée relative à l'informatique, aux fichiers et aux libertés et au Règlement (UE) 2016-679 sur la protection des données et dans le cadre et les limites posées par ces textes, vous pouvez exercer votre droit d'accès aux données vous concernant et les faire rectifier ou effacer. Vous disposez également d'un droit à la portabilité de vos données personnelles et, si vous avez consenti à ce que vos données soient utilisées à des fins de prospection et de communication, d'un droit d'opposition ou de limitation que vous pouvez exercer en contactant le correspondant à la protection des données personnelles auprès de : clil&#64;itescia.fr ou, en en cas de difficulté auprès du délégué à la protection des données personnelles à l'adresse : cpdp&#64;cci-paris-idf.fr. En dernier recours, vous pouvez déposer une réclamation auprès de la CNIL3 place de Fontenoy, TSA 80715 - 75334 PARIS CEDEX 07.
+                                <br><br>
+                                Les données à caractère personnel qui vous sont demandées sont recueillies afin d'assurer la constitution et la gestion des dossiers de candidatures et, si vous avez donné votre accord, l'envoi de lettres d'information. Ces données sont conservées pour une durée de 3 ans pour ce qui relève d'éventuelles sollicitations informatives ou commerciales émanent du groupe CCI Paris Ile-de-France.
+                                <br><br>
+                                Aucune information personnelle n'est collectée à votre insu.
+                                <br><br>
+                                Aucune information personnelle n'est cédée à des tiers, en dehors des entités du groupe CCI Paris Ile-de France et de l'organisme de financement du contrat d'apprentissage (OPCO) pour le traitement de votre dossier.
+                            </div>
+                            <div class="field-checkbox">
+                                <p-checkbox 
+                                    [binary]="true" 
+                                    formControlName="legalConsent" 
+                                    inputId="legalConsent">
+                                </p-checkbox>
+                                <label for="legalConsent" class="ml-2">
+                                    J'accepte les mentions légales ci-dessus
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="flex justify-content-end mt-4 gap-2">
+                    <button pButton pRipple 
+                        *ngIf="activeIndex > 0"
+                        label="Précédent" 
+                        icon="pi pi-arrow-left" 
+                        class="p-button-secondary"
+                        (click)="prevStep()"
+                    ></button>
+                    
+                    <button pButton pRipple 
+                        *ngIf="activeIndex < 3"
+                        label="Suivant" 
+                        icon="pi pi-arrow-right" 
+                        iconPos="right"
+                        (click)="nextStep()"
+                        [disabled]="activeIndex === 0 ? !isStep1Valid() : false"
+                    ></button>
+
+                    <button pButton pRipple
+                        *ngIf="activeIndex === 3"
+                        type="submit" 
+                        label="Soumettre la Candidature" 
+                        icon="pi pi-send"
+                        [loading]="isSubmitting"
+                        [disabled]="!subscriptionForm.valid || isSubmitting"
+                        class="p-button-success"
+                    ></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+    

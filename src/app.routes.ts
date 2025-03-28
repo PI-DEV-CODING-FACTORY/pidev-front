@@ -6,7 +6,7 @@ import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
 import { Crud } from './app/pages/crud/crud';
 import { Subscription } from 'rxjs';
-import { SubscriptionComponent } from './app/pages/public/components/Subscription/subscription';
+import { SubscriptionComponent } from './app/pages/public/components/subscription/subscription.component';
 
 export const appRoutes: Routes = [
     {
