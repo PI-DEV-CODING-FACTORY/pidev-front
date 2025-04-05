@@ -135,10 +135,10 @@ export class UserStatisticsComponent {
     return user.totalPosts + user.totalAnswers;
   }
 
-  getUserRank(user: UserActivity): number {
-    const allUsers = [...this.serActivityData].sort(
-      (a, b) => this.calculateTotalActivity(b) - this.calculateTotalActivity(a)
-    );
-    return allUsers.findIndex(u => u.id === user.id) + 1;
-  }
+  // getUserRank(user: UserActivity): number {
+  //   const allUsers = [...this.serActivityData].sort(
+  //     (a, b) => this.calculateTotalActivity(b) - this.calculateTotalActivity(a)
+  //   );
+  //   return allUsers.findIndex(u => u.id === user.id) + 1;
+  // }
 }

@@ -119,27 +119,27 @@ export class PostComponent {
   stopRecording() {
     this.voiceRecognitionService.stop();
     this.message += this.voiceRecognitionService.text;
-    this.voiceRecognitionService.text = ''; // Clear the recognized text after appending to message
+    this.voiceRecognitionService.text = ''; 
   }
 
   submitMessage(event: Event) {
     // Handle message submission logic here
     console.log('Message submitted:', this.message);
-    this.message = ''; // Clear the input after submission
+    this.message = '';
   }
 
   public getPosts(): void {
-    if (this.user != null) {
-      this.postService.findAllPostsWithoutUser().subscribe((response: Post[]) => {
-        this.posts = response;
-        console.log("Posts:", this.posts);
-      });
-    } else {
+    // if (this.user != null) {
+    //   this.postService.findAllPostsWithoutUser().subscribe((response: Post[]) => {
+    //     this.posts = response;
+    //     console.log("Posts:", this.posts);
+    //   });
+    // } else {
       this.postService.findAllPostss().subscribe((response: Post[]) => {
         this.posts = response;
         console.log("Posts:", this.posts);
       });
-    }
+    // }
 
   }
   public getTechnologies(): void {
@@ -308,12 +308,6 @@ export class PostComponent {
   }
 
   getBotResponse(input: string): string {
-    // // Simple responses (Replace this with API call)
-    // const responses: { [key: string]: string } = {
-    //   "hello": "Hi there! How can I assist you?",
-    //   "how are you": "I'm just a bot, but I'm doing great! 😊",
-    //   "bye": "Goodbye! Have a great day! 👋"
-    // };
     this.postService.getResponse(input).subscribe((response: string) => {
       this.response = response;
 
@@ -348,13 +342,13 @@ export class PostComponent {
     }
   }
   scrollToBottomPage() {
-    // Wait for the chatbot to be visible, then scroll down
+   
     setTimeout(() => {
       window.scrollTo({
         top: document.body.scrollHeight, // Scroll to the bottom of the page
-        behavior: 'smooth' // Add smooth scrolling
+        behavior: 'smooth' 
       });
-    }, 100); // Delay to ensure the visibility toggle has occurred
+    }, 100);
   }
   getRandomColor() {
     const letters = '0123456789ABCDEF';

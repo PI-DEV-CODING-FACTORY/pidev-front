@@ -30,8 +30,8 @@ export class AppMenu {
                     ...(user != null ? [
                         { label: 'Own Posts', icon: 'pi pi-user-edit', routerLink: ['/pages/userPosts'] }
                     ] : []),
-                    { label: 'News', icon: 'pi pi-globe', routerLink: ['/pages/hackerNews'] },
-                    { label: 'Statistics', icon: 'pi pi-chart-bar', routerLink: ['/pages/userStatistics'] },
+                    // { label: 'News', icon: 'pi pi-globe', routerLink: ['/pages/hackerNews'] },
+                    // { label: 'Statistics', icon: 'pi pi-chart-bar', routerLink: ['/pages/userStatistics'] },
                     ...(user == null ? [
                         {
                             label: 'Login',
