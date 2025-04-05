@@ -14,8 +14,8 @@ export class HackerNewsComponent implements OnInit {
   allNewsIds: number[] = []; // To store all IDs
 
 
-  
-  constructor(private http: HttpClient) {}
+
+  constructor(private http: HttpClient, private hackerNewsService: HackerNewsService) { }
 
   ngOnInit(): void {
     this.fetchAllNewsIds();
@@ -23,8 +23,7 @@ export class HackerNewsComponent implements OnInit {
 
   // Fetch all IDs once
   fetchAllNewsIds(): void {
-    this.http
-      .get<number[]>('https://hacker-news.firebaseio.com/v0/topstories.json')
+    this.hackerNewsService.getTopStories()
       .subscribe((ids: number[]) => {
         this.allNewsIds = ids;
         this.fetchNews(); // Fetch the initial 10 news

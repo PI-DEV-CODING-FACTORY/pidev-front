@@ -282,6 +282,28 @@ export class PostDetailsComponent {
     this.showMentionDropdown = false;
   }
 
+  reportPost(post: Post): void {
+    if (confirm('Are you sure you want to report this post?')) {
+      this.postService.reportPost(post.id).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Post reported successfully'
+          });
+        },
+        error: (error) => {
+          console.error('Error reporting post:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to report post'
+          });
+        }
+      });
+    }
+  }
+
   // Click outside handlers
   @HostListener('document:click', ['$event'])
   handleClickOutside(event: MouseEvent): void {

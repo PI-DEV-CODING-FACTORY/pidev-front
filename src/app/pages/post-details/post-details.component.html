@@ -14,7 +14,12 @@
 
 
 <div class="container animate__animated animate__fadeIn">
-    <h2 id="post-title" class="animate__animated animate__fadeInDown">{{post.title}}</h2>
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 id="post-title" class="animate__animated animate__fadeInDown">{{post.title}}</h2>
+        <button class="btn btn-sm btn-danger" (click)="reportPost(post); $event.stopPropagation()" *ngIf="user!=null">
+            <i class="fas fa-flag"></i> Report
+        </button>
+    </div>
     <div class="post-image-container animate__animated animate__fadeIn" *ngIf="post.image">
         <img class="post-image" [src]="post.image ? 'http://localhost:8081/images/' + post.image : ''" alt="Post Image">
     </div>
@@ -57,7 +62,7 @@
                     </div>
                     <p class="comment-content">{{c.content}}</p>
                     <div class="comment-footer">
-                        <small class="comment-author">Posted by {{user.username}}</small>
+                        <small class="comment-author">Posted by {{c.user?.username}}</small>
                         <small>{{c.createdAt }}</small>
                     </div>
                     <!-- <div class="d-flex justify-content-between align-items-center mt-2">

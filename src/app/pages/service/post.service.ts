@@ -40,6 +40,10 @@ export class PostService {
     return this.http.post<string>(`${this.apiServerUrl}/post/upload/image`, formData, { responseType: 'text' as 'json' });
   }
 
+  public reportPost(postId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiServerUrl}/post/report/${postId}`, null);
+  }
+
 
 
 
