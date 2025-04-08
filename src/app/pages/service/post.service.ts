@@ -22,7 +22,9 @@ export class PostService {
   public findDistinctTechnologies(): Observable<string[]> { return this.http.get<string[]>(`${this.apiServerUrl}/post/find/technology`) }
   public findPostById(id: number): Observable<Post> { return this.http.get<Post>(`${this.apiServerUrl}/post/find/${id}`) }
   public findCommentsByPostId(id: number): Observable<Post[]> { return this.http.get<Post[]>(`${this.apiServerUrl}/post/find/comment/${id}`) }
-  public addPost(post: Post): Observable<Post> { return this.http.post<Post>(`${this.apiServerUrl}/post/add`, post) }
+  public addPost(post: Post): Observable<Post> {
+    return this.http.post<Post>(`${this.apiServerUrl}/post/add`, post)
+  }
   public updatePostById(post: Post, id: number): Observable<Post> { return this.http.put<Post>(`${this.apiServerUrl}/post/update/${id}`, post) }
   public deletePost(id: number): Observable<void> { return this.http.delete<void>(`${this.apiServerUrl}/post/delete/${id}`) }
   public getResponse(prompt: string): Observable<string> {

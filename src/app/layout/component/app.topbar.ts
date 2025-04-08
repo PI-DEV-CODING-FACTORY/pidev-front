@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MenuItem } from 'primeng/api';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
@@ -8,19 +8,25 @@ import { LayoutService } from '../service/layout.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { interval, Subject, Subscription, takeUntil } from 'rxjs';
 import { AuthService, User } from '../../pages/service/auth.service';
+import { NotificationService } from '../../pages/service/notification.service';
 
 
 
-interface Notification {
+export interface Notification {
   id: number;
   message: string;
-  timestamp: Date;
-  read: boolean;
-  type: 'comment' | 'mention';
-  postId?: number;
-  userId?: number;
-  avatar?: string;
-  userName?: string;
+  createdAt: Date;
+  isRead: boolean;
+  type: 'COMMENT' | 'MENTION';
+  post?: {
+    id: number;
+    title: string;
+    content: string;
+  };
+  user?: {
+    id: number;
+    name: string;
+  };
 }
 
 
@@ -75,12 +81,12 @@ interface Notification {
       </button>
 
       <div class="notifications-panel hidden">
-        <div class="notifications-header">
+        <!-- <div class="notifications-header">
           <h5>Notifications</h5>
           <button *ngIf="hasUnread" class="mark-all-read" (click)="markAllAsRead()">
             Tout marquer comme lu
           </button>
-        </div>
+        </div> -->
         
         <div class="notifications-tabs">
           <button 
@@ -107,19 +113,19 @@ interface Notification {
           <div 
             *ngFor="let notification of filteredNotifications" 
             class="notification-item" 
-            [class.unread]="!notification.read"
+            [class.unread]="!notification.isRead"
             [@notificationAnimation]
             (click)="readNotification(notification)"
           >
-            <div class="notification-avatar" *ngIf="notification.avatar">
+            <!-- <div class="notification-avatar" *ngIf="notification.avatar">
               <img [src]="notification.avatar" alt="User avatar">
-            </div>
+            </div> -->
             <div class="notification-content">
               <div class="notification-message" [innerHTML]="notification.message"></div>
-              <div class="notification-time">{{ getTimeAgo(notification.timestamp) }}</div>
+              <!-- <div class="notification-time">{{ getTimeAgo(notification.timestamp) }}</div> -->
             </div>
             <div class="notification-icon">
-              <i class="pi" [ngClass]="{'pi-comments': notification.type === 'comment', 'pi-at': notification.type === 'mention'}"></i>
+              <i class="pi" [ngClass]="{'pi-comments': notification.type === 'COMMENT', 'pi-at': notification.type === 'MENTION'}"></i>
             </div>
           </div>
         </div>
@@ -368,7 +374,30 @@ export class AppTopbar {
   activeTab: 'all' | 'comments' | 'mentions' = 'all';
   private destroy$ = new Subject<void>();
   private refreshSubscription: Subscription | null = null;
-  constructor(public layoutService: LayoutService, private authService: AuthService) { }
+  constructor(
+    public layoutService: LayoutService,
+    private authService: AuthService,
+    private notificationService: NotificationService,
+    private router: Router
+  ) {   // Simuler la récupération des notifications depuis le serveur
+    this.loadNotifications();
+    this.authService.currentUser.subscribe((currentUser: User | null) => {
+      if (currentUser) {
+        this.user = currentUser;
+        console.log("Current user: ", currentUser);
+      } else {
+        // Handle the case where currentUser is null
+        console.error('User is not logged in');
+      }
+    });
+
+    // Mettre en place une actualisation périodique
+    this.refreshSubscription = interval(30000) // 30 secondes
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.checkForNewNotifications();
+      });
+  }
   user!: User;
   toggleDarkMode() {
     this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
@@ -381,16 +410,22 @@ export class AppTopbar {
     window.location.href = '/';
   }
   get hasUnread(): boolean {
-    return this.notifications.some(notification => !notification.read);
+    return this.notifications.some(notification => !notification.isRead);
   }
 
   ngOnInit() {
     // Simuler la récupération des notifications depuis le serveur
     this.loadNotifications();
-    const currentUser = this.authService.currentUserValue;
-    if (currentUser) {
-      this.user = currentUser;
-    }
+    this.authService.currentUser.subscribe((currentUser: User | null) => {
+      if (currentUser) {
+        this.user = currentUser;
+        console.log("Current user: ", currentUser);
+      } else {
+        // Handle the case where currentUser is null
+        console.error('User is not logged in');
+      }
+    });
+
     // Mettre en place une actualisation périodique
     this.refreshSubscription = interval(30000) // 30 secondes
       .pipe(takeUntil(this.destroy$))
@@ -409,71 +444,29 @@ export class AppTopbar {
   }
 
   loadNotifications() {
-    // Simuler des données - à remplacer par votre appel API
-    this.notifications = [
-      {
-        id: 1,
-        message: '<b>Ahmed Kaddour</b> a commenté sur votre post "Mise à jour Spring 3.0"',
-        timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-        read: false,
-        type: 'comment',
-        postId: 123,
-        userId: 456,
-        avatar: 'assets/images/avatar1.jpg',
-        userName: 'Ahmed Kaddour'
-      },
-      {
-        id: 2,
-        message: '<b>Sophia Benali</b> vous a mentionné dans un commentaire: "Je pense que @votreNom a raison concernant..."',
-        timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-        read: false,
-        type: 'mention',
-        postId: 124,
-        userId: 457,
-        avatar: 'assets/images/avatar2.jpg',
-        userName: 'Sophia Benali'
-      },
-      {
-        id: 3,
-        message: '<b>Karim Halim</b> a commenté sur votre post "Les meilleures pratiques avec Angular"',
-        timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
-        read: true,
-        type: 'comment',
-        postId: 125,
-        userId: 458,
-        avatar: 'assets/images/avatar3.jpg',
-        userName: 'Karim Halim'
-      }
-    ];
+    if (!this.user) return;
 
-    this.updateFilteredNotifications();
-    this.updateUnreadCount();
+    this.notificationService.getUserNotifications(this.user.id)
+      .subscribe(notifications => {
+        console.log("Fetched notifications: ", notifications);
+        this.notifications = notifications;
+        this.updateFilteredNotifications();
+        this.updateUnreadCount();
+      });
+    console.log("Notifications: ", this.notifications);
   }
 
   checkForNewNotifications() {
-    // Simuler la vérification des nouvelles notifications - à remplacer par votre appel API
-    const randomChance = Math.random();
+    if (!this.user) return;
 
-    if (randomChance > 0.7) {
-      const newNotification: Notification = {
-        id: this.notifications.length + 1,
-        message: '<b>Nouvel utilisateur</b> a commenté sur votre post récent',
-        timestamp: new Date(),
-        read: false,
-        type: Math.random() > 0.5 ? 'comment' : 'mention',
-        postId: 126,
-        userId: 459,
-        avatar: 'assets/images/avatar4.jpg',
-        userName: 'Nouvel utilisateur'
-      };
-
-      this.notifications.unshift(newNotification);
-      this.updateFilteredNotifications();
-      this.updateUnreadCount();
-
-      // Ajouter une notification système
-      // Cette partie serait intégrée avec votre service de notifications système
-    }
+    this.notificationService.getUnreadNotifications(this.user.id)
+      .subscribe(notifications => {
+        if (notifications.length > 0) {
+          this.notifications = [...notifications, ...this.notifications];
+          this.updateFilteredNotifications();
+          this.updateUnreadCount();
+        }
+      });
   }
 
   setActiveTab(tab: 'all' | 'comments' | 'mentions') {
@@ -484,10 +477,10 @@ export class AppTopbar {
   updateFilteredNotifications() {
     switch (this.activeTab) {
       case 'comments':
-        this.filteredNotifications = this.notifications.filter(n => n.type === 'comment');
+        this.filteredNotifications = this.notifications.filter(n => n.type === 'COMMENT');
         break;
       case 'mentions':
-        this.filteredNotifications = this.notifications.filter(n => n.type === 'mention');
+        this.filteredNotifications = this.notifications.filter(n => n.type === 'MENTION');
         break;
       default:
         this.filteredNotifications = [...this.notifications];
@@ -495,26 +488,33 @@ export class AppTopbar {
   }
 
   updateUnreadCount() {
-    this.unreadCount = this.notifications.filter(n => !n.read).length;
+    this.unreadCount = this.notifications.filter(n => !n.isRead).length;
   }
 
   readNotification(notification: Notification) {
-    // Dans un cas réel, vous appelleriez votre API ici
-    notification.read = true;
-    this.updateUnreadCount();
+    this.notificationService.markAsRead(notification.id)
+      .subscribe(() => {
+        notification.isRead = true;
+        this.updateUnreadCount();
 
-    // Naviguer vers le post ou autre action
-    console.log(`Navigating to post ${notification.postId}`);
-    // this.router.navigate(['/posts', notification.postId]);
+        // Navigate to the post or other action
+        console.log(`Navigating to post ${notification.post?.id}`);
+        this.router.navigate(['/pages/postDetails', notification.post?.id]);
+      });
   }
 
   markAllAsRead() {
-    this.notifications.forEach(notification => {
-      notification.read = true;
-    });
-    this.updateUnreadCount();
+    if (!this.user) return;
 
-    // Dans un cas réel, vous appelleriez votre API ici
+    this.notificationService.markAllAsRead(this.user.id)
+      .subscribe(() => {
+        // Update local notifications to be marked as read
+        this.notifications.forEach(notification => {
+          notification.isRead = true;
+        });
+        this.updateFilteredNotifications();
+        this.updateUnreadCount();
+      });
   }
 
   getTimeAgo(date: Date): string {

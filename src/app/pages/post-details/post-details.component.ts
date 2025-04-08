@@ -9,6 +9,8 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { format } from 'date-fns';
 import { AuthService, User } from '../service/auth.service';
+import { NotificationService } from '../service/notification.service';
+import { CommentNotificationRequest } from '../../interfaces/CommentNotificationRequest';
 interface MentionUser {
   id: number;
   name: string;
@@ -52,7 +54,7 @@ export class PostDetailsComponent {
 
   // likes: number = 0;
   @ViewChild('commentInput') commentInput!: ElementRef;
-  constructor(private postService: PostService, private route: ActivatedRoute, private messageService: MessageService, private authService: AuthService) {
+  constructor(private postService: PostService, private route: ActivatedRoute, private messageService: MessageService, private authService: AuthService, private notificatonService: NotificationService) {
     this.route.params.subscribe(params => {
       this.postService.findPostById(params['id']).subscribe((post: Post) => {
         this.post = post;
@@ -89,6 +91,7 @@ export class PostDetailsComponent {
       this.comments = response;
       console.log("Comments:", this.comments);
     });
+    this.mentionned = false;
   }
   // postComment() {
   //   const comment = this.commentInput.nativeElement.value;
@@ -119,7 +122,7 @@ export class PostDetailsComponent {
   loadMentionUsers(): void {
     // In a real app, this would be an API call
     this.authService.findAllUsers().subscribe((response: User[]) => {
-      this.mentionUsers = response;
+      this.mentionUsers = response.filter(user => user.id !== this.user.id); // Exclude the current user
       this.filteredMentionUsers = [...this.mentionUsers];
     });
     // this.mentionUsers = [
@@ -150,11 +153,13 @@ export class PostDetailsComponent {
       user.username.toLowerCase().includes(searchTerm)
     );
   }
-
+  mentionnedUser!: User;
   addMention(user: User): void {
     this.commentText += ` @${user.username} `;
+    this.mentionnedUser = user;
     this.showMentionDropdown = false;
     this.mentionSearchTerm = '';
+    this.mentionned = true;
   }
 
 
@@ -241,6 +246,24 @@ export class PostDetailsComponent {
                 summary: 'Succès',
                 detail: 'Comment added sucessfully.'
               });
+
+              if (this.mentionned) {
+                this.notificatonService.createMentionNotification(this.mentionnedUser, this.post, this.user.username).subscribe(() => {
+                  console.log('Mention notification sent successfully');
+                });
+                if (this.post.user.id != this.user.id) {
+                  this.notificatonService.createCommentNotification(this.post.user, this.post, this.user.username).subscribe(() => {
+                    console.log('Comment notification sent successfully');
+                  });
+                }
+              }
+              else {
+                if (this.post.user.id != this.user.id) {
+                  this.notificatonService.createCommentNotification(this.post.user, this.post, this.user.username).subscribe(() => {
+                    console.log('Comment notification sent successfully');
+                  });
+                }
+              }
               console.log(response);
               this.getComments(this.post.id);
               this.resetForm();
@@ -256,13 +279,33 @@ export class PostDetailsComponent {
       this.isSubmitting = true;
       const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
       const post: Post = new Post(0, "", this.commentText, this.user, formattedDate, TypePost.response, this.post.id, "this.technologie", '');
+      console.log("Menttioned: ", this.mentionned);
       if (post != null) {
+
         this.postService.addPost(post).subscribe((response: Post) => {
           this.messageService.add({
             severity: 'success',
             summary: 'Succès',
             detail: 'Comment added sucessfully.'
           });
+
+          if (this.mentionned) {
+            this.notificatonService.createMentionNotification(this.mentionnedUser, this.post, this.user.username).subscribe(() => {
+              console.log('Mention notification sent successfully');
+            });
+            if (this.post.user.id != this.user.id) {
+              this.notificatonService.createCommentNotification(this.post.user, this.post, this.user.username).subscribe(() => {
+                console.log('Comment notification sent successfully');
+              });
+            }
+          }
+          else {
+            if (this.post.user.id != this.user.id) {
+              this.notificatonService.createCommentNotification(this.post.user, this.post, this.user.username).subscribe(() => {
+                console.log('Comment notification sent successfully');
+              });
+            }
+          }
           console.log(response);
           this.getComments(this.post.id);
           this.resetForm();
@@ -303,7 +346,7 @@ export class PostDetailsComponent {
       });
     }
   }
-
+  mentionned: boolean = false;
   // Click outside handlers
   @HostListener('document:click', ['$event'])
   handleClickOutside(event: MouseEvent): void {
@@ -311,9 +354,11 @@ export class PostDetailsComponent {
     if (this.showMentionDropdown) {
       const target = event.target as HTMLElement;
       const mentionArea = document.querySelector('.mention-toolbar');
+      console.log("Mention area: ", mentionArea);
       if (mentionArea && !mentionArea.contains(target)) {
         this.showMentionDropdown = false;
       }
+
     }
 
     // Close emoji picker when clicking outside

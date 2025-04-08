@@ -24,7 +24,7 @@
         <img class="post-image" [src]="post.image ? 'http://localhost:8081/images/' + post.image : ''" alt="Post Image">
     </div>
     <p id="post-content" class="animate__animated animate__fadeIn">{{post.content}}</p>
-    <p id="post-user" class="animate__animated animate__fadeIn" *ngIf="user!=null">Posted by {{user.username}}</p>
+    <p id="post-user" class="animate__animated animate__fadeIn" *ngIf="user!=null">Posted by {{post.user.username}}</p>
     <div class="tags-container" *ngIf="post.tags.length!=0">
         <div *ngFor="let l of post.tags | split: ', '; let i = index" class="animate__animated animate__fadeIn"
             [style.animation-delay]="i * 0.1 + 's'">
@@ -62,7 +62,7 @@
                     </div>
                     <p class="comment-content">{{c.content}}</p>
                     <div class="comment-footer">
-                        <small class="comment-author">Posted by {{c.user?.username}}</small>
+                        <small class="comment-author">Posted by {{c.user.username}}</small>
                         <small>{{c.createdAt }}</small>
                     </div>
                     <!-- <div class="d-flex justify-content-between align-items-center mt-2">

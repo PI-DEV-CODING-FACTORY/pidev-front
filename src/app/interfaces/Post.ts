@@ -8,14 +8,14 @@ export class Post {
     id!: number;
     title!: string;
     content!: string;
-    user!: User | null;
+    user!: User;
     createdAt!: string;
     type!: TypePost;
     parent_post_id?: number;
     tags!: string;
     image!: string;
     // likes!: number;
-    constructor(id: number, title: string, content: string, user_id: User | null, createdAt: string, type: TypePost, parent_post_id: number, tags: string, image: string,) {
+    constructor(id: number, title: string, content: string, user_id: User , createdAt: string, type: TypePost, parent_post_id: number, tags: string, image: string,) {
         this.id = id;
         this.title = title;
         this.content = content;
