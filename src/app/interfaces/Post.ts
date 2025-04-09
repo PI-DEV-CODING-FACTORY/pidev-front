@@ -14,6 +14,7 @@ export class Post {
     parent_post_id?: number;
     tags!: string;
     image!: string;
+    bestAnswerId?: number;
     // likes!: number;
     constructor(id: number, title: string, content: string, user_id: User , createdAt: string, type: TypePost, parent_post_id: number, tags: string, image: string,) {
         this.id = id;

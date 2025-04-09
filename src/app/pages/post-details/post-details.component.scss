@@ -443,6 +443,139 @@ body.dark-mode .form-control::placeholder {
     transform: scale(1.2);
 }
 
+/* AI Solution Modal Styles */
+.ai-solution-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.ai-solution-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.ai-solution-content {
+    background-color: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-title {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* AI Loading Animation */
+.ai-loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-loading-animation {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.brain-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+    animation: pulse 2s infinite;
+}
+
+.thinking-dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.thinking-dots span {
+    width: 8px;
+    height: 8px;
+    margin: 0 3px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    display: inline-block;
+    animation: thinking 1.4s infinite ease-in-out both;
+}
+
+.thinking-dots span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.thinking-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.thinking-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes thinking {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+
+.ai-solution-text {
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+/* Dark mode styles for AI modal */
+body.dark-mode .ai-solution-content {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    border-color: #444;
+}
+
+body.dark-mode .modal-title {
+    color: #e0e0e0;
+}
+
 
 
 

@@ -46,6 +46,10 @@ export class PostService {
     return this.http.post<void>(`${this.apiServerUrl}/post/report/${postId}`, null);
   }
 
+  public markAsBestAnswer(postId: number, commentId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiServerUrl}/post/best-answer/${postId}/${commentId}`, null);
+  }
+
 
 
 

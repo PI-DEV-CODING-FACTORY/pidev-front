@@ -50,6 +50,11 @@ export class PostDetailsComponent {
   emojis: string[] = ['😀', '😂', '😊', '❤️', '👍', '🔥', '🎉', '🤔', '😎', '👏',
     '😃', '🥰', '😇', '🙂', '😋', '😉', '😍', '😘', '🤗', '😈',
     '👋', '👌', '✌️', '🤞', '👏', '🙏', '🤝', '💪', '✨', '⭐'];
+    
+  // AI Solution properties
+  showAiSolutionModal: boolean = false;
+  isLoadingAiSolution: boolean = false;
+  aiSolution: string | null = null;
 
 
   // likes: number = 0;
@@ -346,6 +351,27 @@ export class PostDetailsComponent {
       });
     }
   }
+
+  markAsBestAnswer(commentId: number): void {
+    this.postService.markAsBestAnswer(this.post.id, commentId).subscribe({
+      next: () => {
+        this.post.bestAnswerId = commentId;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Comment marked as best answer'
+        });
+      },
+      error: (error) => {
+        console.error('Error marking best answer:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to mark comment as best answer'
+        });
+      }
+    });
+  }
   mentionned: boolean = false;
   // Click outside handlers
   @HostListener('document:click', ['$event'])
@@ -369,6 +395,47 @@ export class PostDetailsComponent {
         this.showEmojiPicker = false;
       }
     }
+    
+    // Close AI solution modal when clicking outside
+    if (this.showAiSolutionModal) {
+      const target = event.target as HTMLElement;
+      const modalContent = document.querySelector('.ai-solution-content');
+      if (modalContent && !modalContent.contains(target) && target.className === 'ai-solution-modal show') {
+        this.closeAiSolutionModal();
+      }
+    }
+  }
+  
+  // AI Solution methods
+  generateAISolution(): void {
+    this.showAiSolutionModal = true;
+    this.isLoadingAiSolution = true;
+    this.aiSolution = null;
+    
+    // Create a prompt for the AI based on the post content
+    const prompt = `Please provide the best solution for this question: \n\n${this.post.title}\n\n${this.post.content}`;
+    
+    // Call the API
+    this.postService.getResponse(prompt).subscribe({
+      next: (response: string) => {
+        this.aiSolution = response;
+        this.isLoadingAiSolution = false;
+      },
+      error: (error) => {
+        console.error('Error generating AI solution:', error);
+        this.aiSolution = 'Sorry, there was an error generating a solution. Please try again later.';
+        this.isLoadingAiSolution = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to generate AI solution'
+        });
+      }
+    });
+  }
+  
+  closeAiSolutionModal(): void {
+    this.showAiSolutionModal = false;
   }
 
 }
