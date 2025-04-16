@@ -25,6 +25,38 @@ export class AppMenu {
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
             },
             {
+                label: 'Admin',
+                icon: 'pi pi-fw pi-cog',
+                items: [
+                    { 
+                        label: 'Dashboard', 
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/admin/dashboard']
+                    },
+                    {
+                        label: 'Manage Users',
+                        icon: 'pi pi-fw pi-users',
+                        items: [
+                            {
+                                label: 'Users List',
+                                icon: 'pi pi-fw pi-list',
+                                routerLink: ['/admin/users']
+                            },
+                            {
+                                label: 'Inscription',
+                                icon: 'pi pi-fw pi-user-plus',
+                                routerLink: ['/admin/inscription']
+                            }
+                        ]
+                    },
+                    {
+                        label: 'Settings',
+                        icon: 'pi pi-fw pi-cog',
+                        routerLink: ['/admin/settings']
+                    }
+                ]
+            },
+            {
                 label: 'UI Components',
                 items: [
                     { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },

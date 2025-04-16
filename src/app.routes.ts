@@ -14,10 +14,22 @@ export const appRoutes: Routes = [
         component: Landing,
     },
     { path: 'dashboard', component: Dashboard },
-    // { path: 'crud', component: Crud},
     { path: 'subscription', component: SubscriptionComponent},
     { path: 'notfound', component: Notfound },
-    // { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
+    {
+        path: 'pages',
+        loadChildren: () => import('./app/pages/pages.routes').then(m => m.default)
+    },
+    {
+        path: 'admin',
+        component: AppLayout,
+        children: [
+            {
+                path: '',
+                loadChildren: () => import('./app/admin/admin.routes').then(m => m.default)
+            }
+        ]
+    },
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },
     { path: '**', redirectTo: '/notfound' }
 ];
