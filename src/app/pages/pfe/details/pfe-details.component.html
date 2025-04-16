@@ -79,10 +79,10 @@
           <button 
             pButton 
             type="button" 
-            label="Save" 
-            icon="pi pi-save" 
-            class="p-button-outlined p-button-success"
-            (click)="savePfe()"
+            [label]="isSaved ? 'Unsave' : 'Save'"
+            [icon]="isSaved ? 'pi pi-bookmark-remove' : 'pi pi-bookmark'"
+            [class]="isSaved ? 'p-button-outlined p-button-danger' : 'p-button-outlined p-button-primary'"
+            (click)="toggleSavePfe()"
             [disabled]="pfe.processing"
           ></button>
           <button 
@@ -353,6 +353,15 @@
               <div>
                 <h3 class="mb-2 text-sm font-medium text-gray-500">Actions</h3>
                 <div class="space-y-2">
+                  <button 
+                    pButton 
+                    type="button" 
+                    [label]="isSaved ? 'Remove from Saved' : 'Save to List'"
+                    [icon]="isSaved ? 'pi pi-bookmark-remove' : 'pi pi-bookmark'"
+                    [class]="isSaved ? 'w-full p-button-outlined p-button-danger' : 'w-full p-button-outlined p-button-primary'"
+                    (click)="toggleSavePfe()"
+                    [disabled]="pfe.processing"
+                  ></button>
                   <button 
                     pButton 
                     type="button" 

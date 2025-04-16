@@ -67,6 +67,7 @@ export class PfeDetailsComponent implements OnInit {
     pfeId: number | null = null;
     pfe: ExtendedPfe | null = null;
     loading: boolean = true;
+    isSaved: boolean = false;
     sanitizedReportUrl: SafeResourceUrl | null = null;
     pdfLoading: boolean = true;
     pdfLoadError: boolean = false;
@@ -117,6 +118,9 @@ export class PfeDetailsComponent implements OnInit {
                 this.pfe = data;
                 this.loading = false;
 
+                // Check if PFE is saved
+                this.checkIfPfeIsSaved();
+
                 // Initialize sanitizedReportUrl if rapportUrl exists
                 if (this.pfe.rapportUrl) {
                     this.sanitizeReportUrl();
@@ -134,6 +138,19 @@ export class PfeDetailsComponent implements OnInit {
                     summary: 'Error',
                     detail: 'Failed to load PFE details'
                 });
+            }
+        });
+    }
+
+    checkIfPfeIsSaved() {
+        if (!this.pfeId) return;
+
+        this.pfeService.isPfeSaved(this.pfeId).subscribe({
+            next: (response) => {
+                this.isSaved = response.isSaved;
+            },
+            error: (error) => {
+                console.error('Error checking if PFE is saved:', error);
             }
         });
     }
@@ -385,27 +402,50 @@ export class PfeDetailsComponent implements OnInit {
         this.location.back();
     }
 
-    savePfe() {
+    toggleSavePfe() {
         if (!this.pfe || !this.pfe.id) return;
 
-        this.pfeService.updatePfe(this.pfe.id, this.pfe).subscribe({
-            next: (updatedPfe) => {
-                this.pfe = updatedPfe;
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'PFE project saved successfully'
-                });
-            },
-            error: (error) => {
-                console.error('Error saving PFE:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to save PFE project'
-                });
-            }
-        });
+        if (this.isSaved) {
+            // Unsave the PFE
+            this.pfeService.unsavePfe(this.pfe.id).subscribe({
+                next: () => {
+                    this.isSaved = false;
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'PFE project removed from your saved list'
+                    });
+                },
+                error: (error) => {
+                    console.error('Error unsaving PFE:', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to remove PFE project from your saved list'
+                    });
+                }
+            });
+        } else {
+            // Save the PFE
+            this.pfeService.savePfeToCompany(this.pfe.id).subscribe({
+                next: () => {
+                    this.isSaved = true;
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'PFE project saved to your list successfully'
+                    });
+                },
+                error: (error) => {
+                    console.error('Error saving PFE:', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to save PFE project to your list'
+                    });
+                }
+            });
+        }
     }
 
     getStudentInitials(): string {

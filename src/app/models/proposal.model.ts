@@ -12,7 +12,12 @@ export interface Proposal {
 export enum ProposalStatus {
     PENDING = 'PENDING',
     ACCEPTED = 'ACCEPTED',
-    DECLINED = 'DECLINED'
+    DECLINED = 'DECLINED',
+    PASSED = 'PASSED',
+    FAILED = 'FAILED',
+    MEETING_SCHEDULED = 'MEETING_SCHEDULED',
+    STUDENT_ACCEPTED = 'STUDENT_ACCEPTED',
+    STUDENT_REJECTED = 'STUDENT_REJECTED'
 }
 
 export enum JobType {

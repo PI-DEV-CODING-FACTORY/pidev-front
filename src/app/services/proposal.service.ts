@@ -118,4 +118,49 @@ export class ProposalService {
       })
     );
   }
+
+  // New methods for additional proposal statuses
+  scheduleMeeting(id: number, meetingDetails: string): Observable<any> {
+    // In a real application, this should call an API endpoint to update the proposal
+    // For now, we'll simulate it with a basic update
+    return this.updateProposalStatus(id, ProposalStatus.MEETING_SCHEDULED);
+  }
+  
+  updateProposalStatus(id: number, status: ProposalStatus): Observable<any> {
+    // This endpoint would need to be implemented on the backend
+    const url = `${this.apiUrl}/${id}/status`;
+    
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': '*/*'
+    });
+    
+    return this.http.post(url, { status }, { 
+      headers, 
+      responseType: 'text',
+      observe: 'response'
+    }).pipe(
+      map(response => {
+        if (response.status === 200) {
+          return { success: true, message: `Proposal status updated to ${status}` };
+        }
+        if (response.body) {
+          try {
+            return JSON.parse(response.body);
+          } catch (e) {
+            return { success: true, message: `Proposal status updated to ${status}`, rawResponse: response.body };
+          }
+        }
+        return { success: true };
+      }),
+      catchError(error => {
+        console.error(`Error updating proposal status to ${status}:`, error);
+        throw error;
+      })
+    );
+  }
+  
+  getProposalsByCompanyId(companyId: string): Observable<Proposal[]> {
+    return this.http.get<Proposal[]>(`${this.apiUrl}/company/${companyId}`);
+  }
 } 
