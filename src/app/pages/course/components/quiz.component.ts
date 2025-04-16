@@ -1,12 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { QuizQuestion } from '../../../models/course.model';
 
-interface QuizQuestion {
-    question: string;
-    options: string[];
-    correctAnswer: string;
-}
+
 
 @Component({
     selector: 'app-quiz',
@@ -17,42 +14,124 @@ interface QuizQuestion {
             <div *ngFor="let quiz of quizzes; let i = index" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-6">
                 <h3 class="text-xl text-gray-800 dark:text-gray-200 mb-5">{{ quiz.question }}</h3>
                 <div class="flex flex-col gap-3 mb-6">
+                    <!-- Option A -->
                     <div
-                        *ngFor="let option of quiz.options; let j = index"
                         class="flex items-center gap-3 p-3 rounded-lg transition-all"
                         [ngClass]="{
-                            'bg-green-100/50 dark:bg-green-900/10': showResults && option === quiz.correctAnswer,
-                            'bg-red-100/50 dark:bg-red-900/10': showResults && selectedAnswers[i] === option && option !== quiz.correctAnswer
+                            'bg-green-100/50 dark:bg-green-900/10': showResults && 'A' === quiz.correctAns,
+                            'bg-red-100/50 dark:bg-red-900/10': showResults && selectedAnswers[i] === 'A' && 'A' !== quiz.correctAns
                         }"
                     >
                         <input
                             type="radio"
-                            [id]="'option' + i + j"
+                            [id]="'optionA' + i"
                             [name]="'question' + i"
-                            [value]="option"
+                            value="A"
                             [(ngModel)]="selectedAnswers[i]"
                             class="appearance-none w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-full 
-                     checked:border-indigo-500 checked:bg-indigo-500 dark:checked:border-indigo-400 dark:checked:bg-indigo-400
-                     relative transition-colors cursor-pointer"
+                            checked:border-indigo-500 checked:bg-indigo-500 dark:checked:border-indigo-400 dark:checked:bg-indigo-400
+                            relative transition-colors cursor-pointer"
                             [disabled]="showResults"
                         />
                         <label
-                            [for]="'option' + i + j"
+                            [for]="'optionA' + i"
                             class="flex-1 p-2 rounded-md cursor-pointer transition-colors
-                     text-gray-700 dark:text-gray-300
-                     hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                            text-gray-700 dark:text-gray-300
+                            hover:bg-gray-50 dark:hover:bg-gray-700/50"
                         >
-                            {{ option }}
+                            {{ quiz.ansA }}
+                        </label>
+                    </div>
+
+                    <!-- Option B -->
+                    <div
+                        class="flex items-center gap-3 p-3 rounded-lg transition-all"
+                        [ngClass]="{
+                            'bg-green-100/50 dark:bg-green-900/10': showResults && 'B' === quiz.correctAns,
+                            'bg-red-100/50 dark:bg-red-900/10': showResults && selectedAnswers[i] === 'B' && 'B' !== quiz.correctAns
+                        }"
+                    >
+                        <input
+                            type="radio"
+                            [id]="'optionB' + i"
+                            [name]="'question' + i"
+                            value="B"
+                            [(ngModel)]="selectedAnswers[i]"
+                            class="appearance-none w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-full 
+                            checked:border-indigo-500 checked:bg-indigo-500 dark:checked:border-indigo-400 dark:checked:bg-indigo-400
+                            relative transition-colors cursor-pointer"
+                            [disabled]="showResults"
+                        />
+                        <label
+                            [for]="'optionB' + i"
+                            class="flex-1 p-2 rounded-md cursor-pointer transition-colors
+                            text-gray-700 dark:text-gray-300
+                            hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                        >
+                            {{ quiz.ansB }}
+                        </label>
+                    </div>
+
+                    <!-- Option C -->
+                    <div
+                        class="flex items-center gap-3 p-3 rounded-lg transition-all"
+                        [ngClass]="{
+                            'bg-green-100/50 dark:bg-green-900/10': showResults && 'C' === quiz.correctAns,
+                            'bg-red-100/50 dark:bg-red-900/10': showResults && selectedAnswers[i] === 'C' && 'C' !== quiz.correctAns
+                        }"
+                    >
+                        <input
+                            type="radio"
+                            [id]="'optionC' + i"
+                            [name]="'question' + i"
+                            value="C"
+                            [(ngModel)]="selectedAnswers[i]"
+                            class="appearance-none w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-full 
+                            checked:border-indigo-500 checked:bg-indigo-500 dark:checked:border-indigo-400 dark:checked:bg-indigo-400
+                            relative transition-colors cursor-pointer"
+                            [disabled]="showResults"
+                        />
+                        <label
+                            [for]="'optionC' + i"
+                            class="flex-1 p-2 rounded-md cursor-pointer transition-colors
+                            text-gray-700 dark:text-gray-300
+                            hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                        >
+                            {{ quiz.ansC }}
+                        </label>
+                    </div>
+
+                    <!-- Option D -->
+                    <div
+                        class="flex items-center gap-3 p-3 rounded-lg transition-all"
+                        [ngClass]="{
+                            'bg-green-100/50 dark:bg-green-900/10': showResults && 'D' === quiz.correctAns,
+                            'bg-red-100/50 dark:bg-red-900/10': showResults && selectedAnswers[i] === 'D' && 'D' !== quiz.correctAns
+                        }"
+                    >
+                        <input
+                            type="radio"
+                            [id]="'optionD' + i"
+                            [name]="'question' + i"
+                            value="D"
+                            [(ngModel)]="selectedAnswers[i]"
+                            class="appearance-none w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-full 
+                            checked:border-indigo-500 checked:bg-indigo-500 dark:checked:border-indigo-400 dark:checked:bg-indigo-400
+                            relative transition-colors cursor-pointer"
+                            [disabled]="showResults"
+                        />
+                        <label
+                            [for]="'optionD' + i"
+                            class="flex-1 p-2 rounded-md cursor-pointer transition-colors
+                            text-gray-700 dark:text-gray-300
+                            hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                        >
+                            {{ quiz.ansD }}
                         </label>
                     </div>
                 </div>
             </div>
-            <button 
-                (click)="submitQuiz()"
-                class="w-full bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors"
-            >
-                Submit Quiz
-            </button>
+            <button (click)="submitQuiz()" class="w-full bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors">Submit Quiz</button>
         </div>
     `,
     styles: [

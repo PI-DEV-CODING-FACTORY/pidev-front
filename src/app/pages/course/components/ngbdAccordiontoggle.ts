@@ -3,9 +3,10 @@ import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodeDisplayComponent } from './codedisplay';
 import { QuizComponent } from './quiz.component';
 import { CourseService } from '../../../services/course.service';
-import { ExampleHistoryType } from '../../../models/course.model';
+import { ExampleHistoryType, QuizQuestion, QuizType } from '../../../models/course.model';
 import { CommonModule } from '@angular/common';
 import { ExampleService } from '../../../services/example.service';
+import { QuizService } from '../../../services/quiz.service';
 
 @Component({
     selector: 'ngbd-accordion-toggle',
@@ -49,7 +50,7 @@ import { ExampleService } from '../../../services/example.service';
                     <div ngbAccordionBody>
                         <ng-template>
                             <div class="p-6 text-gray-600 dark:text-gray-300 text-base leading-7 bg-white dark:bg-gray-800">
-                                <app-quiz [quizzes]="quizData"></app-quiz>
+                                <app-quiz [quizzes]="quizs"></app-quiz>
                             </div>
                         </ng-template>
                     </div>
@@ -65,10 +66,23 @@ export class NgbdAccordionToggle {
 
     private courseService = inject(CourseService);
     private examapleService = inject(ExampleService);
+    private quizService = inject(QuizService);
+    quizs: QuizQuestion[] = [];
     examples: ExampleHistoryType[] = [];
-
     onRefresh(event: MouseEvent) {
         event.stopPropagation();
+        this.quizService.fetchQuizzesByCourseAndLesson(this.courseId, this.lessonId).subscribe({
+            next: (data: QuizType[]) => {
+                // this.quizs = data;
+
+                const dd = JSON.parse(data[0].questions);
+                this.quizs = dd;
+                console.log('Quizs:', this.quizs);
+            },
+            error: (error) => {
+                console.error('Error fetching quizzes:', error);
+            }
+        });
         if (this.courseId && this.lessonId) {
             this.examapleService.getExampleHistories(this.courseId, this.lessonId).subscribe({
                 next: (data) => {
@@ -87,13 +101,19 @@ export class NgbdAccordionToggle {
     quizData = [
         {
             question: 'What is the capital of France?',
-            options: ['London', 'Paris', 'Berlin', 'Madrid'],
-            correctAnswer: 'Paris'
+            ansA: 'London',
+            ansB: 'Paris',
+            ansC: 'Berlin',
+            ansD: 'Madrid',
+            correctAns: 'B'
         },
         {
             question: 'Which planet is closest to the sun?',
-            options: ['Earth', 'Mars', 'Mercury', 'Venus'],
-            correctAnswer: 'Mercury'
+            ansA: 'Earth',
+            ansB: 'Mars',
+            ansC: 'Mercury',
+            ansD: 'Venus',
+            correctAns: 'C'
         }
         // Add more questions as needed
     ];
