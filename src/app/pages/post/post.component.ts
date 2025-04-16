@@ -23,7 +23,7 @@ export class PostComponent {
   user!: User;
   message: string = '';
   loggedIn: boolean = false;
-  constructor(private router: Router, private postService: PostService, private voiceRecognitionService: VoiceRecognitionService, private messageService: MessageService, private authService: AuthService) {
+  constructor(private router: Router, private postService: PostService, public voiceRecognitionService: VoiceRecognitionService, private messageService: MessageService, private authService: AuthService) {
 
     if (this.inputSubject) {
       this.inputSubject.pipe(
@@ -113,13 +113,26 @@ export class PostComponent {
   }
 
   startRecording() {
-    this.voiceRecognitionService.start();
+    if (!this.voiceRecognitionService.isRecording) {
+      this.voiceRecognitionService.start();
+      
+      // S'abonner aux mises à jour du texte
+      this.voiceRecognitionService.voiceToText$.subscribe((text) => {
+        this.message = text;
+        // Déclencher la détection de technologie
+        if (this.detailsInput) {
+          this.detailsInput.nativeElement.value = text;
+          this.handleType(new Event('input'));
+        }
+      });
+    }
   }
 
   stopRecording() {
-    this.voiceRecognitionService.stop();
-    this.message += this.voiceRecognitionService.text;
-    this.voiceRecognitionService.text = ''; 
+    if (this.voiceRecognitionService.isRecording) {
+      this.voiceRecognitionService.stop();
+      // Le texte est déjà mis à jour via l'observable
+    }
   }
 
   submitMessage(event: Event) {

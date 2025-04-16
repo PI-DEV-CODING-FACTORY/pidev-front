@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 declare var webkitSpeechRecognition: any;
 
@@ -10,10 +11,11 @@ export class VoiceRecognitionService {
   isStoppedSpeechRecog = false;
   tempWords: string = '';
   text: string = '';
+  isRecording = false;
+  private voiceToTextSubject: Subject<string> = new Subject();
+  voiceToText$ = this.voiceToTextSubject.asObservable();
 
-  constructor() {
-
-  }
+  constructor() {}
 
   init() {
     this.recognition.interimResults = true;
@@ -24,18 +26,21 @@ export class VoiceRecognitionService {
         .map((result: any) => result.transcript)
         .join('');
       this.tempWords = transcript;
+      this.voiceToTextSubject.next(transcript);
       console.log('Transcript', transcript);
     });
   }
 
   start() {
     this.isStoppedSpeechRecog = false;
+    this.isRecording = true;
     this.recognition.start();
     console.log('Speech recognition started');
 
     this.recognition.addEventListener('end', () => {
       if (this.isStoppedSpeechRecog) {
         this.recognition.stop();
+        this.isRecording = false;
         console.log('End speech recognition');
       } else {
         this.wordConcat();

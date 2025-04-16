@@ -15,7 +15,7 @@
 
 
 
-<div class="button-container animate__animated animate__fadeInDown"  *ngIf="loggedIn">
+<div class="button-container animate__animated animate__fadeInDown" *ngIf="loggedIn">
     <button id="showFormBtn" class="btn btn-primary pulse" (click)="toggleQuestionForm()">
         <i class="fas fa-question-circle me-2"></i> Ask a Question
     </button>
@@ -37,10 +37,17 @@
 
         <div class="toolbar">
             <!-- <button class="btn btn-tool" title="Insert code"><i class="fas fa-code"></i></button> -->
-            <button class="btn btn-tool" title="Record voice note" (mousedown)="startRecording()"
-                (mouseup)="stopRecording()">
-                <i class="fas fa-microphone"></i>
-            </button>
+            <div class="input-group-append">
+                <button class="btn btn-tool" type="button" (click)="startRecording()"
+                    *ngIf="!voiceRecognitionService.isRecording">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="btn btn-tool" type="button" (click)="stopRecording()"
+                    *ngIf="voiceRecognitionService.isRecording">
+                    <i class="fas fa-stop"></i>
+                </button>
+            </div>
+
             <button class="btn btn-tool" title="Upload image" (click)="fileInput.click()">
                 <i class="fas fa-image me-2"></i> <span class="d-none d-md-inline">
                     {{ selectedFileName||'Upload Image' }}</span>
@@ -49,9 +56,12 @@
 
         </div>
     </div>
-    <textarea class="form-control" [(ngModel)]="message" (keyup.enter)="submitMessage($event)" rows="5" #detailsInput
-        (input)="handleType($event)" (paste)="handleType($event)"
-        placeholder="Introduce the problem and expand on what you put in the title. Minimum 20 characters."></textarea>
+    <div class="input-group">
+        <textarea class="form-control" #detailsInput id="details" rows="5" (input)="handleType($event)"
+            [(ngModel)]="message" (keyup.enter)="submitMessage($event)" (paste)="handleType($event)"
+            placeholder="Introduce the problem and expand on what you put in the title. Minimum 20 characters."></textarea>
+
+    </div>
 
 
     <div class="d-none mt-2" id="badge">
