@@ -14,7 +14,12 @@
         <div class="surface-card p-8 shadow-2 border-round-2xl">
             <form [formGroup]="subscriptionForm" (ngSubmit)="onSubmit()">
                 <!-- Steps -->
-                <p-steps [model]="items" [activeIndex]="activeIndex" [readonly]="true"></p-steps>
+                <p-steps 
+                    [model]="items" 
+                    [activeIndex]="activeIndex" 
+                    [readonly]="true"
+                    [style]="{'margin-bottom': '2rem'}"
+                ></p-steps>
 
                 <!-- Step 1: Personal Information -->
                 <div *ngIf="activeIndex === 0" class="mt-4">
@@ -92,7 +97,8 @@
                             />
                             <small class="text-red-500" *ngIf="subscriptionForm.get('confirmEmail')?.invalid && subscriptionForm.get('confirmEmail')?.touched">
                                 <span *ngIf="subscriptionForm.get('confirmEmail')?.errors?.['required']">La confirmation de l'email est requise</span>
-                                <span *ngIf="subscriptionForm.get('confirmEmail')?.errors?.['emailMismatch']">Les adresses email ne correspondent pas</span>
+                                <span *ngIf="subscriptionForm.get('confirmEmail')?.errors?.['email']">Veuillez entrer une adresse email valide</span>
+                                <span *ngIf="subscriptionForm.errors?.['emailMismatch'] && subscriptionForm.get('confirmEmail')?.touched">Les adresses email ne correspondent pas</span>
                             </small>
                         </div>
 
@@ -111,7 +117,8 @@
                                 [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('phoneNumber')?.invalid && subscriptionForm.get('phoneNumber')?.touched}"
                             />
                             <small class="text-red-500" *ngIf="subscriptionForm.get('phoneNumber')?.invalid && subscriptionForm.get('phoneNumber')?.touched">
-                                Le numéro de téléphone est requis
+                                <span *ngIf="subscriptionForm.get('phoneNumber')?.errors?.['required']">Le numéro de téléphone est requis</span>
+                                <span *ngIf="subscriptionForm.get('phoneNumber')?.errors?.['pattern']">Le numéro doit contenir 8 chiffres</span>
                             </small>
                         </div>
                     <br>
@@ -239,7 +246,8 @@
                                 [ngClass]="{'ng-invalid ng-dirty': subscriptionForm.get('postalCode')?.invalid && subscriptionForm.get('postalCode')?.touched}"
                             />
                             <small class="text-red-500" *ngIf="subscriptionForm.get('postalCode')?.invalid && subscriptionForm.get('postalCode')?.touched">
-                                Le code postal est requis
+                                <span *ngIf="subscriptionForm.get('postalCode')?.errors?.['required']">Le code postal est requis</span>
+                                <span *ngIf="subscriptionForm.get('postalCode')?.errors?.['pattern']">Le code postal doit contenir 4 chiffres</span>
                             </small>
                         </div>
                     </div>
@@ -271,6 +279,35 @@
                                 <small class="text-red-500" *ngIf="subscriptionForm.get('lastDiploma')?.invalid && subscriptionForm.get('lastDiploma')?.touched">
                                     Le dernier diplôme est requis
                                 </small>
+                            </div>
+                        </div>
+
+                        <!-- Diploma Upload Field -->
+                        <div class="col-span-12">
+                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
+                                <label class="block text-900 font-medium mb-2">
+                                    <i class="pi pi-file mr-2"></i>Diplome 
+                                </label>
+                                <div class="flex align-items-center gap-3">
+                                    <p-fileUpload
+                                        #diplomaUpload
+                                        mode="basic"
+                                        chooseLabel="Télécharger le Diplôme"
+                                        [maxFileSize]="1000000"
+                                        accept="application/pdf,image/*"
+                                        [auto]="true"
+                                        [customUpload]="true"
+                                        (uploadHandler)="onDegreeUpload($event)"
+                                    ></p-fileUpload>
+                                    <div *ngIf="degreeFileName" class="flex align-items-center gap-2">
+                                        <i class="pi pi-file text-primary"></i>
+                                        <span class="text-600">{{degreeFileName}}</span>
+                                    </div>
+                                </div>
+                                <small class="text-red-500" *ngIf="!degreeFileName && (activeIndex === 1 || isSubmitting)">
+                                    Le diplôme est requis
+                                </small>
+                                <small class="text-600 block mt-2">Taille max: 1MB. Formats acceptés: PDF, Images(jpg, jpeg)</small>
                             </div>
                         </div>
 
@@ -311,169 +348,11 @@
                                 ></textarea>
                             </div>
                         </div>
-
-                        <!-- Document Upload Field -->
-                        <div class="col-span-12">
-                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
-                                <label class="block text-900 font-medium mb-2">
-                                    <i class="pi pi-file mr-2"></i>Relevé de Notes
-                                </label>
-                                <div class="flex align-items-center gap-3">
-                                    <p-fileUpload
-                                        #notesUpload
-                                        mode="basic"
-                                        chooseLabel="Télécharger le Relevé"
-                                        [maxFileSize]="1000000"
-                                        accept="application/pdf,image/*"
-                                        [auto]="true"
-                                        [customUpload]="true"
-                                        (uploadHandler)="onNotesUpload($event)"
-                                    ></p-fileUpload>
-                                    <div *ngIf="transcriptsFileName" class="flex align-items-center gap-2">
-                                        <i class="pi pi-file text-primary"></i>
-                                        <span class="text-600">{{transcriptsFileName}}</span>
-                                    </div>
-                                </div>
-                                <small class="text-600 block mt-2">Taille max: 1MB. Formats acceptés: PDF, Images(jpg, jpeg)</small>
-                            </div>
-                        </div>
-
-                        <!-- Additional Documents Upload -->
-                        <div class="col-span-12">
-                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
-                                <label class="block text-900 font-medium mb-2">
-                                    <i class="pi pi-file mr-2"></i>Diplome 
-                                </label>
-                                <div class="flex align-items-center gap-3">
-                                    <p-fileUpload
-                                        #diplomaUpload
-                                        mode="basic"
-                                        chooseLabel="Télécharger le Diplôme"
-                                        [maxFileSize]="1000000"
-                                        accept="application/pdf,image/*"
-                                        [auto]="true"
-                                        [customUpload]="true"
-                                        (uploadHandler)="onDegreeUpload($event)"
-                                    ></p-fileUpload>
-                                    <div *ngIf="degreeFileName" class="flex align-items-center gap-2">
-                                        <i class="pi pi-file text-primary"></i>
-                                        <span class="text-600">{{degreeFileName}}</span>
-                                    </div>
-                                </div>
-                                <small class="text-600 block mt-2">Taille max: 1MB. Formats acceptés: PDF, Images(jpg, jpeg)</small>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Step 3: Parents Information -->
+                <!-- Step 3: Confirmation -->
                 <div *ngIf="activeIndex === 2" class="mt-4">
-                    <div class="grid grid-cols-12 gap-6">
-                        <!-- Father's Information -->
-                        <div class="col-span-12">
-                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
-                                <label for="fatherName" class="block text-900 font-medium mb-2">
-                                    <i class="pi pi-user mr-2"></i>Nom du Père
-                                </label>
-                                <input 
-                                    id="fatherName" 
-                                    type="text" 
-                                    pInputText 
-                                    class="w-full" 
-                                    formControlName="fatherName"
-                                    placeholder="Nom complet du père"
-                                />
-                                <small class="text-red-500" *ngIf="subscriptionForm.get('fatherName')?.invalid && subscriptionForm.get('fatherName')?.touched">
-                                    Le nom du père est requis
-                                </small>
-                            </div>
-                        </div>
-
-                        <div class="col-span-12">
-                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
-                                <label for="fatherPhone" class="block text-900 font-medium mb-2">
-                                    <i class="pi pi-phone mr-2"></i>Téléphone du Père
-                                </label>
-                                <input 
-                                    id="fatherPhone" 
-                                    type="tel" 
-                                    pInputText 
-                                    class="w-full" 
-                                    formControlName="fatherPhone"
-                                    placeholder="Numéro de téléphone du père"
-                                />
-                            </div>
-                        </div>
-
-                        <div class="col-span-12">
-                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
-                                <label for="fatherProfession" class="block text-900 font-medium mb-2">
-                                    <i class="pi pi-briefcase mr-2"></i>Profession du Père
-                                </label>
-                                <input 
-                                    id="fatherProfession" 
-                                    type="text" 
-                                    pInputText 
-                                    class="w-full" 
-                                    formControlName="fatherProfession"
-                                    placeholder="Profession du père"
-                                />
-                            </div>
-                        </div>
-
-                        <!-- Mother's Information -->
-                        <div class="col-span-12">
-                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
-                                <label for="motherName" class="block text-900 font-medium mb-2">
-                                    <i class="pi pi-user mr-2"></i>Nom de la Mère
-                                </label>
-                                <input 
-                                    id="motherName" 
-                                    type="text" 
-                                    pInputText 
-                                    class="w-full" 
-                                    formControlName="motherName"
-                                    placeholder="Nom complet de la mère"
-                                />
-                            </div>
-                        </div>
-
-                        <div class="col-span-12">
-                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
-                                <label for="motherPhone" class="block text-900 font-medium mb-2">
-                                    <i class="pi pi-phone mr-2"></i>Téléphone de la Mère
-                                </label>
-                                <input 
-                                    id="motherPhone" 
-                                    type="tel" 
-                                    pInputText 
-                                    class="w-full" 
-                                    formControlName="motherPhone"
-                                    placeholder="Numéro de téléphone de la mère"
-                                />
-                            </div>
-                        </div>
-
-                        <div class="col-span-12">
-                            <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
-                                <label for="motherProfession" class="block text-900 font-medium mb-2">
-                                    <i class="pi pi-briefcase mr-2"></i>Profession de la Mère
-                                </label>
-                                <input 
-                                    id="motherProfession" 
-                                    type="text" 
-                                    pInputText 
-                                    class="w-full" 
-                                    formControlName="motherProfession"
-                                    placeholder="Profession de la mère"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 4: Confirmation -->
-                <div *ngIf="activeIndex === 3" class="mt-4">
                     <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
                         <h2 class="text-center text-primary mb-4">Confirmation de la Candidature</h2>
                         <p class="text-center mb-4">
@@ -503,6 +382,9 @@
                                 <label for="legalConsent" class="ml-2">
                                     J'accepte les mentions légales ci-dessus
                                 </label>
+                                <small class="text-red-500 block" *ngIf="subscriptionForm.get('legalConsent')?.invalid && subscriptionForm.get('legalConsent')?.touched">
+                                    Vous devez accepter les mentions légales
+                                </small>
                             </div>
                         </div>
                     </div>
@@ -519,21 +401,21 @@
                     ></button>
                     
                     <button pButton pRipple 
-                        *ngIf="activeIndex < 3"
+                        *ngIf="activeIndex < 2"
                         label="Suivant" 
                         icon="pi pi-arrow-right" 
                         iconPos="right"
                         (click)="nextStep()"
-                        [disabled]="activeIndex === 0 ? !isStep1Valid() : false"
+                        [disabled]="(activeIndex === 0 && !isStep1Valid()) || (activeIndex === 1 && !isStep2Valid())"
                     ></button>
 
                     <button pButton pRipple
-                        *ngIf="activeIndex === 3"
+                        *ngIf="activeIndex === 2"
                         type="submit" 
                         label="Soumettre la Candidature" 
                         icon="pi pi-send"
                         [loading]="isSubmitting"
-                        [disabled]="!subscriptionForm.valid || isSubmitting"
+                        [disabled]="!isFormValid()"
                         class="p-button-success"
                     ></button>
                 </div>
@@ -541,6 +423,3 @@
         </div>
     </div>
 </div>
-
-
-    
