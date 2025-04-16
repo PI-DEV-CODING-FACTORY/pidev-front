@@ -3,8 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { QuizQuestion } from '../../../models/course.model';
 
-
-
 @Component({
     selector: 'app-quiz',
     standalone: true,
@@ -131,7 +129,26 @@ import { QuizQuestion } from '../../../models/course.model';
                     </div>
                 </div>
             </div>
-            <button (click)="submitQuiz()" class="w-full bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors">Submit Quiz</button>
+
+            <!-- Score display -->
+
+            <div
+                *ngIf="showResults"
+                class="mb-6 p-4 rounded-lg text-center"
+                [ngClass]="{
+                    'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': score >= quizzes.length / 2,
+                    'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400': score < quizzes.length / 2
+                }"
+            >
+                <p class="text-xl font-bold">Your Score: {{ score }} / {{ quizzes.length }}</p>
+                <p class="mt-2" *ngIf="score === quizzes.length">Perfect score! Excellent work!</p>
+                <p class="mt-2" *ngIf="score >= quizzes.length / 2 && score < quizzes.length">Good job! You passed the quiz.</p>
+                <p class="mt-2" *ngIf="score < quizzes.length / 2">Keep studying and try again!</p>
+            </div>
+
+            <button *ngIf="!showResults" (click)="submitQuiz()" class="w-full bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors">Submit Quiz</button>
+
+            <button *ngIf="showResults" (click)="retakeQuiz()" class="w-full bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors mt-4">Retake Quiz</button>
         </div>
     `,
     styles: [
@@ -144,8 +161,26 @@ export class QuizComponent {
     @Input() quizzes: QuizQuestion[] = [];
     selectedAnswers: string[] = [];
     showResults: boolean = false;
+    score: number = 0;
 
     submitQuiz() {
+        // Calculate score
+        this.score = 0;
+
+        // For each question, check if the selected answer matches the correct answer
+        for (let i = 0; i < this.quizzes.length; i++) {
+            if (this.selectedAnswers[i] && this.selectedAnswers[i] === this.quizzes[i].correctAns) {
+                this.score++;
+            }
+        }
+
         this.showResults = true;
+    }
+
+    retakeQuiz() {
+        // Reset the quiz
+        this.selectedAnswers = [];
+        this.showResults = false;
+        this.score = 0;
     }
 }

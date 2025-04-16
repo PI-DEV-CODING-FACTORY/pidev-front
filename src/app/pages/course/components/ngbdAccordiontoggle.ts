@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, OnInit } from '@angular/core';
 import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodeDisplayComponent } from './codedisplay';
 import { QuizComponent } from './quiz.component';
@@ -60,7 +60,7 @@ import { QuizService } from '../../../services/quiz.service';
     `,
     styles: [``]
 })
-export class NgbdAccordionToggle {
+export class NgbdAccordionToggle implements OnInit {
     @Input() courseId!: number;
     @Input() lessonId!: number;
 
@@ -69,52 +69,51 @@ export class NgbdAccordionToggle {
     private quizService = inject(QuizService);
     quizs: QuizQuestion[] = [];
     examples: ExampleHistoryType[] = [];
-    onRefresh(event: MouseEvent) {
-        event.stopPropagation();
-        this.quizService.fetchQuizzesByCourseAndLesson(this.courseId, this.lessonId).subscribe({
-            next: (data: QuizType[]) => {
-                // this.quizs = data;
 
-                const dd = JSON.parse(data[0].questions);
-                this.quizs = dd;
-                console.log('Quizs:', this.quizs);
-            },
-            error: (error) => {
-                console.error('Error fetching quizzes:', error);
-            }
-        });
+    ngOnInit() {
+        // Load data automatically when component initializes
+        this.loadQuizAndExamples();
+    }
+
+    loadQuizAndExamples() {
         if (this.courseId && this.lessonId) {
+            // Load quizzes
+            this.quizService.fetchQuizzesByCourseAndLesson(this.courseId, this.lessonId).subscribe({
+                next: (data: QuizType[]) => {
+                    if (data && data.length > 0) {
+                        try {
+                            const parsedQuestions = JSON.parse(data[0].questions);
+                            this.quizs = parsedQuestions;
+                            console.log('Quizzes loaded:', this.quizs);
+                        } catch (e) {
+                            console.error('Error parsing quiz questions:', e);
+                        }
+                    } else {
+                        console.log('No quizzes found for this course/lesson');
+                    }
+                },
+                error: (error) => {
+                    console.error('Error fetching quizzes:', error);
+                }
+            });
+
+            // Load examples
             this.examapleService.getExampleHistories(this.courseId, this.lessonId).subscribe({
                 next: (data) => {
-                    console.log('course id', 'lessonid');
-                    console.log(this.courseId, this.lessonId);
                     this.examples = data;
-                    console.log('Examples:', data);
+                    console.log('Examples loaded:', data);
                 },
                 error: (error) => {
                     console.error('Error fetching examples:', error);
                 }
             });
+        } else {
+            console.warn('Cannot load data: courseId or lessonId is missing');
         }
     }
 
-    quizData = [
-        {
-            question: 'What is the capital of France?',
-            ansA: 'London',
-            ansB: 'Paris',
-            ansC: 'Berlin',
-            ansD: 'Madrid',
-            correctAns: 'B'
-        },
-        {
-            question: 'Which planet is closest to the sun?',
-            ansA: 'Earth',
-            ansB: 'Mars',
-            ansC: 'Mercury',
-            ansD: 'Venus',
-            correctAns: 'C'
-        }
-        // Add more questions as needed
-    ];
+    onRefresh(event: MouseEvent) {
+        event.stopPropagation();
+        this.loadQuizAndExamples(); // Reuse the same loading logic
+    }
 }
