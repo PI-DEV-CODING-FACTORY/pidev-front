@@ -2,6 +2,7 @@ import { Component, Input, inject, OnInit } from '@angular/core';
 import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodeDisplayComponent } from './codedisplay';
 import { QuizComponent } from './quiz.component';
+import { ChatComponent } from './chat.component';
 import { CourseService } from '../../../services/course.service';
 import { ExampleHistoryType, QuizQuestion, QuizType } from '../../../models/course.model';
 import { CommonModule } from '@angular/common';
@@ -11,7 +12,7 @@ import { QuizService } from '../../../services/quiz.service';
 @Component({
     selector: 'ngbd-accordion-toggle',
     standalone: true,
-    imports: [NgbAccordionModule, CodeDisplayComponent, QuizComponent, CommonModule],
+    imports: [NgbAccordionModule, CodeDisplayComponent, QuizComponent, ChatComponent, CommonModule],
     template: `
         <div ngbAccordion #accordion="ngbAccordion" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden ml-4">
             <div ngbAccordionItem="Quiz" class="mb-2">
@@ -51,6 +52,25 @@ import { QuizService } from '../../../services/quiz.service';
                         <ng-template>
                             <div class="p-6 text-gray-600 dark:text-gray-300 text-base leading-7 bg-white dark:bg-gray-800">
                                 <app-quiz [quizzes]="quizs" [courseId]="courseId" [lessonId]="lessonId"> </app-quiz>
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+
+            <div ngbAccordionItem="askQuestion" class="mb-2">
+                <button
+                    ngbAccordionButton
+                    class="w-full px-6 py-5 font-semibold text-lg text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 flex items-center justify-between"
+                >
+                    Ask question
+                </button>
+
+                <div ngbAccordionCollapse class="border-t border-gray-200 dark:border-gray-600">
+                    <div ngbAccordionBody>
+                        <ng-template>
+                            <div class="p-6 text-gray-600 dark:text-gray-300 text-base leading-7 bg-white dark:bg-gray-800">
+                                <app-chat [courseId]="courseId" [lessonId]="lessonId"></app-chat>
                             </div>
                         </ng-template>
                     </div>
