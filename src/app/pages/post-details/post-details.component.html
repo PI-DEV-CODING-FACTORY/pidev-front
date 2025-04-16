@@ -41,8 +41,13 @@
                 <i class="far fa-heart"></i> <span id="like-count">0</span>
             </button>
         </div>
-        <div *ngIf="user && user.id === post.user.id">
-            <button class="btn btn-sm btn-outline-primary rounded-pill" (click)="generateAISolution()">
+        <div *ngIf="user && user.id === post.user.id" class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-info rounded-pill" (click)="needHelp = true" *ngIf="!needHelp">
+                <i class="fas fa-question-circle"></i> Besoin d'aide
+            </button>
+            <button *ngIf="needHelp"
+                class="btn btn-sm btn-outline-primary rounded-pill animate__animated animate__fadeIn"
+                (click)="generateAISolution()">
                 <i class="fas fa-robot"></i> Generate solution with AI
             </button>
         </div>
