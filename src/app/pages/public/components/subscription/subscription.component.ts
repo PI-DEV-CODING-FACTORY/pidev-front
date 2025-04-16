@@ -16,6 +16,7 @@ import { StepsModule } from 'primeng/steps';
 import { MenuItem } from 'primeng/api';
 import { InscriptionService } from '../../services/inscription.service';
 import { Inscription } from '../../../../models/Inscription';
+import { Router } from '@angular/router';
 
 interface MaritalStatus {
   label: string;
@@ -83,7 +84,8 @@ export class SubscriptionComponent implements OnInit {
     constructor(
       private fb: FormBuilder,
       private messageService: MessageService,
-      private inscriptionService: InscriptionService
+      private inscriptionService: InscriptionService,
+      private router: Router
     ) {}
 
     ngOnInit() {
@@ -139,6 +141,7 @@ export class SubscriptionComponent implements OnInit {
         }
     }
 
+    // Update the onSubmit method's success handler
     onSubmit() {
         if (this.subscriptionForm.valid) {
             if (!this.degreeFile) {
@@ -174,6 +177,10 @@ export class SubscriptionComponent implements OnInit {
                             detail: 'Registration submitted successfully'
                         });
                         this.isSubmitting = false;
+                        // Add delay to show the success message before redirecting
+                        setTimeout(() => {
+                            this.router.navigate(['/']);  // Navigate to landing page
+                        }, 1500);
                     },
                     error: (error) => {
                         this.messageService.add({
