@@ -94,7 +94,14 @@ export class PostDetailsComponent {
   }
   getComments(postId: number) {
     this.postService.findCommentsByPostId(postId).subscribe((response: Post[]) => {
-      this.comments = response;
+      // Trier les commentaires par date décroissante, avec la meilleure réponse en premier
+      this.comments = response.sort((a, b) => {
+        // Si l'un des commentaires est la meilleure réponse, le mettre en premier
+        if (this.post.bestAnswerId === a.id) return -1;
+        if (this.post.bestAnswerId === b.id) return 1;
+        // Sinon, trier par date décroissante
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
       console.log("Comments:", this.comments);
     });
     this.mentionned = false;

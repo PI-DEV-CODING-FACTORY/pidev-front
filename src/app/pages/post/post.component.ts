@@ -149,7 +149,7 @@ export class PostComponent {
     //   });
     // } else {
       this.postService.findAllPostss().subscribe((response: Post[]) => {
-        this.posts = response;
+        this.posts = response.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         console.log("Posts:", this.posts);
       });
     // }
