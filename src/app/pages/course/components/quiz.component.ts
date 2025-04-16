@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { QuizQuestion } from '../../../models/course.model';
+import { StudentProgressService } from '../../../services/student-progress.service';
 
 @Component({
     selector: 'app-quiz',
@@ -131,7 +132,6 @@ import { QuizQuestion } from '../../../models/course.model';
             </div>
 
             <!-- Score display -->
-
             <div
                 *ngIf="showResults"
                 class="mb-6 p-4 rounded-lg text-center"
@@ -144,6 +144,19 @@ import { QuizQuestion } from '../../../models/course.model';
                 <p class="mt-2" *ngIf="score === quizzes.length">Perfect score! Excellent work!</p>
                 <p class="mt-2" *ngIf="score >= quizzes.length / 2 && score < quizzes.length">Good job! You passed the quiz.</p>
                 <p class="mt-2" *ngIf="score < quizzes.length / 2">Keep studying and try again!</p>
+
+                <!-- Save status message -->
+                <p
+                    *ngIf="saveStatus"
+                    class="mt-3 text-sm"
+                    [ngClass]="{
+                        'text-green-600 dark:text-green-400': saveStatus.includes('Success'),
+                        'text-amber-600 dark:text-amber-400': saveStatus.includes('Saving'),
+                        'text-red-600 dark:text-red-400': saveStatus.includes('Failed')
+                    }"
+                >
+                    {{ saveStatus }}
+                </p>
             </div>
 
             <button *ngIf="!showResults" (click)="submitQuiz()" class="w-full bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors">Submit Quiz</button>
@@ -159,9 +172,15 @@ import { QuizQuestion } from '../../../models/course.model';
 })
 export class QuizComponent {
     @Input() quizzes: QuizQuestion[] = [];
+    @Input() courseId!: number;
+    @Input() lessonId!: number;
+
     selectedAnswers: string[] = [];
     showResults: boolean = false;
     score: number = 0;
+    saveStatus: string = '';
+
+    private progressService = inject(StudentProgressService);
 
     submitQuiz() {
         // Calculate score
@@ -175,6 +194,92 @@ export class QuizComponent {
         }
 
         this.showResults = true;
+
+        // Calculate percentage score (0-100)
+        const percentageScore = Math.round((this.score / this.quizzes.length) * 100);
+
+        // Log course and lesson IDs
+        console.log('Quiz submitted - Course ID:', this.courseId, 'Lesson ID:', this.lessonId);
+
+        // Only attempt to save if we have both courseId and lessonId
+        if (this.courseId && this.lessonId) {
+            this.saveQuizProgress(percentageScore);
+        } else {
+            console.warn('Cannot save quiz progress: courseId or lessonId is missing');
+        }
+    }
+
+    saveQuizProgress(percentageScore: number) {
+        this.saveStatus = 'Saving your progress...';
+        console.log('Saving quiz progress - Course ID:', this.courseId, 'Lesson ID:', this.lessonId, 'Score:', percentageScore + '%');
+
+        // Check if there's an existing progress record
+        this.progressService.getProgressByCourseId(this.courseId).subscribe({
+            next: (progressEntries) => {
+                console.log('Found progress entries for Course ID:', this.courseId, 'Count:', progressEntries.length);
+
+                // Find progress for this specific lesson
+                const existingProgress = progressEntries.find((p) => p.lessonId && p.lessonId === this.lessonId);
+
+                if (existingProgress && existingProgress.id) {
+                    console.log('Found existing progress - Progress ID:', existingProgress.id, 'for Lesson ID:', this.lessonId);
+                    // Update existing progress record
+                    this.updateExistingProgress(existingProgress.id, percentageScore);
+                } else {
+                    console.log('No existing progress found for Lesson ID:', this.lessonId, '- Creating new progress');
+                    // Create a new progress record
+                    this.createNewProgress(percentageScore);
+                }
+            },
+            error: (error) => {
+                console.error('Error checking existing progress for Course ID:', this.courseId, 'Error:', error);
+                this.saveStatus = 'Failed to save progress. Please try again.';
+            }
+        });
+    }
+
+    updateExistingProgress(progressId: number, percentageScore: number) {
+        const updatedProgress = {
+            quizCompleted: true,
+            score: percentageScore,
+            // Mark lesson as completed if score is at least 50%
+            lessonCompleted: percentageScore >= 50
+        };
+
+        console.log('Updating progress - Progress ID:', progressId, 'Course ID:', this.courseId, 'Lesson ID:', this.lessonId, 'Score:', percentageScore + '%');
+
+        this.progressService.updateProgress(progressId, updatedProgress as any).subscribe({
+            next: (response) => {
+                console.log('Progress updated successfully for Course ID:', this.courseId, 'Lesson ID:', this.lessonId);
+                this.saveStatus = 'Success! Your progress has been saved.';
+            },
+            error: (error) => {
+                console.error('Error updating progress for Course ID:', this.courseId, 'Lesson ID:', this.lessonId, 'Error:', error);
+                this.saveStatus = 'Failed to save progress. Please try again.';
+            }
+        });
+    }
+
+    createNewProgress(percentageScore: number) {
+        const newProgress = {
+            quizCompleted: true,
+            score: percentageScore,
+            lessonCompleted: percentageScore >= 50,
+            courseCompleted: false // Will be updated later when all lessons are completed
+        };
+
+        console.log('Creating new progress - Course ID:', this.courseId, 'Lesson ID:', this.lessonId, 'Score:', percentageScore + '%');
+
+        this.progressService.createProgress(this.courseId, this.lessonId, newProgress as any).subscribe({
+            next: (response) => {
+                console.log('New progress created successfully for Course ID:', this.courseId, 'Lesson ID:', this.lessonId);
+                this.saveStatus = 'Success! Your progress has been saved.';
+            },
+            error: (error) => {
+                console.error('Error creating progress for Course ID:', this.courseId, 'Lesson ID:', this.lessonId, 'Error:', error);
+                this.saveStatus = 'Failed to save progress. Please try again.';
+            }
+        });
     }
 
     retakeQuiz() {
@@ -182,5 +287,6 @@ export class QuizComponent {
         this.selectedAnswers = [];
         this.showResults = false;
         this.score = 0;
+        this.saveStatus = '';
     }
 }

@@ -1,15 +1,22 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
-import { CourseType } from '../../../models/course.model';
+import { CourseType, StudentProgress } from '../../../models/course.model';
+
 import { CourseService } from '../../../services/course.service';
+import { StudentProgressService } from '../../../services/student-progress.service';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { RouterModule } from '@angular/router';
 import { Dialog, DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+
+interface CourseWithProgress extends CourseType {
+    progressPercentage?: number;
+}
+
 @Component({
     selector: 'courses-widget',
     standalone: true,
@@ -49,11 +56,11 @@ import { InputTextModule } from 'primeng/inputtext';
                             </div>
                         </ng-template>
                         <div class="card-content">
-                            <div *ngIf="course.studentProgresses !== undefined" class="progress-container">
+                            <div class="progress-container">
                                 <div class="progress-bar">
-                                    <div class="progress-fill" [style.width.%]="30"></div>
+                                    <div class="progress-fill" [style.width.%]="course.progressPercentage || 0"></div>
                                 </div>
-                                <small class="progress-text">Progress: {{ 30 }}%</small>
+                                <small class="progress-text">Progress: {{ course.progressPercentage || 0 }}%</small>
                             </div>
 
                             <div class="card-footer">
@@ -200,27 +207,76 @@ import { InputTextModule } from 'primeng/inputtext';
         `
     ]
 })
-export class CoursesWidget {
+export class CoursesWidget implements OnInit {
     courseService: CourseService = inject(CourseService);
+    studentProgressService: StudentProgressService = inject(StudentProgressService);
     private fb = inject(FormBuilder);
-    courses!: CourseType[];
+    courses!: CourseWithProgress[];
     visible: boolean = false;
     courseForm: FormGroup;
 
     constructor() {
-        this.courseService.fetchCoursesFromApi().subscribe({
-            next: (data) => {
-                this.courses = data;
-            },
-            error: (error) => {
-                console.error('Error fetching courses:', error);
-            }
-        });
         this.courseForm = this.fb.group({
             subject: [''],
             level: ['']
         });
     }
+
+    ngOnInit(): void {
+        this.loadCoursesAndProgress();
+    }
+
+    loadCoursesAndProgress(): void {
+        this.courseService.fetchCoursesFromApi().subscribe({
+            next: (data) => {
+                this.courses = data;
+
+                // Fetch and log all student progress
+                this.studentProgressService.getAllProgress().subscribe({
+                    next: (progress) => {
+                        console.log('All student progress:', progress);
+
+                        // Calculate progress for each course
+                        this.calculateCourseProgress(progress);
+                    },
+                    error: (error) => {
+                        console.error('Error fetching student progress:', error);
+                    }
+                });
+            },
+            error: (error) => {
+                console.error('Error fetching courses:', error);
+            }
+        });
+    }
+
+    calculateCourseProgress(allProgress: StudentProgress[]): void {
+        // For each course, find its progress entries and calculate percentage
+        this.courses.forEach((course) => {
+            // Find all progress entries for this course
+            const courseProgress = allProgress.filter((p) => p.courseId === course.id);
+
+            if (courseProgress && courseProgress.length > 0) {
+                // Calculate average score or completion percentage
+                const totalScore = courseProgress.reduce((sum, p) => {
+                    // You can customize this calculation based on your data model
+                    // For example, using score, or checking if lessons/quizzes are completed
+                    return sum + (p.score || 0);
+                }, 0);
+
+                // Calculate percentage based on your scoring system
+                // This is a simple average calculation, adjust as needed
+                const progressPercentage = courseProgress.length > 0 ? Math.round(totalScore / courseProgress.length) : 0;
+
+                // Assign the calculated progress to the course
+                course.progressPercentage = progressPercentage;
+            } else {
+                // No progress records found for this course
+                course.progressPercentage = 0;
+            }
+        });
+    }
+
     createCourseModal() {
         console.log('Create course modal');
     }
@@ -264,12 +320,8 @@ export class CoursesWidget {
                     console.log('Course created:', response);
                     this.visible = false;
                     this.courseForm.reset();
-                    // Refresh the courses list
-                    this.courseService.fetchCoursesFromApi().subscribe({
-                        next: (data) => {
-                            this.courses = data;
-                        }
-                    });
+                    // Refresh the courses list and log progress
+                    this.loadCoursesAndProgress();
                 },
                 error: (error) => {
                     console.error('Error creating course:', error);

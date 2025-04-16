@@ -13,6 +13,18 @@ export interface CourseType {
     studentProgresses: StudentProgressType[];
     exampleHistories: ExampleHistoryType[];
 }
+export interface StudentProgress {
+    id?: number;
+    courseCompleted: boolean;
+    lessonCompleted: boolean;
+    quizCompleted: boolean;
+    score: number;
+    // Replace with proper Student interface
+    courseId?: number; // Replace with proper Course interface
+    lessonId?: number; // Replace with proper Lesson interface
+    // Add other properties as needed
+}
+
 export interface QuizQuestion {
     question: string;
     ansA: string;

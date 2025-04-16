@@ -50,7 +50,7 @@ import { QuizService } from '../../../services/quiz.service';
                     <div ngbAccordionBody>
                         <ng-template>
                             <div class="p-6 text-gray-600 dark:text-gray-300 text-base leading-7 bg-white dark:bg-gray-800">
-                                <app-quiz [quizzes]="quizs"></app-quiz>
+                                <app-quiz [quizzes]="quizs" [courseId]="courseId" [lessonId]="lessonId"> </app-quiz>
                             </div>
                         </ng-template>
                     </div>
