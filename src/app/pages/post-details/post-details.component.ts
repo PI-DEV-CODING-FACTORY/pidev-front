@@ -50,7 +50,7 @@ export class PostDetailsComponent {
   emojis: string[] = ['😀', '😂', '😊', '❤️', '👍', '🔥', '🎉', '🤔', '😎', '👏',
     '😃', '🥰', '😇', '🙂', '😋', '😉', '😍', '😘', '🤗', '😈',
     '👋', '👌', '✌️', '🤞', '👏', '🙏', '🤝', '💪', '✨', '⭐'];
-    
+
   // AI Solution properties
   showAiSolutionModal: boolean = false;
   isLoadingAiSolution: boolean = false;
@@ -395,7 +395,7 @@ export class PostDetailsComponent {
         this.showEmojiPicker = false;
       }
     }
-    
+
     // Close AI solution modal when clicking outside
     if (this.showAiSolutionModal) {
       const target = event.target as HTMLElement;
@@ -405,16 +405,16 @@ export class PostDetailsComponent {
       }
     }
   }
-  
+
   // AI Solution methods
   generateAISolution(): void {
     this.showAiSolutionModal = true;
     this.isLoadingAiSolution = true;
     this.aiSolution = null;
-    
+
     // Create a prompt for the AI based on the post content
     const prompt = `Please provide the best solution for this question: \n\n${this.post.title}\n\n${this.post.content}`;
-    
+
     // Call the API
     this.postService.getResponse(prompt).subscribe({
       next: (response: string) => {
@@ -433,7 +433,7 @@ export class PostDetailsComponent {
       }
     });
   }
-  
+
   closeAiSolutionModal(): void {
     this.showAiSolutionModal = false;
   }
