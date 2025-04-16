@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 export interface Note {
     lessonId: number;
+    courseId: number;  // Added courseId field
     content: string;
     timestamp: Date;
     color: string;
@@ -262,6 +263,7 @@ export class NotePanelComponent {
 
         const newNote: Note = {
             lessonId: this.lessonId,
+            courseId: 0, // Default courseId value
             content: this.noteContent,
             timestamp: new Date(),
             color: this.selectedColor
