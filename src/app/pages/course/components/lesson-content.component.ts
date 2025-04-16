@@ -1,9 +1,10 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LessonType } from '../../../models/course.model';
 import { NgbdAccordionToggle } from './ngbdAccordiontoggle';
 import { NgbScrollSpyModule } from '@ng-bootstrap/ng-bootstrap';
-import { NotePanelComponent, Note } from './note-panel.component';
+import { NotePanelComponent } from './note-panel.component';
+import { NoteService } from '../../../services/note.service';
 
 @Component({
     selector: 'app-lesson-content',
@@ -13,7 +14,7 @@ import { NotePanelComponent, Note } from './note-panel.component';
         <div [id]="'lesson-' + index" [ngbScrollSpyFragment]="'lesson-' + index" class="lesson-container">
             <div class="lesson-header">
                 <h4>{{ lesson.title }}</h4>
-                <button class="note-button" [ngClass]="{ 'has-notes': hasNotes }" (click)="toggleNotePanel()">
+                <button class="note-button" [ngClass]="{ 'has-notes': hasNotes() }" (click)="toggleNotePanel()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 20h9"></path>
                         <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
@@ -25,7 +26,7 @@ import { NotePanelComponent, Note } from './note-panel.component';
                 <p>{{ lesson.content }}</p>
             </div>
 
-            <app-note-panel *ngIf="isNotePanelOpen" [lessonId]="lesson.id" [lessonTitle]="lesson.title" [notes]="notes" (saveNoteEvent)="saveNote($event)" (deleteNoteEvent)="deleteNote($event)" (cancelEvent)="toggleNotePanel()"> </app-note-panel>
+            <app-note-panel *ngIf="isNotePanelOpen" [lessonId]="lesson.id" [courseId]="courseId" [lessonTitle]="lesson.title" (cancelEvent)="toggleNotePanel()"> </app-note-panel>
 
             <ngbd-accordion-toggle [courseId]="courseId" [lessonId]="lesson.id"></ngbd-accordion-toggle>
         </div>
@@ -104,27 +105,44 @@ import { NotePanelComponent, Note } from './note-panel.component';
         `
     ]
 })
-export class LessonContentComponent {
+export class LessonContentComponent implements OnInit {
     @Input() lesson!: LessonType;
     @Input() index!: number;
     @Input() courseId!: number;
-    @Input() notes: Note[] = [];
-    @Input() hasNotes: boolean = false;
-
-    @Output() saveNoteEvent = new EventEmitter<Note>();
-    @Output() deleteNoteEvent = new EventEmitter<{ lessonId: number; index: number }>();
 
     isNotePanelOpen: boolean = false;
+    noteCount: number = 0;
+
+    constructor(private noteService: NoteService) {}
+
+    ngOnInit(): void {
+        this.checkNotesExist();
+    }
+
+    checkNotesExist(): void {
+        // Check if notes exist for this lesson to update the note button indicator
+        if (this.lesson && this.courseId) {
+            this.noteService.getNotesByCourseAndLessonId(this.courseId, this.lesson.id).subscribe({
+                next: (notes) => {
+                    this.noteCount = notes.length;
+                },
+                error: (error) => {
+                    console.error('Error checking for notes:', error);
+                }
+            });
+        }
+    }
 
     toggleNotePanel(): void {
         this.isNotePanelOpen = !this.isNotePanelOpen;
+
+        // If we're closing the panel, refresh the notes count
+        if (!this.isNotePanelOpen) {
+            this.checkNotesExist();
+        }
     }
 
-    saveNote(note: Note): void {
-        this.saveNoteEvent.emit(note);
-    }
-
-    deleteNote(index: number): void {
-        this.deleteNoteEvent.emit({ lessonId: this.lesson.id, index });
+    hasNotes(): boolean {
+        return this.noteCount > 0;
     }
 }

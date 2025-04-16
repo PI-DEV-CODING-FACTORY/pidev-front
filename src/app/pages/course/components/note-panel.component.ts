@@ -1,10 +1,12 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NoteService } from '../../../services/note.service';
 
 export interface Note {
+    id?: number; // Add optional id field
     lessonId: number;
-    courseId: number;  // Added courseId field
+    courseId: number;
     content: string;
     timestamp: Date;
     color: string;
@@ -25,7 +27,10 @@ export interface Note {
             <textarea [(ngModel)]="noteContent" placeholder="Take your notes here..." class="note-textarea" [ngStyle]="{ 'border-color': selectedColor }"> </textarea>
             <div class="note-actions">
                 <button class="cancel-button" (click)="cancel()">Cancel</button>
-                <button class="save-button" (click)="save()">Save Note</button>
+                <button class="save-button" (click)="save()" [disabled]="isSaving">
+                    <span *ngIf="isSaving">Saving...</span>
+                    <span *ngIf="!isSaving">Save Note</span>
+                </button>
             </div>
 
             <!-- Previous notes -->
@@ -35,12 +40,13 @@ export interface Note {
                     <div class="note-content">{{ note.content }}</div>
                     <div class="note-footer">
                         <span class="note-timestamp">{{ note.timestamp | date: 'short' }}</span>
-                        <button class="delete-note" (click)="deleteNote(i)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <button class="delete-note" (click)="deleteNote(i)" [disabled]="isDeleting">
+                            <svg *ngIf="!isDeleting" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M3 6h18"></path>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
-                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <path d="M8 6V4a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2v2"></path>
                             </svg>
+                            <span *ngIf="isDeleting">...</span>
                         </button>
                     </div>
                 </div>
@@ -234,17 +240,20 @@ export interface Note {
         `
     ]
 })
-export class NotePanelComponent {
+export class NotePanelComponent implements OnInit {
     @Input() lessonId!: number;
+    @Input() courseId!: number;
     @Input() lessonTitle: string = '';
-    @Input() notes: Note[] = [];
 
-    @Output() saveNoteEvent = new EventEmitter<Note>();
-    @Output() deleteNoteEvent = new EventEmitter<number>();
+    notes: Note[] = [];
+
     @Output() cancelEvent = new EventEmitter<void>();
 
     noteContent: string = '';
     selectedColor: string = '#4299e1'; // Default color
+    isSaving: boolean = false;
+    isDeleting: boolean = false;
+    isLoading: boolean = false;
 
     noteColors: string[] = [
         '#4299e1', // Blue
@@ -254,23 +263,56 @@ export class NotePanelComponent {
         '#9f7aea' // Purple
     ];
 
+    constructor(private noteService: NoteService) {}
+
+    ngOnInit(): void {
+        this.loadNotes();
+    }
+
+    loadNotes(): void {
+        if (this.courseId && this.lessonId) {
+            this.isLoading = true;
+            this.noteService.getNotesByCourseAndLessonId(this.courseId, this.lessonId).subscribe({
+                next: (apiNotes) => {
+                    this.notes = apiNotes.map((note) => this.noteService.convertToAppNote(note));
+                    this.isLoading = false;
+                },
+                error: (error) => {
+                    console.error('Error loading notes:', error);
+                    this.isLoading = false;
+                }
+            });
+        }
+    }
+
     selectColor(color: string): void {
         this.selectedColor = color;
     }
 
     save(): void {
-        if (!this.noteContent.trim()) return;
+        if (!this.noteContent.trim() || this.isSaving) return;
 
         const newNote: Note = {
             lessonId: this.lessonId,
-            courseId: 0, // Default courseId value
+            courseId: this.courseId,
             content: this.noteContent,
             timestamp: new Date(),
             color: this.selectedColor
         };
 
-        this.saveNoteEvent.emit(newNote);
-        this.noteContent = '';
+        this.isSaving = true;
+        this.noteService.createNote(this.courseId, this.lessonId, newNote).subscribe({
+            next: (createdNote) => {
+                this.notes.push(this.noteService.convertToAppNote(createdNote));
+                this.noteContent = '';
+                this.isSaving = false;
+                console.log('Note saved successfully:', createdNote);
+            },
+            error: (error) => {
+                console.error('Error saving note:', error);
+                this.isSaving = false;
+            }
+        });
     }
 
     cancel(): void {
@@ -278,6 +320,26 @@ export class NotePanelComponent {
     }
 
     deleteNote(index: number): void {
-        this.deleteNoteEvent.emit(index);
+        if (this.isDeleting) return;
+
+        const noteToDelete = (this.notes[index] as any).id;
+
+        if (!noteToDelete) {
+            console.error('Cannot delete note: Missing ID');
+            return;
+        }
+
+        this.isDeleting = true;
+        this.noteService.deleteNote(noteToDelete).subscribe({
+            next: () => {
+                this.notes.splice(index, 1);
+                this.isDeleting = false;
+                console.log('Note deleted successfully');
+            },
+            error: (error) => {
+                console.error('Error deleting note:', error);
+                this.isDeleting = false;
+            }
+        });
     }
 }

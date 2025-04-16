@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgbScrollSpyModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { CourseType } from '../../../models/course.model';
@@ -7,6 +7,9 @@ import { NgbdAccordionToggle } from './ngbdAccordiontoggle';
 import { LessonContentComponent } from './lesson-content.component';
 import { LessonNavigationComponent } from './lesson-navigation.component';
 import { Note } from './note-panel.component';
+import { NoteService } from '../../../services/note.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
     selector: 'ngbd-scrollspy-items',
@@ -108,18 +111,86 @@ import { Note } from './note-panel.component';
         `
     ]
 })
-export class NgbdScrollSpyItems {
+export class NgbdScrollSpyItems implements OnInit, OnChanges {
     @Input() course?: CourseType;
     notes: Note[] = [];
+    notesMap: Map<number, Note[]> = new Map();
+    isLoading: boolean = false;
 
-    constructor(private viewportScroller: ViewportScroller) {
+    constructor(
+        private viewportScroller: ViewportScroller,
+        private noteService: NoteService
+    ) {
         // Enable smooth scrolling behavior
         this.viewportScroller.setOffset([0, 20]);
+    }
 
-        // Check for existing notes in localStorage
-        const savedNotes = localStorage.getItem('courseNotes');
-        if (savedNotes) {
-            this.notes = JSON.parse(savedNotes);
+    ngOnInit(): void {
+        if (this.course?.id) {
+            this.loadAllNotes();
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        // Reload notes when the course changes
+        if (changes['course'] && !changes['course'].firstChange && this.course?.id) {
+            this.loadAllNotes();
+        }
+    }
+
+    loadAllNotes(): void {
+        if (!this.course?.id || !this.course.lessons || this.course.lessons.length === 0) return;
+
+        this.isLoading = true;
+        this.notes = [];
+        this.notesMap.clear();
+
+        // Create an observable for each lesson to get its notes
+        const lessonRequests = this.course.lessons.map((lesson) =>
+            this.noteService.getNotesByCourseAndLessonId(this.course!.id!, lesson.id).pipe(
+                catchError((error) => {
+                    console.error(`Error loading notes for lesson ${lesson.id}:`, error);
+                    return of([]); // Return empty array on error to continue
+                })
+            )
+        );
+
+        // Execute all requests in parallel
+        forkJoin(lessonRequests).subscribe({
+            next: (lessonNotesArrays) => {
+                // Process notes for each lesson
+                lessonNotesArrays.forEach((apiNotes, index) => {
+                    if (apiNotes.length > 0) {
+                        const lessonId = this.course!.lessons[index].id;
+
+                        // Convert API notes to app notes
+                        const convertedNotes = apiNotes.map((note) => this.noteService.convertToAppNote(note));
+
+                        // Add to the notes collection
+                        this.notes.push(...convertedNotes);
+
+                        // Store in the map by lesson ID
+                        this.notesMap.set(lessonId, convertedNotes);
+                    }
+                });
+
+                this.isLoading = false;
+                console.log('All notes loaded for course and lessons');
+            },
+            error: (error) => {
+                console.error('Error loading notes:', error);
+                this.isLoading = false;
+            }
+        });
+    }
+
+    organizeNotesByLesson(): void {
+        this.notesMap.clear();
+
+        for (const note of this.notes) {
+            const lessonNotes = this.notesMap.get(note.lessonId) || [];
+            lessonNotes.push(note);
+            this.notesMap.set(note.lessonId, lessonNotes);
         }
     }
 
@@ -135,22 +206,32 @@ export class NgbdScrollSpyItems {
     }
 
     saveNote(note: Note): void {
-        // Add the note to the array
-        this.notes.push(note);
+        this.noteService.createNote(note.courseId, note.lessonId, note).subscribe({
+            next: (createdNote) => {
+                // Add the converted note to our local array
+                const newNote = this.noteService.convertToAppNote(createdNote);
+                this.notes.push(newNote);
 
-        // Save to localStorage
-        localStorage.setItem('courseNotes', JSON.stringify(this.notes));
+                // Update the lessons map
+                const lessonNotes = this.notesMap.get(note.lessonId) || [];
+                lessonNotes.push(newNote);
+                this.notesMap.set(note.lessonId, lessonNotes);
 
-        // Console log for the requirement
-        console.log('Note saved:', note);
+                console.log('Note saved:', newNote);
+            },
+            error: (error) => {
+                console.error('Error saving note:', error);
+            }
+        });
     }
 
     getNotesForLesson(lessonId: number): Note[] {
-        return this.notes.filter((note) => note.lessonId === lessonId);
+        return this.notesMap.get(lessonId) || [];
     }
 
     hasNotesForLesson(lessonId: number): boolean {
-        return this.notes.some((note) => note.lessonId === lessonId);
+        const lessonNotes = this.notesMap.get(lessonId);
+        return lessonNotes !== undefined && lessonNotes.length > 0;
     }
 
     createLessonNotesMap(): Map<number, boolean> {
@@ -166,14 +247,36 @@ export class NgbdScrollSpyItems {
     handleDeleteNote(event: { lessonId: number; index: number }): void {
         const lessonNotes = this.getNotesForLesson(event.lessonId);
         if (lessonNotes[event.index]) {
-            // Find the actual index in the main notes array
             const noteToDelete = lessonNotes[event.index];
-            const mainIndex = this.notes.findIndex((n) => n.lessonId === noteToDelete.lessonId && n.content === noteToDelete.content && n.timestamp.toString() === noteToDelete.timestamp.toString());
 
-            if (mainIndex !== -1) {
-                this.notes.splice(mainIndex, 1);
-                localStorage.setItem('courseNotes', JSON.stringify(this.notes));
-                console.log('Note deleted:', noteToDelete);
+            // Check if the note has an id (using optional chaining for safety)
+            if (noteToDelete?.id) {
+                this.noteService.deleteNote(noteToDelete.id).subscribe({
+                    next: () => {
+                        // Remove from our arrays after successful deletion
+                        const mainIndex = this.notes.findIndex((n) => n.id === noteToDelete.id);
+
+                        if (mainIndex !== -1) {
+                            this.notes.splice(mainIndex, 1);
+                        }
+
+                        // Update the lesson map
+                        lessonNotes.splice(event.index, 1);
+                        this.notesMap.set(event.lessonId, lessonNotes);
+
+                        console.log('Note deleted:', noteToDelete);
+                    },
+                    error: (error) => {
+                        console.error('Error deleting note:', error);
+                    }
+                });
+            } else {
+                console.error('Cannot delete note: Missing ID');
+
+                // Even though we can't delete on the server, we might want to remove it locally
+                // if this is a temporary/unsaved note
+                lessonNotes.splice(event.index, 1);
+                this.notesMap.set(event.lessonId, lessonNotes);
             }
         }
     }
