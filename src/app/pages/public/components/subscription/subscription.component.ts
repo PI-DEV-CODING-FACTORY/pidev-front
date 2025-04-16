@@ -14,6 +14,8 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { StepsModule } from 'primeng/steps';
 import { MenuItem } from 'primeng/api';
+import { InscriptionService } from '../../services/inscription.service';
+import { Inscription } from '../../../../models/Inscription';
 
 interface MaritalStatus {
   label: string;
@@ -24,6 +26,8 @@ interface HealthStatus {
   label: string;
   value: string;
 }
+
+// Add this import
 
 @Component({
   selector: 'app-subscription',
@@ -75,9 +79,11 @@ export class SubscriptionComponent implements OnInit {
         { label: 'Confirmation' }
     ];
 
+    // Update the constructor
     constructor(
-        private fb: FormBuilder,
-        private messageService: MessageService
+      private fb: FormBuilder,
+      private messageService: MessageService,
+      private inscriptionService: InscriptionService
     ) {}
 
     ngOnInit() {
@@ -134,32 +140,51 @@ export class SubscriptionComponent implements OnInit {
     }
 
     onSubmit() {
-        this.isSubmitting = true;
-        
-        if (this.isFormValid()) {
+        if (this.subscriptionForm.valid) {
+            if (!this.degreeFile) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Diploma file is required'
+                });
+                return;
+            }
+
+            this.isSubmitting = true;
+            
             const formData = this.subscriptionForm.value;
-            // Handle form submission here
-            console.log('Form submitted:', formData);
-            
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Succès',
-                detail: 'Inscription soumise avec succès'
-            });
-            
-            // Reset form or navigate to another page
-        } else {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Erreur',
-                detail: 'Veuillez compléter tous les champs requis'
-            });
-            
-            // Mark all fields as touched to show errors
-            this.markAllAsTouched();
-        }
+            const inscription: Inscription = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                personalEmail: formData.personalEmail,
+                phoneNumber: formData.phoneNumber,
+                dateOfBirth: formData.dateOfBirth,
+                maritalStatus: formData.maritalStatus,
+                address: formData.address,
+                city: formData.city,
+                zipCode: Number(formData.postalCode)
+            };
         
-        this.isSubmitting = false;
+            this.inscriptionService.createInscription(inscription, this.degreeFile)
+                .subscribe({
+                    next: (response) => {
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Registration submitted successfully'
+                        });
+                        this.isSubmitting = false;
+                    },
+                    error: (error) => {
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to submit registration'
+                        });
+                        this.isSubmitting = false;
+                    }
+                });
+        }
     }
 
     nextStep() {
