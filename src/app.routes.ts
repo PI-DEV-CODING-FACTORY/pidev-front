@@ -5,6 +5,7 @@ import { Documentation } from './app/pages/documentation/documentation';
 import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
 import { Course } from './app/pages/course/course';
+import { NoteComponent } from './app/pages/notes/note.component'; // Import the NoteComponent
 
 import CourseDetailsComponent from './app/pages/course/components/courseDetails';
 import { CoursesWidget } from './app/pages/course/components/courseswidget';
@@ -26,7 +27,8 @@ export const appRoutes: Routes = [
                     { path: '', component: CoursesWidget },
                     { path: ':id', component: CourseDetailsComponent }
                 ]
-            }
+            },
+            { path: 'notes', component: NoteComponent } // Add the notes route
         ]
     },
 
