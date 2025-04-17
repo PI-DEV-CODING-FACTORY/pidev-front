@@ -13,6 +13,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Inscription, InscriptionService } from '../../services/inscription.service';
+// Add this import at the top with other imports
+import { InscriptionDetailsComponent } from '../inscription-details/inscription-details.component';
 
 @Component({
     selector: 'app-inscriptions',
@@ -27,30 +29,28 @@ import { Inscription, InscriptionService } from '../../services/inscription.serv
         ToastModule,
         ToolbarModule,
         InputTextModule,
-        DialogModule,
-        DropdownModule,
         TagModule,
-        ConfirmDialogModule
+        DialogModule  // Add DialogModule to imports
     ],
-    providers: [MessageService, InscriptionService, ConfirmationService]
+    providers: [MessageService, InscriptionService]
 })
 export class InscriptionsComponent implements OnInit {
     inscriptions = signal<Inscription[]>([]);
-    detailsDialog: boolean = false;
-    selectedInscription: Inscription | null = null;
-    statuses: any[] = ['Pending', 'Approved', 'Rejected'];
-    paymentStatuses: any[] = ['Paid', 'Pending', 'Not Paid'];
-
+    displayDialog: boolean = false;  // Add this property
     @ViewChild('dt') dt: Table | undefined;
 
     constructor(
         private inscriptionService: InscriptionService,
-        private messageService: MessageService,
-        private confirmationService: ConfirmationService
+        private messageService: MessageService
     ) {}
 
     ngOnInit() {
         this.loadInscriptions();
+    }
+
+    onViewClick() {
+        console.log('View button clicked!');
+        this.displayDialog = true;
     }
 
     loadInscriptions() {
@@ -101,12 +101,7 @@ export class InscriptionsComponent implements OnInit {
     }
 
     viewDetails(inscription: Inscription) {
-        this.selectedInscription = inscription;
-        this.detailsDialog = true;
-    }
-
-    editInscription(inscription: Inscription) {
-        // Implement edit functionality
-        console.log('Edit inscription:', inscription);
+        this.onViewClick();
+        console.log('View Details clicked:', inscription);
     }
 }
