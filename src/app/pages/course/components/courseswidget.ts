@@ -12,6 +12,7 @@ import { TagModule } from 'primeng/tag';
 import { RouterModule } from '@angular/router';
 import { Dialog, DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
 
 interface CourseWithProgress extends CourseType {
     progressPercentage?: number;
@@ -20,7 +21,7 @@ interface CourseWithProgress extends CourseType {
 @Component({
     selector: 'courses-widget',
     standalone: true,
-    imports: [CommonModule, RouterModule, ButtonModule, CardModule, TagModule, Dialog, ButtonModule, InputTextModule, ReactiveFormsModule],
+    imports: [CommonModule, RouterModule, ButtonModule, CardModule, TagModule, Dialog, ButtonModule, InputTextModule, ReactiveFormsModule, DropdownModule],
     template: `
         <div class="widget-container">
             <div class="header-section">
@@ -28,17 +29,17 @@ interface CourseWithProgress extends CourseType {
                 <span class="subtitle">Choose a course and start your learning journey!</span>
                 <button (click)="createCourseModal()">Generate your costumized course</button>
 
-                <p-button (click)="showDialog()" label="Show" />
-                <p-dialog header="Edit Profile" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
-                    <span class="p-text-secondary block mb-8">Update your information.</span>
+                <p-button (click)="showDialog()" label="Let AI Create Your Course!" />
+                <p-dialog header="Create AI Course" [modal]="true" [(visible)]="visible" [style]="{ width: '30rem' }">
+                    <span class="p-text-secondary block mb-8">Tell us what you want to learn.</span>
                     <form [formGroup]="courseForm" (ngSubmit)="onSubmit()">
-                        <div class="flex items-center gap-4 mb-4">
-                            <label for="subject" class="font-semibold w-24">Subject you want to learn</label>
-                            <input pInputText id="subject" formControlName="subject" class="flex-auto" autocomplete="off" />
+                        <div class="form-field mb-4">
+                            <label for="subject" class="form-label">Subject you want to learn</label>
+                            <input pInputText id="subject" formControlName="subject" class="form-input" autocomplete="off" />
                         </div>
-                        <div class="flex items-center gap-4 mb-8">
-                            <label for="level" class="font-semibold w-24">your level </label>
-                            <input pInputText id="level" formControlName="level" class="flex-auto" autocomplete="off" />
+                        <div class="form-field mb-8">
+                            <label for="level" class="form-label">Your level</label>
+                            <p-dropdown id="level" formControlName="level" [options]="levelOptions" optionLabel="label" optionValue="value" placeholder="Select level" [style]="{ width: '100%' }" appendTo="body"> </p-dropdown>
                         </div>
                         <div class="flex justify-end gap-2">
                             <p-button label="Cancel" severity="secondary" type="button" (click)="visible = false" />
@@ -50,11 +51,6 @@ interface CourseWithProgress extends CourseType {
             <div class="courses-grid">
                 <div *ngFor="let course of courses" class="course-item">
                     <p-card [header]="course.title" styleClass="course-card">
-                        <ng-template pTemplate="header">
-                            <div class="image-container">
-                                <img *ngIf="" [src]="" class="course-image" />
-                            </div>
-                        </ng-template>
                         <div class="card-content">
                             <div class="progress-container">
                                 <div class="progress-bar">
@@ -204,6 +200,65 @@ interface CourseWithProgress extends CourseType {
                     grid-template-columns: 1fr;
                 }
             }
+
+            :host ::ng-deep .p-dropdown {
+                width: 100%;
+                min-height: 40px;
+            }
+
+            :host ::ng-deep .p-dropdown-panel {
+                z-index: 1100 !important; /* Ensure dropdown appears above other elements */
+            }
+
+            :host ::ng-deep .p-dropdown-items-wrapper {
+                max-height: 200px; /* Control the height of the dropdown list */
+            }
+
+            :host ::ng-deep .p-dropdown-item {
+                padding: 0.75rem 1rem;
+                font-size: 14px;
+            }
+
+            :host ::ng-deep .p-dialog {
+                z-index: 1000;
+            }
+
+            /* Ensure the dropdown opens properly in the dialog */
+            :host ::ng-deep .p-dialog-content {
+                overflow: visible !important;
+            }
+
+            /* Add these form styles */
+            .form-field {
+                margin-bottom: 1.5rem;
+            }
+
+            .form-label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+                color: #4a5568;
+            }
+
+            .form-input {
+                width: 100%;
+                padding: 0.75rem;
+                border-radius: 4px;
+                border: 1px solid #e2e8f0;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                .form-label {
+                    color: #e2e8f0;
+                }
+
+                .form-input {
+                    background-color: #2d3748;
+                    border-color: #4a5568;
+                    color: #e2e8f0;
+                }
+            }
         `
     ]
 })
@@ -215,10 +270,18 @@ export class CoursesWidget implements OnInit {
     visible: boolean = false;
     courseForm: FormGroup;
 
+    // Add this property to your component
+    levelOptions = [
+        { label: 'Beginner', value: 'BEGINNER' },
+        { label: 'Medium', value: 'INTERMEDIATE' },
+        { label: 'Advanced', value: 'ADVANCED' }
+    ];
+
     constructor() {
         this.courseForm = this.fb.group({
             subject: [''],
-            level: ['']
+            level: [''],
+            theme: ['#4caf50'] // Default theme color
         });
     }
 
