@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { NgbScrollSpyModule } from '@ng-bootstrap/ng-bootstrap';
+
 import { CommonModule } from '@angular/common';
 import { CourseType } from '../../../models/course.model';
 import { ViewportScroller } from '@angular/common';
@@ -10,6 +10,7 @@ import { Note } from './note-panel.component';
 import { NoteService } from '../../../services/note.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { NgbScrollSpyModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'ngbd-scrollspy-items',
