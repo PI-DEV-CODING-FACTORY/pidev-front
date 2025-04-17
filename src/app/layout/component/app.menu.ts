@@ -23,7 +23,7 @@ export class AppMenu {
         const user = this.authService.currentUserValue;
         this.model = [
             {
-                label: 'Home',
+                label: 'Forum',
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
                     { label: 'Discussion Forum', icon: 'pi pi-comments', routerLink: ['/pages/post'] },
@@ -39,6 +39,19 @@ export class AppMenu {
                               }
                           ]
                         : [])
+                ]
+            },
+            {
+                label: 'PFE Management',
+                items: [
+                    { label: 'Search PFEs', icon: 'pi pi-fw pi-search', routerLink: ['/pfe'] },
+                    { label: 'Add PFE', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pfe/add'] },
+                    // { label: 'Internship Offers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/internship-offers'] },
+                    { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/proposals'] },
+                    { label: 'Manage Proposals', icon: 'pi pi-fw pi-th-large', routerLink: ['/manage-proposals'] },
+                    { label: 'Technical Tests', icon: 'pi pi-fw pi-file-edit', routerLink: ['/technical-tests'] },
+                    { label: 'Saved PFEs', icon: 'pi pi-fw pi-bookmark', routerLink: ['/saved-pfes'] },
+                    { label: 'Student Interests', icon: 'pi pi-fw pi-heart', routerLink: ['/student-interests'] }
                 ]
             },
             {
