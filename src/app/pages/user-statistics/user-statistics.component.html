@@ -1,71 +1,127 @@
-<!-- <div class="user-statistics-container">
-    <div *ngIf="isLoading" class="loading-spinner">
-      <mat-spinner></mat-spinner>
-    </div> -->
+<div class="user-statistics-container p-8 bg-gray-50 min-h-screen">
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="flex justify-center items-center h-96">
+    <mat-spinner diameter="60" color="primary"></mat-spinner>
+  </div>
 
-<!-- <div  class="statistics-dashboard"> -->
-<!-- En-tête avec résumé des statistiques -->
-<!-- <div class="header-card">
-        <mat-card >
-          <mat-card-header>
-            <div mat-card-avatar class="user-avatar">{{ currentUser?.username?.charAt(0) }}</div>
-            <mat-card-title>user</mat-card-title>
-            <mat-card-subtitle>Rang: #{{ currentUser ? getUserRank(currentUser) : 'N/A' }}</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="user-stats-summary">
-              <div class="stat-item">
-                <div class="stat-value">{{ currentUser?.totalPosts }}</div>
-                <div class="stat-label">Publications</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-value">{{ currentUser?.totalAnswers }}</div>
-                <div class="stat-label">Réponses</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-value">{{ currentUser?.reputation }}</div>
-                <div class="stat-label">Réputation</div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-   -->
-<!-- Graphique d'activité -->
-<!-- <div class="activity-chart-container">
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>Évolution de votre activité</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="chart-container">
-              <canvas id="activityChart" height="250"></canvas>
-            </div>
-          </mat-card-content>
-        </mat-card>
+  <div *ngIf="!isLoading" class="statistics-dashboard max-w-7xl mx-auto">
+    <!-- Page Title -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-gray-800">Statistical dashboard</h1>
+      <p class="text-gray-600">Data visualization and user performance</p>
+    </div>
+
+    <!-- User Header Card -->
+    <mat-card class="header-card mb-8 shadow-lg rounded-xl overflow-hidden">
+      <!-- <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
+        <div class="flex items-center">
+          <div
+            class="user-avatar bg-white text-blue-700 rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold shadow-md">
+            {{ user?.username?.charAt(0) }}
+          </div>
+          <div class="ml-4 text-white">
+            <h2 class="text-2xl font-bold">{{ user?.username }}</h2>
+
+          </div>
+        </div>
       </div> -->
+      <mat-card-content class="p-6">
+        <div class="user-stats-summary grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="stat-item text-center p-5 rounded-xl bg-blue-50 hover:bg-blue-100 transition-colors shadow-sm">
+            <mat-icon class="text-blue-600 text-3xl">post_add</mat-icon>
+            <div class="stat-value text-3xl font-bold mt-3 mb-1">{{ totalPosts }}</div>
+            <div class="stat-label text-gray-600 text-lg">Posts</div>
+          </div>
+          <div
+            class="stat-item text-center p-5 rounded-xl bg-purple-50 hover:bg-purple-100 transition-colors shadow-sm">
+            <mat-icon class="text-purple-600 text-3xl">question_answer</mat-icon>
+            <div class="stat-value text-3xl font-bold mt-3 mb-1">{{ totalComments }}</div>
+            <div class="stat-label text-gray-600 text-lg">Answers</div>
+          </div>
+          <div class="stat-item text-center p-5 rounded-xl bg-amber-50 hover:bg-amber-100 transition-colors shadow-sm">
+            <mat-icon class="text-amber-600 text-3xl">star</mat-icon>
+            <div class="stat-value text-3xl font-bold mt-3 mb-1">{{ totalBestAnswers }}</div>
+            <div class="stat-label text-gray-600 text-lg">Best answers</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
-<!-- Classement des utilisateurs -->
-<!-- <div class="top-users-container">
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>Utilisateurs les plus actifs</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <mat-list>
-              <mat-list-item *ngFor="let user of topUsers; let i = index" class="top-user-item">
-                <div class="rank-number">{{ i + 1 }}</div>
-                <div mat-line class="user-info">
-                  <span class="username">{{ user.username }}</span>
-                  <span class="user-activity-count">
-                    <mat-icon>forum</mat-icon> {{ user.totalPosts + user.totalAnswers }}
-                  </span>
+    <!-- Charts and Statistics -->
+    <!-- Technologies Distribution - Full Width -->
+    <mat-card class="chart-card shadow-lg rounded-xl mb-8">
+
+      <mat-card-content class="p-6">
+        <div class="chart-wrapper h-96">
+          <canvas id="technologiesChart"></canvas>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Activity Over Time - Full Width -->
+    <mat-card class="shadow-lg rounded-xl mb-8">
+
+      <mat-card-content class="p-6">
+        <div class="chart-container" style="position: relative; height:400px;">
+          <p-chart type="bar" [data]="chartData" [options]="chartOptions" class="h-96" />
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Top Contributors -->
+    <mat-card class="header-card mb-8 shadow-lg rounded-xl overflow-hidden">
+      <mat-card-header class="bg-gray-100">
+        <mat-card-title class="text-lg font-bold">Top Contributors</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list>
+          <mat-list-item *ngFor="let contributor of topContributors ; let i = index" class="contributor-item h-16">
+            <div class="flex items-center justify-between w-full py-3">
+              <div class="flex items-center">
+                <span
+                  class="rank-badge mr-4 bg-gray-100 text-gray-800 rounded-full w-8 h-8 flex items-center justify-center font-bold">{{i
+                  + 1}}</span>
+                <div class="contributor-avatar rounded-full w-10 h-10 flex items-center justify-center mr-4"
+                  [ngClass]="{'bg-amber-100 text-amber-700': i === 0, 'bg-gray-200 text-gray-700': i > 0}">
+                  {{contributor[0].username.charAt(0)}}
                 </div>
-                <mat-divider *ngIf="i < topUsers.length - 1"></mat-divider>
-              </mat-list-item>
-            </mat-list>
-          </mat-card-content>
-        </mat-card>
-      </div> -->
-<!-- </div>
-  </div> -->
+                <div>
+                  <div class="font-medium">{{contributor[0].username}}</div>
+
+                </div>
+              </div>
+              <div class="flex items-center space-x-8">
+                <div class="text-sm flex flex-col items-center">
+                  <div class="font-bold text-lg text-blue-600">{{contributor[1]}}</div>
+                  <div class="text-xs text-gray-500 flex items-center">
+                    <mat-icon class="text-blue-500 mr-1"
+                      style="font-size: 14px; width: 14px; height: 14px;">post_add</mat-icon>
+                    Posts
+                  </div>
+                </div>
+                <div class="text-sm flex flex-col items-center">
+                  <div class="font-bold text-lg text-purple-600">{{contributor[2]}}</div>
+                  <div class="text-xs text-gray-500 flex items-center">
+                    <mat-icon class="text-purple-500 mr-1"
+                      style="font-size: 14px; width: 14px; height: 14px;">comment</mat-icon>
+                    Réponses
+                  </div>
+                </div>
+                <div class="text-sm flex flex-col items-center">
+                  <div class="font-bold text-lg text-amber-600">{{contributor[3]}}</div>
+                  <div class="text-xs text-gray-500 flex items-center">
+                    <mat-icon class="text-amber-500 mr-1"
+                      style="font-size: 14px; width: 14px; height: 14px;">star</mat-icon>
+                    Meilleures
+                  </div>
+                </div>
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+          </mat-list-item>
+        </mat-list>
+
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

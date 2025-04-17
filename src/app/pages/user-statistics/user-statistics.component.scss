@@ -1,114 +1,128 @@
-/* user-statistics.component.scss */
 .user-statistics-container {
-    padding: 16px;
-    width: 100%;
-}
+    padding: 16px; // <= déplacé ici
+    width: 100%; // <= déplacé ici
+    background-color: transparent;
 
-.loading-spinner {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 300px;
-}
-
-.statistics-dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    width: 100%;
-}
-
-.header-card,
-.activity-chart-container {
-    grid-column: 1 / -1;
-}
-
-.user-stats-summary {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 16px;
-    text-align: center;
-}
-
-.stat-item {
-    padding: 0 16px;
-}
-
-.stat-value {
-    font-size: 24px;
-    font-weight: 500;
-    color: #3f51b5;
-}
-
-.stat-label {
-    font-size: 14px;
-    color: rgba(0, 0, 0, 0.6);
-}
-
-.chart-container {
-    height: 300px;
-    position: relative;
-    margin-top: 16px;
-}
-
-.user-avatar {
-    background-color: #3f51b5;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-.top-user-item {
-    display: flex;
-    align-items: center;
-    padding: 8px 0;
-}
-
-.rank-number {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: #3f51b5;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    margin-right: 16px;
-}
-
-.user-info {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
-}
-
-.username {
-    font-weight: 500;
-}
-
-.user-activity-count {
-    display: flex;
-    align-items: center;
-
-    mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-        margin-right: 4px;
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 400px;
     }
-}
 
-@media (max-width: 768px) {
     .statistics-dashboard {
+        display: grid;
+        gap: 20px;
         grid-template-columns: 1fr;
-    }
 
-    .user-stats-summary {
-        flex-direction: column;
-        gap: 16px;
+        @media (min-width: 1024px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .header-card {
+            grid-column: 1 / -1;
+
+
+            .user-avatar {
+                background-color: #3f51b5;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+            }
+
+            .user-stats-summary {
+                display: flex;
+                justify-content: space-around;
+                margin-top: 20px;
+
+                .stat-item {
+                    text-align: center;
+
+                    .stat-value {
+                        font-size: 24px;
+                        font-weight: bold;
+                        color: #3f51b5;
+                    }
+
+                    .stat-label {
+                        color: #666;
+                        font-size: 14px;
+                    }
+                }
+            }
+        }
+
+        .charts-container {
+            grid-column: 1 / -1;
+            display: grid;
+            gap: 20px;
+            grid-template-columns: 1fr 2fr;
+
+            .chart-card {
+                .chart-wrapper {
+                    height: 400px;
+                    position: relative;
+                    width: 100%;
+
+                    canvas {
+                        width: 100% !important;
+                        height: 100% !important;
+                    }
+                }
+            }
+        }
+
+
+
+
+       
+
+        .top-users-container {
+            grid-column: 1 / -1;
+
+            .top-user-item {
+                padding: 10px 0;
+
+                .rank-number {
+                    font-weight: bold;
+                    color: #3f51b5;
+                    margin-right: 16px;
+                }
+
+                .user-info {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    width: 100%;
+
+                    .username {
+                        font-weight: 500;
+                    }
+
+                    .user-stats {
+                        display: flex;
+                        gap: 16px;
+
+                        .stat {
+                            display: flex;
+                            align-items: center;
+                            gap: 4px;
+                            color: #666;
+
+                            mat-icon {
+                                font-size: 18px;
+                                height: 18px;
+                                width: 18px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

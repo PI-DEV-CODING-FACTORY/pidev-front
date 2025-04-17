@@ -55,7 +55,27 @@ export class PostService {
 
   public findPostsByCurrentUser(): Observable<Post[]> {
     const currentUser = this.authService.currentUserValue;
-
     return this.http.get<Post[]>(`${this.apiServerUrl}/post/user/${currentUser!.id}`);
+  }
+
+  // Statistics methods
+  public getTotalPosts(): Observable<number> {
+    return this.http.get<number>(`${this.apiServerUrl}/post/stats/total-posts`);
+  }
+
+  public getTotalComments(): Observable<number> {
+    return this.http.get<number>(`${this.apiServerUrl}/post/stats/total-comments`);
+  }
+
+  public getTotalBestAnswers(): Observable<number> {
+    return this.http.get<number>(`${this.apiServerUrl}/post/stats/total-best-answers`);
+  }
+
+  public getTopContributors(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiServerUrl}/post/stats/top-contributors`);
+  }
+
+  public getTopBestAnswerers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiServerUrl}/post/stats/top-best-answerers`);
   }
 }

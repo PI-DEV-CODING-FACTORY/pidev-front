@@ -291,7 +291,7 @@ export class PostDetailsComponent {
     } else {
       this.isSubmitting = true;
       const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-      const post: Post = new Post(0, "", this.commentText, this.user, formattedDate, TypePost.response, this.post.id, "this.technologie", '');
+      const post: Post = new Post(0, "", this.commentText, this.user, formattedDate, TypePost.response, this.post.id, "", '');
       console.log("Menttioned: ", this.mentionned);
       if (post != null) {
 
@@ -419,12 +419,33 @@ export class PostDetailsComponent {
     this.needHelp = false;
     this.showAiSolutionModal = true;
     this.isLoadingAiSolution = true;
+    this.aiSolution = null;
+ 
+    // Create a prompt for the AI based on the post content
+    const prompt = `Please provide the best solution for this question: \n\n${this.post.title}\n\n${this.post.content}`;
 
-    // Simulate AI processing
-    setTimeout(() => {
-      this.isLoadingAiSolution = false;
-      this.aiSolution = 'Here is your AI-generated solution...';
-    }, 2000);
+    // Call the API
+    this.postService.getResponse(prompt).subscribe({
+      next: (response: string) => {
+        this.aiSolution = response;
+        this.isLoadingAiSolution = false;
+      },
+      error: (error) => {
+        console.error('Error generating AI solution:', error);
+        this.aiSolution = 'Sorry, there was an error generating a solution. Please try again later.';
+        this.isLoadingAiSolution = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to generate AI solution'
+        });
+      }
+    });
+    // // Simulate AI processing
+    // setTimeout(() => {
+    //   this.isLoadingAiSolution = false;
+    //   this.aiSolution = 'Here is your AI-generated solution...';
+    // }, 2000);
   }
 
   closeAiSolutionModal(): void {
