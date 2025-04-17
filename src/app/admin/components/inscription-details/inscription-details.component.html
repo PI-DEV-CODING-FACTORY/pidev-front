@@ -1,0 +1,21 @@
+<p-dialog 
+    [visible]="visible"
+    (onHide)="closeModal()"
+    [style]="{width: '500px'}"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    header="Inscription Details">
+    <div class="grid" *ngIf="inscription">
+        <div class="col-12">
+            <div class="card">
+                <!-- Add your inscription details here -->
+                <div class="field">
+                    <label class="font-bold">Full Name</label>
+                    <p>{{inscription.firstName}} {{inscription.lastName}}</p>
+                </div>
+                <!-- Add other fields as needed -->
+            </div>
+        </div>
+    </div>
+</p-dialog>

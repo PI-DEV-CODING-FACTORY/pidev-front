@@ -10,7 +10,19 @@ import { NoteComponent } from './app/pages/notes/note.component'; // Import the 
 import CourseDetailsComponent from './app/pages/course/components/courseDetails';
 import { CoursesWidget } from './app/pages/course/components/courseswidget';
 
+import { Crud } from './app/pages/crud/crud';
+import { Subscription } from 'rxjs';
+import { SubscriptionComponent } from './app/pages/public/components/subscription/subscription.component';
+import { Component } from '@angular/core';
+import { FormationsWidget } from './app/pages/landing/components/formationswidget';
+
 export const appRoutes: Routes = [
+    { path: 'formations', component: FormationsWidget },
+    {
+        path: 'dashboard',
+        component: Dashboard
+    },
+    { path: 'subscription', component: SubscriptionComponent },
     {
         path: '',
         component: AppLayout,
@@ -28,7 +40,9 @@ export const appRoutes: Routes = [
                     { path: ':id', component: CourseDetailsComponent }
                 ]
             },
-            { path: 'notes', component: NoteComponent }, // Add the notes route
+
+            { path: 'notes', component: NoteComponent },
+            // Add the notes route
             {
                 path: 'internships',
                 loadComponent: () => import('./app/pages/pfe/internships/internships.component').then((m) => m.InternshipsComponent)

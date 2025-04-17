@@ -1,0 +1,48 @@
+:host {
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        
+        &.status-completed {
+            background-color: #DEF7EC;
+            color: #03543F;
+        }
+        
+        &.status-pending {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        
+        &.status-cancelled {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+    }
+
+    p-card {
+        .p-card {
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+    }
+
+    .p-datatable {
+        .p-datatable-header {
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+        
+        th {
+            background: transparent;
+            border-bottom: 1px solid var(--surface-border);
+            color: var(--text-color-secondary);
+            font-weight: 600;
+        }
+        
+        td {
+            border: none;
+        }
+    }
+}

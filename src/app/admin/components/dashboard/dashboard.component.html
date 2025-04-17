@@ -1,0 +1,139 @@
+<div class="grid">
+    <!-- Stats Cards -->
+    <div class="col-12 flex justify-between gap-6 mb-4">
+        <div class="flex-1">
+            <p-card styleClass="h-full shadow-lg hover:shadow-xl transition-shadow duration-200">
+                <div class="flex flex-column gap-2 p-2">
+                    <span class="text-500 text-sm">Nombre d'Étudiants</span>
+                    <span class="text-3xl font-bold">{{totalStudents}}</span>
+                    <span class="text-green-500 text-sm flex items-center gap-1">
+                        <i class="pi pi-arrow-up"></i>
+                        +12% ce semestre
+                    </span>
+                </div>
+            </p-card>
+        </div>
+        <div class="flex-1">
+            <p-card styleClass="h-full shadow-lg hover:shadow-xl transition-shadow duration-200">
+                <div class="flex flex-column gap-2 p-2">
+                    <span class="text-500 text-sm">Candidatures Actives</span>
+                    <span class="text-3xl font-bold">{{activeApplications}}</span>
+                    <span class="text-blue-500 text-sm flex items-center gap-1">
+                        <i class="pi pi-sync" style="font-size: 0.8rem"></i>
+                        En cours
+                    </span>
+                </div>
+            </p-card>
+        </div>
+        <div class="flex-1">
+            <p-card styleClass="h-full shadow-lg hover:shadow-xl transition-shadow duration-200">
+                <div class="flex flex-column gap-2 p-2">
+                    <span class="text-500 text-sm">Formations Disponibles</span>
+                    <span class="text-3xl font-bold">{{coursesCount}}</span>
+                    <span class="text-green-500 text-sm flex items-center gap-1">
+                        <i class="pi pi-plus"></i>
+                        +5 nouvelles formations
+                    </span>
+                </div>
+            </p-card>
+        </div>
+    </div>
+
+    <!-- Enrollment Activity Chart -->
+    <div class="col-12">
+        <p-card header="Activité des Inscriptions">
+            <div class="flex justify-content-between mb-3">
+                <div class="flex align-items-center">
+                    <span class="mr-2">•</span>
+                    <span class="text-500">Inscrits</span>
+                    <span class="mx-2">•</span>
+                    <span class="text-500">Candidatures</span>
+                </div>
+                <p-dropdown [options]="[2023, 2022, 2021]" [(ngModel)]="yearFilter"></p-dropdown>
+            </div>
+            <p-chart type="bar" [data]="enrollmentData" [options]="{ plugins: { legend: { display: false } } }"></p-chart>
+        </p-card>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="col-12 grid mt-4">
+        <div class="col-12 md:col-5">
+            <div class="mb-4">
+                <p-card header="Étudiants par Formation" styleClass="h-full shadow-lg">
+                    <p-chart type="polarArea" 
+                             [data]="formationDistributionData" 
+                             [options]="{ 
+                                 responsive: true,
+                                 maintainAspectRatio: false,
+                                 plugins: { 
+                                     legend: { 
+                                         position: 'bottom',
+                                         labels: {
+                                             usePointStyle: true,
+                                             font: { size: 11 }
+                                         }
+                                     }
+                                 }
+                             }"
+                             height="200">
+                    </p-chart>
+                </p-card>
+            </div>
+
+            <div class="mb-4">
+                <p-card header="Taux de Réussite" styleClass="h-full shadow-lg">
+                    <p-chart type="line" 
+                             [data]="successRateData" 
+                             [options]="{
+                                 responsive: true,
+                                 maintainAspectRatio: false,
+                                 plugins: {
+                                     legend: {
+                                         position: 'bottom',
+                                         labels: {
+                                             usePointStyle: true,
+                                             font: { size: 11 }
+                                         }
+                                     }
+                                 }
+                             }"
+                             height="200">
+                    </p-chart>
+                </p-card>
+            </div>
+        </div>
+
+        <!-- Latest Applications -->
+        <div class="col-12 md:col-7 mt-4 md:mt-0">
+            <p-card header="Dernières Candidatures" styleClass="h-full shadow-lg">
+                <p-table [value]="latestApplications" [rows]="5" [paginator]="true" styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Étudiant</th>
+                            <th>ID Candidature</th>
+                            <th>Date</th>
+                            <th>Formation</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-application>
+                        <tr>
+                            <td>{{application.student}}</td>
+                            <td>{{application.applicationId}}</td>
+                            <td>{{application.date}}</td>
+                            <td>{{application.course}}</td>
+                            <td>
+                                <span [class]="'status-badge status-' + application.status.toLowerCase()">
+                                    {{application.status}}
+                                </span>
+                            </td>
+                            <td>
+                                <button pButton icon="pi pi-ellipsis-v" class="p-button-text"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-card>
+        </div>
+    </div>
