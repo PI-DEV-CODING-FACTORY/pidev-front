@@ -1,0 +1,47 @@
+<div class="container py-5">
+  <!-- Header Section -->
+  <div class="news-header animate__animated animate__fadeIn animate__slow">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1><i class="fas fa-newspaper me-2"></i> Latest News</h1>
+      <button class="btn btn-light refresh-button" id="refreshBtn" (click)="refreshNews()">
+        <i class="pi pi-refresh"></i> Refresh
+      </button>
+    </div>
+    <p class="mt-2 mb-0 text-white-50">Stay updated with the latest stories from around the world</p>
+  </div>
+
+  <!-- News List Section -->
+  <div class="animate__animated animate__fadeIn animate__delay-1s" id="newsList">
+    <!-- Loading state will be shown initially -->
+    <div id="loadingState" *ngIf="newsList.length===0">
+      <div class="card p-4 mb-3">
+        <div class="skeleton-loader" style="width: 80%;"></div>
+        <div class="skeleton-loader" style="width: 40%;"></div>
+        <div class="skeleton-loader" style="width: 60%;"></div>
+      </div>
+      <div class="card p-4 mb-3">
+        <div class="skeleton-loader" style="width: 70%;"></div>
+        <div class="skeleton-loader" style="width: 35%;"></div>
+        <div class="skeleton-loader" style="width: 55%;"></div>
+      </div>
+      <div class="card p-4 mb-3">
+        <div class="skeleton-loader" style="width: 75%;"></div>
+        <div class="skeleton-loader" style="width: 45%;"></div>
+        <div class="skeleton-loader" style="width: 65%;"></div>
+      </div>
+    </div>
+    <!-- Actual news items -->
+    <div id="newsItems" *ngFor="let news of newsList">
+      <div class="card news-card p-0 animate__animated animate__fadeInUp">
+        <div class="card-body">
+          <span class="news-type type-story">{{ news.type }}</span>
+          <h5><a [href]="news.url" class="news-title">{{ news.title }}</a></h5>
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <span class="author-badge"><i class="fas fa-user me-1"></i> {{ news.by }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -95,12 +95,16 @@
                             }
                         ],
                         "styles": [
-                            "src/styles.scss"
+                          "@angular/material/prebuilt-themes/azure-blue.css",
+                          "src/styles.scss"
                         ],
                         "scripts": []
                     }
                 }
             }
         }
+    },
+    "cli": {
+        "analytics": "0c089785-a706-43b7-9e58-0bcf347aa96e"
     }
 }

@@ -6,6 +6,9 @@ import CourseDetailsComponent from './course/components/courseDetails';
 import { CoursesWidget } from './course/components/courseswidget';
 import { Routes } from '@angular/router';
 
+import { PostComponent } from './post/post.component';
+import { PostDetailsComponent } from './post-details/post-details.component';
+import { UserPostsComponent } from './user-posts/user-posts.component';
 
 export default [
     { path: 'documentation', component: Documentation },
@@ -16,8 +19,7 @@ export default [
         component: Course,
         children: [
             { path: '', component: CoursesWidget },
-            { path: ':id', component: CourseDetailsComponent },
-     
+            { path: ':id', component: CourseDetailsComponent }
         ]
     },
 
@@ -25,5 +27,10 @@ export default [
         path: 'pfe',
         loadChildren: () => import('./pfe/pfe.routes').then((m) => m.PFE_ROUTES)
     },
+    { path: 'post', component: PostComponent },
+   
+    { path: 'postDetails/:id', component: PostDetailsComponent },
+    { path: 'userPosts', component: UserPostsComponent },
+  
     { path: '**', redirectTo: '/notfound' }
 ] as Routes;
