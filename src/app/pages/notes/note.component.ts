@@ -84,6 +84,29 @@ interface NotesByCategory {
                 </div>
             </div>
         </div>
+
+        <!-- Resume Modal -->
+        <div *ngIf="isResumeModalOpen" class="modal-overlay">
+            <div class="modal-container resume-modal">
+                <div class="modal-header">
+                    <h3>{{ resumeTitle }}</h3>
+                    <button (click)="closeResumeModal()" class="close-button">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div *ngIf="generatingResume" class="resume-loading">
+                        <p>Generating resume based on your notes...</p>
+                        <div class="loader"></div>
+                    </div>
+                    <div *ngIf="!generatingResume" class="resume-content">
+                        <pre>{{ generatedResume }}</pre>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button (click)="closeResumeModal()" class="modal-button cancel">Close</button>
+                    <button *ngIf="!generatingResume" (click)="downloadResume()" class="modal-button save">Download</button>
+                </div>
+            </div>
+        </div>
     `,
     styles: [
         `
@@ -549,6 +572,12 @@ export class NoteComponent implements OnInit {
         '#8b5cf6' // violet
     ];
 
+    // Resume modal properties
+    isResumeModalOpen = false;
+    generatedResume = '';
+    generatingResume = false;
+    resumeTitle = '';
+
     constructor(
         private noteService: NoteService,
         private courseService: CourseService,
@@ -764,9 +793,11 @@ export class NoteComponent implements OnInit {
             });
         });
 
-        console.log('Formatted notes for AI processing:', formattedNotes);
+        // Show loading state
+        this.generatingResume = true;
+        this.resumeTitle = `Resume for ${courseName}`;
+        this.isResumeModalOpen = true;
 
-        // Similar structure to the chat component
         const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
         const GROQ_API_KEY = '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';
 
@@ -791,22 +822,34 @@ export class NoteComponent implements OnInit {
             ]
         };
 
-        // Show a loading message in console
-        console.log('Generating resume...');
-
         // Make the API call
         this.http.post<any>(GROQ_API_URL, requestBody, { headers }).subscribe({
             next: (response) => {
-                const resumeContent = response.choices[0].message.content;
-                console.log('Generated Resume:');
-                console.log(resumeContent);
-
-                // Optionally, you could also save this resume to your database
-                // this.saveResumeToDatabase(courseId, resumeContent);
+                this.generatedResume = response.choices[0].message.content;
+                this.generatingResume = false;
             },
             error: (error) => {
                 console.error('Error generating resume:', error);
+                this.generatedResume = 'Failed to generate resume. Please try again.';
+                this.generatingResume = false;
             }
         });
+    }
+
+    closeResumeModal(): void {
+        this.isResumeModalOpen = false;
+        this.generatedResume = '';
+    }
+
+    downloadResume(): void {
+        if (!this.generatedResume) return;
+
+        const element = document.createElement('a');
+        const file = new Blob([this.generatedResume], { type: 'text/plain' });
+        element.href = URL.createObjectURL(file);
+        element.download = `${this.resumeTitle.replace(/\s+/g, '_')}.md`;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
     }
 }
