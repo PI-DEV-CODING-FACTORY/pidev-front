@@ -9,7 +9,7 @@ import { HeroWidget } from './components/herowidget';
 import { FeaturesWidget } from './components/featureswidget';
 import { HighlightsWidget } from './components/highlightswidget';
 import { FooterWidget } from './components/footerwidget';
-import { FormationsWidget } from "./components/formationswidget";
+import { FormationsWidget } from './components/formationswidget';
 
 @Component({
     selector: 'app-landing',
@@ -22,9 +22,7 @@ import { FormationsWidget } from "./components/formationswidget";
                 <hero-widget />
                 <features-widget />
                 <highlights-widget />
-                <section id="formations" >
-                    <formations-widget/>
-                </section>
+
                 <footer-widget />
             </div>
         </div>
