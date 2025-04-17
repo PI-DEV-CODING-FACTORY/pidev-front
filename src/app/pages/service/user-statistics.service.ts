@@ -43,7 +43,7 @@ export class UserStatisticsService {
     }
 
     getTechnologiesDistribution(): Observable<string[]> {
-        return this.http.get<string[]>(`${this.apiServerUrl}/find/technology`);
+        return this.http.get<string[]>(`${this.apiServerUrl}/find/count/technology`);
     }
 
     getTopContributors(): Observable<any[]> {
