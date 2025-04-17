@@ -19,17 +19,7 @@ import { catchError } from 'rxjs/operators';
         <div class="content-wrapper">
             <div class="main-content">
                 <div ngbScrollSpy #spy="ngbScrollSpy" [rootMargin]="'-100px'" class="content-section p-3 rounded-2">
-                    <app-lesson-content
-                        *ngFor="let lesson of course?.lessons; let i = index"
-                        [lesson]="lesson"
-                        [index]="i"
-                        [courseId]="course?.id!"
-                        [notes]="getNotesForLesson(lesson.id)"
-                        [hasNotes]="hasNotesForLesson(lesson.id)"
-                        (saveNoteEvent)="saveNote($event)"
-                        (deleteNoteEvent)="handleDeleteNote($event)"
-                    >
-                    </app-lesson-content>
+                    <app-lesson-content *ngFor="let lesson of course?.lessons; let i = index" [lesson]="lesson" [index]="i" [courseId]="course?.id!"> </app-lesson-content>
                 </div>
             </div>
 

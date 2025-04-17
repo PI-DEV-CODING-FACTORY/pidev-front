@@ -322,16 +322,22 @@ export class NotePanelComponent implements OnInit {
     deleteNote(index: number): void {
         if (this.isDeleting) return;
 
-        const noteToDelete = (this.notes[index] as any).id;
+        const noteToDelete = this.notes[index];
 
-        if (!noteToDelete) {
+        // Debug logging
+        console.log('Attempting to delete note:', noteToDelete);
+        console.log('Note ID:', noteToDelete.id);
+
+        if (!noteToDelete || !noteToDelete.id) {
             console.error('Cannot delete note: Missing ID');
             return;
         }
 
         this.isDeleting = true;
-        this.noteService.deleteNote(noteToDelete).subscribe({
+
+        this.noteService.deleteNote(noteToDelete.id).subscribe({
             next: () => {
+                // Remove the note from our local array after successful deletion
                 this.notes.splice(index, 1);
                 this.isDeleting = false;
                 console.log('Note deleted successfully');

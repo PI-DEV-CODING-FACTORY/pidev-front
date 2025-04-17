@@ -99,6 +99,7 @@ export class NoteService {
      */
     convertToAppNote(apiNote: ApiNote): Note {
         return {
+            id: apiNote.id, // This is the critical line that was missing
             lessonId: apiNote.lessonId,
             courseId: apiNote.courseId,
             content: apiNote.content,
