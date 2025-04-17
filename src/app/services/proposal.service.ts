@@ -120,10 +120,44 @@ export class ProposalService {
   }
 
   // New methods for additional proposal statuses
-  scheduleMeeting(id: number, meetingDetails: string): Observable<any> {
-    // In a real application, this should call an API endpoint to update the proposal
-    // For now, we'll simulate it with a basic update
-    return this.updateProposalStatus(id, ProposalStatus.MEETING_SCHEDULED);
+  scheduleMeeting(id: number, meetingDetails: string, meetingDateTime: string): Observable<any> {
+    const url = `${this.apiUrl}/${id}/send-interview-invitation`;
+    
+    const payload = {
+      studentEmail: "achrafsekri2001@gmail.com", // This should come from the student data in a real app
+      interviewDateTime: meetingDateTime,
+      message: meetingDetails
+    };
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': '*/*',
+      'X-Company-Id': '1' // This should come from the logged-in company in a real app
+    });
+
+    return this.http.post(url, payload, { 
+      headers,
+      responseType: 'text',
+      observe: 'response'
+    }).pipe(
+      map(response => {
+        if (response.status === 200) {
+          return { success: true, message: 'Interview invitation sent successfully' };
+        }
+        if (response.body) {
+          try {
+            return JSON.parse(response.body);
+          } catch (e) {
+            return { success: true, message: 'Interview invitation sent successfully', rawResponse: response.body };
+          }
+        }
+        return { success: true };
+      }),
+      catchError(error => {
+        console.error('Error sending interview invitation:', error);
+        throw error;
+      })
+    );
   }
   
   updateProposalStatus(id: number, status: ProposalStatus): Observable<any> {

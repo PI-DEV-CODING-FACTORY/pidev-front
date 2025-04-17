@@ -19,6 +19,7 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextarea } from 'primeng/inputtextarea';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DividerModule } from 'primeng/divider';
+import { CalendarModule } from 'primeng/calendar';
 
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { RouterModule } from '@angular/router';
@@ -44,7 +45,8 @@ import { HttpErrorResponse } from '@angular/common/http';
         DialogModule,
         InputTextarea,
         ScrollPanelModule,
-        DividerModule
+        DividerModule,
+        CalendarModule
     ],
     providers: [MessageService, ConfirmationService],
     template: `
@@ -163,10 +165,6 @@ import { HttpErrorResponse } from '@angular/common/http';
                                         <p class="text-sm text-gray-500 mb-1">Responded:</p>
                                         <p class="text-gray-700 text-sm">{{ proposal.respondedAt | date: 'medium' }}</p>
                                     </div>
-
-                                    <div class="flex justify-end gap-2 border-t border-gray-100 pt-3">
-                                        <button pButton type="button" label="Schedule Meeting" icon="pi pi-calendar" class="p-button-info p-button-sm" (click)="scheduleMeeting(proposal)"></button>
-                                    </div>
                                 </div>
                             </div>
                         </p-scrollPanel>
@@ -224,6 +222,7 @@ import { HttpErrorResponse } from '@angular/common/http';
                                     </div>
 
                                     <div class="flex justify-end gap-2 border-t border-gray-100 pt-3">
+                                        <button pButton type="button" label="Schedule Meeting" icon="pi pi-calendar" class="p-button-info p-button-sm" (click)="scheduleMeeting(proposal)"></button>
                                         <button pButton type="button" label="View Details" icon="pi pi-eye" class="p-button-secondary p-button-sm" (click)="viewDetails(proposal)"></button>
                                     </div>
                                 </div>
@@ -366,10 +365,35 @@ import { HttpErrorResponse } from '@angular/common/http';
         </div>
 
         <!-- Meeting Dialog -->
-        <p-dialog header="Schedule Meeting" [(visible)]="meetingDialogVisible" [modal]="true" [style]="{ width: '450px' }" [draggable]="false" [resizable]="false" styleClass="rounded-lg shadow-lg">
-            <div class="field">
-                <label for="message" class="block text-gray-700 font-medium mb-2">Meeting Details</label>
-                <textarea id="message" pInputTextarea [(ngModel)]="meetingDetails" rows="5" class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+        <p-dialog header="Schedule Meeting" [(visible)]="meetingDialogVisible" [modal]="true" [style]="{ width: '450px', minHeight: '600px' }" [draggable]="false" [resizable]="false" styleClass="rounded-lg shadow-lg">
+            <div class="space-y-4">
+                <div class="field">
+                    <label for="meetingDateTime" class="block text-gray-700 font-medium mb-2">Meeting Date & Time</label>
+                    <p-calendar 
+                        id="meetingDateTime"
+                        [(ngModel)]="meetingDateTime" 
+                        [showTime]="true" 
+                        [minDate]="minDate"
+                        [showButtonBar]="true"
+                        [showIcon]="true"
+                        [hourFormat]="24"
+                        dateFormat="dd/mm/yy"
+                        placeholder="Select date and time"
+                        class="w-full"
+                        [style]="{'width': '100%'}"
+                    ></p-calendar>
+                </div>
+                <div class="field">
+                    <label for="message" class="block text-gray-700 font-medium mb-2">Meeting Details</label>
+                    <textarea 
+                        id="message" 
+                        pInputTextarea 
+                        [(ngModel)]="meetingDetails" 
+                        rows="5" 
+                        class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter meeting details..."
+                    ></textarea>
+                </div>
             </div>
             <ng-template pTemplate="footer">
                 <div class="flex justify-end gap-2 border-t border-gray-200 pt-3">
@@ -446,6 +470,8 @@ export class ManageProposalsComponent implements OnInit {
     detailsDialogVisible: boolean = false;
     meetingDetails: string = '';
     selectedProposal: Proposal | null = null;
+    meetingDateTime: Date | null = null;
+    minDate: Date = new Date();
 
     constructor(
         private proposalService: ProposalService,
@@ -566,30 +592,43 @@ export class ManageProposalsComponent implements OnInit {
     scheduleMeeting(proposal: Proposal) {
         this.selectedProposal = proposal;
         this.meetingDetails = '';
+        this.meetingDateTime = null;
         this.meetingDialogVisible = true;
     }
 
     confirmScheduleMeeting() {
-        if (!this.selectedProposal) return;
+        if (!this.selectedProposal || !this.meetingDateTime) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please select a date and time for the meeting'
+            });
+            return;
+        }
 
         const proposal = this.selectedProposal;
+        const formattedDateTime = this.meetingDateTime.toISOString();
 
-        this.proposalService.scheduleMeeting(proposal.id, this.meetingDetails).subscribe({
+        this.proposalService.scheduleMeeting(proposal.id, this.meetingDetails, formattedDateTime).subscribe({
             next: (response) => {
                 proposal.status = ProposalStatus.MEETING_SCHEDULED;
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
-                    detail: response.message || 'Meeting scheduled successfully'
+                    detail: 'Interview invitation sent successfully and meeting scheduled'
                 });
                 this.meetingDialogVisible = false;
+                this.meetingDetails = '';
+                this.meetingDateTime = null;
+                this.selectedProposal = null;
                 this.loadProposals();
             },
             error: (error: HttpErrorResponse) => {
+                console.error('Error scheduling meeting:', error);
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: `Failed to schedule meeting: ${error.message}`
+                    detail: `Failed to schedule meeting: ${error.message || 'Unknown error'}`
                 });
             }
         });
