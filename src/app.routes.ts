@@ -17,6 +17,16 @@ import { Component } from '@angular/core';
 import { FormationsWidget } from './app/pages/landing/components/formationswidget';
 
 export const appRoutes: Routes = [
+    {
+        path: 'admin',
+        component: AppLayout,
+        children: [
+            {
+                path: '',
+                loadChildren: () => import('./app/admin/admin.routes').then((m) => m.default)
+            }
+        ]
+    },
     { path: 'formations', component: FormationsWidget },
     {
         path: 'dashboard',
