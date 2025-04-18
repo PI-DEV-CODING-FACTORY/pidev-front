@@ -32,11 +32,11 @@ export class AppMenu {
                     // { label: 'Statistics', icon: 'pi pi-chart-bar', routerLink: ['/pages/userStatistics'] },
                     ...(user == null
                         ? [
-                              {
-                                  label: 'Login',
-                                  icon: 'pi pi-fw pi-sign-in',
-                                  routerLink: ['/auth/login']
-                              }
+                            //   {
+                            //       label: 'Login',
+                            //       icon: 'pi pi-fw pi-sign-in',
+                            //       routerLink: ['/auth/login']
+                            //   }
                           ]
                         : [])
                 ]
