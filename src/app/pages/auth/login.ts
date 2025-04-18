@@ -59,6 +59,7 @@ import { MessageService } from 'primeng/api';
                                 </div>
                                 <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" routerLink="/auth/reset-password">Mot de passe oublié?</span>
                             </div>
+
                             <p-button label="Se connecter" [loading]="loading" styleClass="w-full" (onClick)="login()"></p-button>
                         </div>
                     </div>
@@ -79,46 +80,47 @@ export class Login {
     checked: boolean = false;
     loading: boolean = false;
     login() {
-        if (!this.email || !this.password) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Erreur',
-                detail: 'Veuillez saisir votre email et mot de passe'
-            });
-            return;
-        }
-        this.loading = true;
-        const url = `http://localhost:8080/auth/login?email=${this.email}&password=${this.password}`;
+        this.router.navigate(['/']);
+        //     if (!this.email || !this.password) {
+        //         this.messageService.add({
+        //             severity: 'error',
+        //             summary: 'Erreur',
+        //             detail: 'Veuillez saisir votre email et mot de passe'
+        //         });
+        //         return;
+        //     }
+        //     this.loading = true;
+        //     const url = `http://localhost:8080/auth/login?email=${this.email}&password=${this.password}`;
 
-        this.http.post(url, null, { responseType: 'text' }).subscribe({
-            next: (response: string) => {
-                this.loading = false;
-                if (response && response !== 'invalid credentials') {
-                    // Store JWT token
-                    localStorage.setItem('token', response);
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Succès',
-                        detail: 'Connexion réussie'
-                    });
-                    this.router.navigate(['/']);
-                } else {
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Erreur',
-                        detail: 'Email ou mot de passe invalide'
-                    });
-                }
-            },
-            error: (error) => {
-                this.loading = false;
-                console.error('Erreur de connexion:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erreur',
-                    detail: 'La connexion a échoué. Veuillez réessayer.'
-                });
-            }
-        });
+        //     this.http.post(url, null, { responseType: 'text' }).subscribe({
+        //         next: (response: string) => {
+        //             this.loading = false;
+        //             if (response && response !== 'invalid credentials') {
+        //                 // Store JWT token
+        //                 localStorage.setItem('token', response);
+        //                 this.messageService.add({
+        //                     severity: 'success',
+        //                     summary: 'Succès',
+        //                     detail: 'Connexion réussie'
+        //                 });
+        //
+        //             } else {
+        //                 this.messageService.add({
+        //                     severity: 'error',
+        //                     summary: 'Erreur',
+        //                     detail: 'Email ou mot de passe invalide'
+        //                 });
+        //             }
+        //         },
+        //         error: (error) => {
+        //             this.loading = false;
+        //             console.error('Erreur de connexion:', error);
+        //             this.messageService.add({
+        //                 severity: 'error',
+        //                 summary: 'Erreur',
+        //                 detail: 'La connexion a échoué. Veuillez réessayer.'
+        //             });
+        //         }
+        //     });
     }
 }
