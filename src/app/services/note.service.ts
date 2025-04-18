@@ -17,7 +17,7 @@ interface ApiNote {
     providedIn: 'root'
 })
 export class NoteService {
-    private apiUrl = 'http://localhost:8089/api/notes';
+    private apiUrl = 'http://localhost:8087/api/notes';
 
     constructor(private http: HttpClient) {}
 
