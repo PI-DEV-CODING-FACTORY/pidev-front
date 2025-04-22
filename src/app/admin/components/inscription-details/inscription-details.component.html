@@ -1,104 +1,106 @@
 <p-dialog 
-    [visible]="visible"
+    [(visible)]="visible"
     (onHide)="closeModal()"
-    [style]="{width: '800px'}"
+    [style]="{width: '650px'}"
     [modal]="true"
     [draggable]="false"
     [resizable]="false"
-    header="Détails de l'Inscription">
+    styleClass="p-fluid">
     
-    <div class="grid" *ngIf="inscription">
-        <div class="col-12">
-            <div class="card">
-                <!-- Personal Information Section -->
-                <div class="mb-4">
-                    <h3 class="text-xl font-semibold mb-3 text-primary">Informations Personnelles</h3>
-                    <div class="grid">
-                        <div class="col-6">
-                            <div class="field mb-3">
-                                <label class="block font-medium mb-1">Nom Complet</label>
-                                <p class="text-900">{{inscription.firstName}} {{inscription.lastName}}</p>
-                            </div>
-                            <div class="field mb-3">
-                                <label class="block font-medium mb-1">Email</label>
-                                <p class="text-900">{{inscription.personalEmail}}</p>
-                            </div>
-                            <div class="field mb-3">
-                                <label class="block font-medium mb-1">Date de Naissance</label>
-                                <p class="text-900">{{inscription.dateOfBirth | date:'dd/MM/yyyy'}}</p>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="field mb-3">
-                                <label class="block font-medium mb-1">Téléphone</label>
-                                <p class="text-900">{{inscription.phoneNumber}}</p>
-                            </div>
-                            <div class="field mb-3">
-                                <label class="block font-medium mb-1">Adresse</label>
-                                <p class="text-900">{{inscription.address}}</p>
-                            </div>
-                            <div class="field mb-3">
-                                <label class="block font-medium mb-1">Ville</label>
-                                <p class="text-900">{{inscription.city}}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Academic Information Section -->
-                <div class="mb-4">
-                    <h3 class="text-xl font-semibold mb-3 text-primary">Informations Académiques</h3>
-                    <div class="grid">
-                        <div class="col-6">
-                            <div class="field mb-3">
-                                <label class="block font-medium mb-1">Dernier Diplôme</label>
-                                <p class="text-900">{{inscription.lastDiploma}}</p>
-                            </div>
-                            <div class="field mb-3">
-                                <label class="block font-medium mb-1">Institution</label>
-                                <p class="text-900">{{inscription.institution}}</p>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="field mb-3">
-                                <label class="block font-medium mb-1">Description Académique</label>
-                                <p class="text-900">{{inscription.academicDescription || 'Non fourni'}}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Documents Section -->
-                <div class="mb-4">
-                    <h3 class="text-xl font-semibold mb-3 text-primary">Documents</h3>
-                    <div class="grid">
-                        <div class="col-12">
-                            <div class="field mb-3" *ngIf="inscription.degreeFile">
-                                <label class="block font-medium mb-1">Diplôme</label>
-                                <div class="flex align-items-center gap-2">
-                                    <i class="pi pi-file-pdf text-primary"></i>
-                                    <a href="#" class="text-primary">Voir le document</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Status Section -->
-                <div class="mb-4">
-                    <h3 class="text-xl font-semibold mb-3 text-primary">Statut de l'Inscription</h3>
-                    <div class="field">
-                        <p-tag 
-                            [severity]="getStatusSeverity(inscription.status)"
-                            [value]="inscription.status">
-                        </p-tag>
-                    </div>
-                </div>
-            </div>
+    <ng-template pTemplate="header">
+        <div class="flex flex-column align-items-center w-full text-center">
+            <span class="text-500 text-sm">Détails de l'inscription</span>
         </div>
+    </ng-template>
+
+    <div class="surface-section" *ngIf="inscription">
+        <!-- First Section - Personal Information -->
+        <section class="p-3">
+            <div class="grid grid-cols-2 mb-3">
+                <span class="text-500 font-bold">Nom complet</span>
+                <span class="text-900">{{inscription.firstName}} {{inscription.lastName}}</span>
+            </div>
+            <div class="grid grid-cols-2 mb-3">
+                <span class="text-500 font-bold">Email</span>
+                <span class="text-primary">{{inscription.personalEmail}}</span>
+            </div>
+            <div class="grid grid-cols-2 mb-3">
+                <span class="text-500 font-bold">Téléphone</span>
+                <span class="text-900">{{inscription.phoneNumber}}</span>
+            </div>
+            <div class="grid grid-cols-2 mb-3">
+                <span class="text-500 font-bold">Date de naissance</span>
+                <span class="text-900">{{inscription.dateOfBirth | date:'dd/MM/yyyy'}}</span>
+            </div>
+            <div class="grid grid-cols-2 mb-3">
+                <span class="text-500 font-bold">Adresse</span>
+                <span class="text-900">{{inscription.address}} , {{inscription.city}} </span>
+            </div>
+        </section>
+
+        <div class="border-top-1 border-900"></div>
+
+        <!-- Second Section -->
+        <section class="p-3">
+            <div class="grid grid-cols-2 mb-3">
+                <span>Cours</span>
+                <span>{{inscription.courseId}}</span>
+            </div>
+            <span>test</span>
+        </section>
+
+        <div class="border-top-1 border-900"></div>
+
+        <!-- Third Section -->
+        <section class="px-2 py-3">
+            <span>test</span>
+        </section>
+
+        <div class="border-top-1 border-900"></div>
+
+        <!-- Fourth Section -->
+        <section class="px-2 py-3" *ngIf="inscription.degreeFile">
+            <span>test</span>
+        </section>
     </div>
 
     <ng-template pTemplate="footer">
-        <button pButton label="Fermer" icon="pi pi-times" (click)="closeModal()" class="p-button-text"></button>
+        <div class="flex justify-content-end gap-2">
+            <button pButton 
+                    label="Rejeter" 
+                    icon="pi pi-times" 
+                    class="p-button-danger"
+                    (click)="onReject()"
+                    *ngIf="inscription?.status?.toLowerCase() === 'pending'">
+            </button>
+            <button pButton 
+                    label="Approuver" 
+                    icon="pi pi-check" 
+                    class="p-button-success"
+                    (click)="onApprove()"
+                    *ngIf="inscription?.status?.toLowerCase() === 'pending'">
+            </button>
+        </div>
     </ng-template>
 </p-dialog>
+
+<style>
+::ng-deep {
+    .customized-timeline {
+        .p-timeline-event-marker {
+            width: 1.5rem;
+            height: 1.5rem;
+            line-height: 1.5rem;
+            
+            i {
+                font-size: 0.875rem;
+                color: #ffffff;
+            }
+        }
+        
+        .p-timeline-event-connector {
+            background-color: #dee2e6;
+        }
+    }
+}
+</style>

@@ -50,17 +50,18 @@
                     <button pButton pRipple 
                             icon="pi pi-eye" 
                             class="p-button-rounded p-button-info mr-2" 
-                            (click)="onViewClick()">
+                            (click)="onViewClick(inscription)">
                     </button>
                 </td>
             </tr>
         </ng-template>
     </p-table>
-    <!-- Add after the table -->
-    <p-dialog 
-        [(visible)]="displayDialog" 
-        [style]="{width: '450px'}" 
-        header="Inscription Details" 
-        [modal]="true">
-    </p-dialog>
+
+    <app-inscription-details
+        [(visible)]="displayDialog"
+        [inscription]="selectedInscription"
+        (visibleChange)="onDialogHide()"
+        (approve)="onApproveInscription($event)"
+        (reject)="onRejectInscription($event)">
+    </app-inscription-details>
 </div>

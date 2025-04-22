@@ -13,7 +13,6 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Inscription, InscriptionService } from '../../services/inscription.service';
-// Add this import at the top with other imports
 import { InscriptionDetailsComponent } from '../inscription-details/inscription-details.component';
 
 @Component({
@@ -30,13 +29,15 @@ import { InscriptionDetailsComponent } from '../inscription-details/inscription-
         ToolbarModule,
         InputTextModule,
         TagModule,
-        DialogModule  // Add DialogModule to imports
+        DialogModule,
+        InscriptionDetailsComponent
     ],
     providers: [MessageService, InscriptionService]
 })
 export class InscriptionsComponent implements OnInit {
     inscriptions = signal<Inscription[]>([]);
-    displayDialog: boolean = false;  // Add this property
+    displayDialog: boolean = false;
+    selectedInscription: Inscription | null = null;
     @ViewChild('dt') dt: Table | undefined;
 
     constructor(
@@ -48,8 +49,8 @@ export class InscriptionsComponent implements OnInit {
         this.loadInscriptions();
     }
 
-    onViewClick() {
-        console.log('View button clicked!');
+    onViewClick(inscription: Inscription) {
+        this.selectedInscription = inscription;
         this.displayDialog = true;
     }
 
@@ -100,8 +101,39 @@ export class InscriptionsComponent implements OnInit {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
 
-    viewDetails(inscription: Inscription) {
-        this.onViewClick();
-        console.log('View Details clicked:', inscription);
+    onDialogHide() {
+        this.selectedInscription = null;
+    }
+
+    onApproveInscription(inscription: Inscription) {
+        // Here you would typically call your service to update the inscription status
+        const index = this.inscriptions().findIndex(i => i.id === inscription.id);
+        if (index !== -1) {
+            const updatedInscriptions = [...this.inscriptions()];
+            updatedInscriptions[index] = { ...updatedInscriptions[index], status: 'approved' };
+            this.inscriptions.set(updatedInscriptions);
+            
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Inscription approved successfully'
+            });
+        }
+    }
+
+    onRejectInscription(inscription: Inscription) {
+        // Here you would typically call your service to update the inscription status
+        const index = this.inscriptions().findIndex(i => i.id === inscription.id);
+        if (index !== -1) {
+            const updatedInscriptions = [...this.inscriptions()];
+            updatedInscriptions[index] = { ...updatedInscriptions[index], status: 'rejected' };
+            this.inscriptions.set(updatedInscriptions);
+            
+            this.messageService.add({
+                severity: 'info',
+                summary: 'Rejected',
+                detail: 'Inscription has been rejected'
+            });
+        }
     }
 }
