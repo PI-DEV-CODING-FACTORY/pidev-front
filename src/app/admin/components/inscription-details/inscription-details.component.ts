@@ -8,15 +8,29 @@ import { Inscription } from '../../services/inscription.service';
     selector: 'app-inscription-details',
     standalone: true,
     imports: [CommonModule, DialogModule, TagModule],
-    templateUrl: './inscription-details.component.html'
+    templateUrl: './inscription-details.component.html',
+    styleUrls: ['./inscription-details.component.scss']
 })
 export class InscriptionDetailsComponent {
     @Input() visible: boolean = false;
     @Output() visibleChange = new EventEmitter<boolean>();
-    @Input() inscription: Inscription | null = null;
+    @Input() inscription: any;
 
     closeModal() {
         this.visible = false;
         this.visibleChange.emit(false);
+    }
+
+    getStatusSeverity(status: string): string {
+        switch (status?.toLowerCase()) {
+            case 'pending':
+                return 'warning';
+            case 'approved':
+                return 'success';
+            case 'rejected':
+                return 'danger';
+            default:
+                return 'info';
+        }
     }
 }

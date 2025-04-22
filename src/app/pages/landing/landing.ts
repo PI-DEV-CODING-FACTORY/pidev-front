@@ -14,7 +14,19 @@ import { FormationsWidget } from './components/formationswidget';
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterModule, TopbarWidget, HeroWidget, FeaturesWidget, HighlightsWidget, FooterWidget, RippleModule, StyleClassModule, ButtonModule, DividerModule, FormationsWidget],
+    imports: [
+        RouterModule, 
+        TopbarWidget, 
+        HeroWidget, 
+        FeaturesWidget, 
+        HighlightsWidget, 
+        FooterWidget, 
+        RippleModule, 
+        StyleClassModule, 
+        ButtonModule, 
+        DividerModule, 
+        FormationsWidget
+    ],
     template: `
         <div class="bg-surface-0 dark:bg-surface-900">
             <div id="home" class="landing-wrapper overflow-hidden">
@@ -22,7 +34,7 @@ import { FormationsWidget } from './components/formationswidget';
                 <hero-widget />
                 <features-widget />
                 <highlights-widget />
-
+                <formations-widget />
                 <footer-widget />
             </div>
         </div>

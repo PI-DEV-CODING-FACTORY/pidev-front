@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
     selector: 'formations-widget',  // Changed selector
     imports: [DividerModule, ButtonModule, RippleModule],
     template: `
-        <div id="pricing" class="py-6 px-6 lg:px-20 my-2 md:my-6">
+        <div id="formations" class="py-6 px-6 lg:px-20 my-2 md:my-6 scroll-mt-28 transition-all duration-500">
             <div class="text-center mb-6">
                 <div class="text-surface-900 dark:text-surface-0 font-normal mb-2 text-4xl">Nos formations</div>
                 <!-- <span class="text-muted-color text-2xl">Amet consectetur adipiscing elit...</span> -->
@@ -50,7 +50,7 @@ import { Router } from '@angular/router';
                         </ul>
                         <div class="flex justify-center items-center gap-4 py-2">
                             <button pButton pRipple label="Details" class="p-button-rounded border-0  font-light text-lg py-2 px-4 leading-tight bg-blue-500 text-white"></button>
-                            <button pButton pRipple label="Subscribe" class="p-button-rounded border-0 font-light text-lg py-2 px-4 leading-tight bg-blue-500 text-white"></button>
+                            <button pButton pRipple label="Subscribe" (click)="navigateToSubscribe()" class="p-button-rounded border-0 font-light text-lg py-2 px-4 leading-tight bg-blue-500 text-white"></button>
                         </div>                    </div>
                 </div>
 
@@ -134,7 +134,7 @@ import { Router } from '@angular/router';
                         </ul>
                         <div class="flex justify-center items-center gap-4 py-2">
                             <button pButton pRipple label="Details" class="p-button-rounded border-0  font-light text-lg py-2 px-4 leading-tight bg-blue-500 text-white"></button>
-                            <button pButton pRipple label="Subscribe" (click)="navigateToSubscribe()"  class="p-button-rounded border-0 font-light text-lg py-2 px-4 leading-tight bg-blue-500 text-white"></button>
+                            <button pButton pRipple label="Subscribe" (click)="navigateToSubscribe()" class="p-button-rounded border-0 font-light text-lg py-2 px-4 leading-tight bg-blue-500 text-white"></button>
                         </div>
                     </div>
                 </div>

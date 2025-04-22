@@ -8,8 +8,8 @@ import { SavedPfe } from '../models/saved-pfe.model';
   providedIn: 'root'
 })
 export class PfeService {
-  private apiUrl = 'http://localhost:8089/api/pfe';
-  private savedPfesUrl = 'http://localhost:8089/api/saved-pfes';
+  private apiUrl = 'http://localhost:9001/api/pfe';
+  private savedPfesUrl = 'http://localhost:9001/api/saved-pfes';
 
   constructor(private http: HttpClient) { }
 
