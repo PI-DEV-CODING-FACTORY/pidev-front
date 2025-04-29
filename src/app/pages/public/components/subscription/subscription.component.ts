@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -17,6 +17,8 @@ import { MenuItem } from 'primeng/api';
 import { InscriptionService } from '../../services/inscription.service';
 import { Inscription } from '../../../../models/Inscription';
 import { Router } from '@angular/router';
+import { FileUpload } from 'primeng/fileupload';
+import { InscriptionRequest } from '../../../../models/InscriptionRequest';
 
 interface MaritalStatus {
   label: string;
@@ -27,8 +29,6 @@ interface HealthStatus {
   label: string;
   value: string;
 }
-
-// Add this import
 
 @Component({
   selector: 'app-subscription',
@@ -58,6 +58,9 @@ export class SubscriptionComponent implements OnInit {
     transcriptsFileName: string = '';
     maxDate: Date = new Date();
     activeIndex: number = 0;
+    @ViewChild('diplomaUpload')
+    diplomaUpload!: FileUpload;
+    diplomaDocumentName: string = '';
     
     maritalStatusOptions: MaritalStatus[] = [
         { label: 'Célibataire', value: 'SINGLE' },
@@ -80,7 +83,6 @@ export class SubscriptionComponent implements OnInit {
         { label: 'Confirmation' }
     ];
 
-    // Update the constructor
     constructor(
       private fb: FormBuilder,
       private messageService: MessageService,
@@ -99,14 +101,15 @@ export class SubscriptionComponent implements OnInit {
             maritalStatus: ['', Validators.required],
             healthStatus: ['SAFE'],
             healthDescription: [''],
-            lastDiploma: ['', Validators.required],
+            lastDiploma: ['BAC', Validators.required],
             institution: ['', Validators.required],
             academicDescription: [''],
             phoneNumber: ['', [Validators.required, Validators.pattern('^[0-9]{8}$')]],
             city: ['', Validators.required],
             postalCode: ['', [Validators.required, Validators.pattern('^[0-9]{4}$')]],
             address: ['', Validators.required],
-            legalConsent: [false, Validators.requiredTrue]
+            legalConsent: [false, Validators.requiredTrue],
+            diplomaDocument: [null]
         }, {
             validators: this.emailMatchValidator()
         });
@@ -127,72 +130,114 @@ export class SubscriptionComponent implements OnInit {
         };
     }
 
-    onDegreeUpload(event: any) {
-        if (event.files && event.files.length > 0) {
-            const file = event.files[0];
-            this.degreeFileName = file.name;
-            this.degreeFile = file;
-            
+    onDiplomaDocumentUpload(event: any) {
+        if (event.files && event.files[0]) {
+          const file = event.files[0];
+          
+          // Check file size (1MB = 1000000 bytes)
+          if (file.size > 1000000) {
             this.messageService.add({
-                severity: 'success',
-                summary: 'Succès',
-                detail: 'Fichier sélectionné avec succès'
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'La taille du fichier ne doit pas dépasser 1MB'
+            });
+            this.clearDiplomaDocument();
+            return;
+          }
+      
+          // Check file type
+          const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+          if (!allowedTypes.includes(file.type)) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'Format de fichier non supporté'
+            });
+            this.clearDiplomaDocument();
+            return;
+          }
+      
+          this.subscriptionForm.patchValue({
+            diplomaDocument: file
+          });
+          this.diplomaDocumentName = file.name;
+        }
+      }
+
+    clearDiplomaDocument() {
+        this.subscriptionForm.patchValue({
+            diplomaDocument: null
+        });
+        this.diplomaDocumentName = '';
+        if (this.diplomaUpload) {
+            this.diplomaUpload.clear();
+        }
+    }
+
+    onSubmit() {
+        if (this.subscriptionForm.valid && this.diplomaDocumentName) {
+            this.isSubmitting = true;
+            
+            const formValue = this.subscriptionForm.value;
+            const formData = new FormData();
+        
+            // Append all form values
+            formData.append('firstName', formValue.firstName);
+            formData.append('lastName', formValue.lastName);
+            formData.append('personalEmail', formValue.personalEmail);
+            formData.append('phoneNumber', formValue.phoneNumber);
+            
+            // Handle date
+            if (formValue.dateOfBirth) {
+                formData.append('dateOfBirth', this.formatDate(formValue.dateOfBirth));
+            }
+            
+            formData.append('maritalStatus', formValue.maritalStatus || '');
+            formData.append('healthStatus', formValue.healthStatus || '');
+            formData.append('address', formValue.address || '');
+            formData.append('city', formValue.city || '');
+            formData.append('zipCode', formValue.postalCode?.toString() || '');
+            formData.append('courseId', 'DEFAULT');
+            
+            if (formValue.diplomaDocument) {
+                formData.append('diplomaDocument', formValue.diplomaDocument);
+            }
+
+            this.inscriptionService.createInscription(formData).subscribe({
+                next: (response) => {
+                    this.isSubmitting = false; // Stop loading
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Succès',
+                        detail: 'Votre inscription a été envoyée avec succès'
+                    });
+                    
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        this.router.navigate(['/']); // or wherever you want to redirect
+                    }, 1500);
+                },
+                error: (error) => {
+                    this.isSubmitting = false; // Stop loading on error too
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erreur',
+                        detail: error.error?.message || 'Une erreur est survenue lors de l\'inscription'
+                    });
+                },
+                complete: () => {
+                    this.isSubmitting = false; // Ensure loading is stopped in all cases
+                }
             });
         }
     }
-
-    // Update the onSubmit method's success handler
-    onSubmit() {
-        if (this.subscriptionForm.valid) {
-            if (!this.degreeFile) {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Diploma file is required'
-                });
-                return;
-            }
-
-            this.isSubmitting = true;
-            
-            const formData = this.subscriptionForm.value;
-            const inscription: Inscription = {
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                personalEmail: formData.personalEmail,
-                phoneNumber: formData.phoneNumber,
-                dateOfBirth: formData.dateOfBirth,
-                maritalStatus: formData.maritalStatus,
-                address: formData.address,
-                city: formData.city,
-                zipCode: Number(formData.postalCode)
-            };
-        
-            this.inscriptionService.createInscription(inscription, this.degreeFile)
-                .subscribe({
-                    next: (response) => {
-                        this.messageService.add({
-                            severity: 'success',
-                            summary: 'Success',
-                            detail: 'Registration submitted successfully'
-                        });
-                        this.isSubmitting = false;
-                        // Add delay to show the success message before redirecting
-                        setTimeout(() => {
-                            this.router.navigate(['/']);  // Navigate to landing page
-                        }, 1500);
-                    },
-                    error: (error) => {
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Failed to submit registration'
-                        });
-                        this.isSubmitting = false;
-                    }
-                });
+      
+    private formatDate(date: any): string {
+        if (date instanceof Date) {
+          return date.toISOString().split('T')[0];
         }
-    }
+        return new Date(date).toISOString().split('T')[0];
+      }
 
     nextStep() {
         if (this.activeIndex === 0 && !this.isStep1Valid()) {
@@ -247,19 +292,11 @@ export class SubscriptionComponent implements OnInit {
     }
 
     isStep2Valid(): boolean {
-        const step2Controls = [
-            'lastDiploma',
-            'institution'
-        ];
-        
-        const formValid = step2Controls.every(controlName => {
-            const control = this.subscriptionForm.get(controlName);
-            return control && control.valid;
-        });
-        
-        const fileValid = !!this.degreeFileName;
-        
-        return formValid && fileValid;
+        const step2Controls = ['lastDiploma', 'institution'];
+        const formValid = step2Controls.every(controlName => 
+            this.subscriptionForm.get(controlName)?.valid
+        );
+        return formValid && !!this.diplomaDocumentName;
     }
 
     isFormValid(): boolean {

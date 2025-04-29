@@ -286,7 +286,7 @@
                         <div class="col-span-12">
                             <div class="surface-card p-4 shadow-1 border-round mx-auto" style="max-width: 600px;">
                                 <label class="block text-900 font-medium mb-2">
-                                    <i class="pi pi-file mr-2"></i>Diplome 
+                                    <i class="pi pi-file mr-2"></i>Diplôme
                                 </label>
                                 <div class="flex align-items-center gap-3">
                                     <p-fileUpload
@@ -297,17 +297,28 @@
                                         accept="application/pdf,image/*"
                                         [auto]="true"
                                         [customUpload]="true"
-                                        (uploadHandler)="onDegreeUpload($event)"
+                                        (uploadHandler)="onDiplomaDocumentUpload($event)"
+                                        [showCancelButton]="false"
+                                        [showUploadButton]="false"
                                     ></p-fileUpload>
-                                    <div *ngIf="degreeFileName" class="flex align-items-center gap-2">
+                                    <div *ngIf="diplomaDocumentName" class="flex align-items-center gap-2">
                                         <i class="pi pi-file text-primary"></i>
-                                        <span class="text-600">{{degreeFileName}}</span>
+                                        <span class="text-600">{{diplomaDocumentName}}</span>
+                                        <button 
+                                            pButton 
+                                            type="button" 
+                                            icon="pi pi-times" 
+                                            class="p-button-rounded p-button-text p-button-danger"
+                                            (click)="clearDiplomaDocument()"
+                                        ></button>
                                     </div>
                                 </div>
-                                <small class="text-red-500" *ngIf="!degreeFileName && (activeIndex === 1 || isSubmitting)">
+                                <small class="text-red-500" *ngIf="!diplomaDocumentName && (activeIndex === 1 || isSubmitting)">
                                     Le diplôme est requis
                                 </small>
-                                <small class="text-600 block mt-2">Taille max: 1MB. Formats acceptés: PDF, Images(jpg, jpeg)</small>
+                                <small class="text-600 block mt-2">
+                                    Taille max: 1MB. Formats acceptés: PDF, Images (jpg, jpeg, png)
+                                </small>
                             </div>
                         </div>
 
@@ -412,12 +423,12 @@
                     <button pButton pRipple
                         *ngIf="activeIndex === 2"
                         type="submit" 
-                        label="Soumettre la Candidature" 
-                        icon="pi pi-send"
+                        [disabled]="isSubmitting || !isFormValid()"
                         [loading]="isSubmitting"
-                        [disabled]="!isFormValid()"
-                        class="p-button-success"
-                    ></button>
+                        label="Soumettre"
+                        icon="pi pi-check"
+                        class="p-button-success">
+                    </button>
                 </div>
             </form>
         </div>
