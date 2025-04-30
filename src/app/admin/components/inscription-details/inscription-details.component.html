@@ -59,8 +59,36 @@
         <div class="border-top-1 border-900"></div>
 
         <!-- Fourth Section -->
-        <section class="px-2 py-3" *ngIf="inscription.degreeFile">
-            <span>test</span>
+        <section class="px-2 py-3">
+            <div class="mb-3">
+                <span class="text-500 font-bold">Document du diplôme</span>
+            </div>
+            
+            <div class="pdf-container" style="height: 500px; width: 100%;">
+                <div *ngIf="isLoadingPdf" class="flex align-items-center justify-content-center">
+                    <p-progressSpinner></p-progressSpinner>
+                </div>
+                
+                <div *ngIf="pdfSrc" class="pdf-viewer-container">
+                    <ngx-extended-pdf-viewer
+                        [src]="pdfSrc"
+                        [height]="'400px'"
+                        [useBrowserLocale]="true"
+                        [textLayer]="true"
+                        [showToolbar]="true"
+                        [showSidebarButton]="true"
+                        [showFindButton]="true"
+                        [showPagingButtons]="true"
+                        [showZoomButtons]="true"
+                        [showPresentationModeButton]="true"
+                    >
+                    </ngx-extended-pdf-viewer>
+                </div>
+                
+                <div *ngIf="!isLoadingPdf && !pdfSrc" class="flex align-items-center justify-content-center">
+                    <p class="text-500">Aucun document disponible</p>
+                </div>
+            </div>
         </section>
     </div>
 
