@@ -49,11 +49,11 @@
 
     <!-- Charts and Statistics -->
     <!-- Technologies Distribution - Full Width -->
-    <mat-card class="chart-card shadow-lg rounded-xl mb-8">
+    <mat-card class="chart-card shadow-lg rounded-xl mb-8" >
 
-      <mat-card-content class="p-6">
-        <div class="chart-wrapper h-96">
-          <canvas id="technologiesChart"></canvas>
+      <mat-card-content class="p-6" style="align-items: center;align-self: center;align-content: center">
+        <div class="chart-wrapper h-96" >
+          <canvas id="technologiesChart" style="width: 400px;height: 400px;"></canvas>
         </div>
       </mat-card-content>
     </mat-card>
@@ -61,7 +61,7 @@
     <!-- Activity Over Time - Full Width -->
     <mat-card class="shadow-lg rounded-xl mb-8">
 
-      <mat-card-content class="p-6">
+      <mat-card-content class="p-6" >
         <div class="chart-container" style="position: relative; height:400px;">
           <p-chart type="bar" [data]="chartData" [options]="chartOptions" class="h-96" />
         </div>

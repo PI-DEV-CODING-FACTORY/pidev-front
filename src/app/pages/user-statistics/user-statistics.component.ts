@@ -183,11 +183,11 @@ export class UserStatisticsComponent implements OnInit, OnDestroy {
     const config: ChartConfiguration = {
       type: 'doughnut',
       data: data,
-      options: {
+      options: { 
         responsive: true,
         plugins: {
           legend: {
-            position: 'top',
+            position: 'right',
           },
           title: {
             display: true,
