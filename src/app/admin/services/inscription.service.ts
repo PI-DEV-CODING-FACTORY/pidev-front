@@ -32,4 +32,8 @@ export class InscriptionService {
     getInscriptions(): Observable<Inscription[]> {
         return this.http.get<Inscription[]>(`${this.apiUrl}/all`);
     }
+
+    getDocument(id: string): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/${id}/document`, { responseType: 'blob' });
+    }
 }

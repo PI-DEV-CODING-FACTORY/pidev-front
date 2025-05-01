@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
@@ -8,6 +8,7 @@ import { TimelineModule } from 'primeng/timeline';
 import { Inscription } from '../../services/inscription.service';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { HttpClient } from '@angular/common/http';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
@@ -20,12 +21,12 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
         ButtonModule,
         TooltipModule,
         TimelineModule,
-        PdfViewerModule
+        NgxExtendedPdfViewerModule,
     ],
     templateUrl: './inscription-details.component.html',
     styleUrls: ['./inscription-details.component.scss']
 })
-export class InscriptionDetailsComponent implements OnInit {
+export class InscriptionDetailsComponent implements OnChanges {
     @Input() visible: boolean = false;
     @Output() visibleChange = new EventEmitter<boolean>();
     @Input() inscription: any;
@@ -40,11 +41,17 @@ export class InscriptionDetailsComponent implements OnInit {
         private sanitizer: DomSanitizer
     ) {}
 
-    ngOnInit() {
-        if (this.inscription?.id) {
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['inscription'] && this.inscription?.id) {
             this.loadPdfDocument();
         }
+    
+        if (changes['visible'] && !this.visible) {
+            this.pdfSrc = null;
+        }
     }
+    
+    
 
     closeModal() {
         this.visible = false;

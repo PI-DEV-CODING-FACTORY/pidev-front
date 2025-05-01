@@ -1,11 +1,12 @@
 <p-dialog 
     [(visible)]="visible"
     (onHide)="closeModal()"
-    [style]="{width: '650px'}"
+    [style]="{width: '90vw', maxWidth: '1200px'}"
+    [maximizable]="true"
     [modal]="true"
     [draggable]="false"
-    [resizable]="false"
-    styleClass="p-fluid">
+    [resizable]="true"
+    styleClass="p-fluid inscription-details-dialog">
     
     <ng-template pTemplate="header">
         <div class="flex flex-column align-items-center w-full text-center">
@@ -70,19 +71,7 @@
                 </div>
                 
                 <div *ngIf="pdfSrc" class="pdf-viewer-container">
-                    <ngx-extended-pdf-viewer
-                        [src]="pdfSrc"
-                        [height]="'400px'"
-                        [useBrowserLocale]="true"
-                        [textLayer]="true"
-                        [showToolbar]="true"
-                        [showSidebarButton]="true"
-                        [showFindButton]="true"
-                        [showPagingButtons]="true"
-                        [showZoomButtons]="true"
-                        [showPresentationModeButton]="true"
-                    >
-                    </ngx-extended-pdf-viewer>
+                    <iframe [src]="pdfSrc" width="100%" height="500px" type="application/pdf"></iframe>
                 </div>
                 
                 <div *ngIf="!isLoadingPdf && !pdfSrc" class="flex align-items-center justify-content-center">
@@ -129,6 +118,16 @@
         .p-timeline-event-connector {
             background-color: #dee2e6;
         }
+        .inscription-details-dialog {
+    .p-dialog-content {
+        height: 85vh;
+        overflow-y: auto;
+    }
+    
+    .pdf-container {
+        min-height: 600px;
+    }
+}
     }
 }
 </style>
