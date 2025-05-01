@@ -7,10 +7,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
-import { AuthService } from '../service/auth.service';
-
+import { HttpClient } from '@angular/common/http';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-login',
@@ -18,6 +17,7 @@ import { AuthService } from '../service/auth.service';
     imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, ToastModule],
     providers: [MessageService],
     template: `
+        <p-toast></p-toast>
         <app-floating-configurator />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
             <div class="flex flex-col items-center justify-center">
@@ -41,7 +41,7 @@ import { AuthService } from '../service/auth.service';
                                     />
                                 </g>
                             </svg>
-                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Bienvenue!</div>
+                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Bienvenue sur PrimeLand!</div>
                             <span class="text-muted-color font-medium">Connectez-vous pour continuer</span>
                         </div>
 
@@ -57,14 +57,10 @@ import { AuthService } from '../service/auth.service';
                                     <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
                                     <label for="rememberme1">Se souvenir de moi</label>
                                 </div>
-                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Mot de passe oublié?</span>
+                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" routerLink="/auth/reset-password">Mot de passe oublié?</span>
                             </div>
-                            <p-button label="Se connecter" styleClass="w-full" (onClick)="login()"></p-button>
-                            
-                            <div class="text-center mt-4">
-                                <span class="text-muted-color">Vous n'avez pas de compte?</span>
-                                <a class="font-medium no-underline ml-2 text-primary cursor-pointer" routerLink="/auth/register">S'inscrire</a>
-                            </div>
+
+                            <p-button label="Se connecter" [loading]="loading" styleClass="w-full" (onClick)="login()"></p-button>
                         </div>
                     </div>
                 </div>
@@ -74,40 +70,57 @@ import { AuthService } from '../service/auth.service';
     `
 })
 export class Login {
+    constructor(
+        private http: HttpClient,
+        private router: Router,
+        private messageService: MessageService
+    ) {}
     email: string = '';
     password: string = '';
     checked: boolean = false;
-
-    constructor(private authService: AuthService, private router: Router, private messageService: MessageService) {}
-
+    loading: boolean = false;
     login() {
-        if (!this.email || !this.password) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Erreur',
-                detail: 'Veuillez remplir tous les champs obligatoires'
-            });
-            return;
-        }
+        this.router.navigate(['/']);
+        //     if (!this.email || !this.password) {
+        //         this.messageService.add({
+        //             severity: 'error',
+        //             summary: 'Erreur',
+        //             detail: 'Veuillez saisir votre email et mot de passe'
+        //         });
+        //         return;
+        //     }
+        //     this.loading = true;
+        //     const url = `http://localhost:8080/auth/login?email=${this.email}&password=${this.password}`;
 
-        this.authService.login(this.email, this.password).subscribe(
-            (response) => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Succès',
-                    detail: 'Connexion réussie!'
-                });
-                setTimeout(() => {
-                    this.router.navigate(['/']);
-                }, 1000);
-            },
-            (error) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erreur',
-                    detail: 'Email ou mot de passe incorrect'
-                });
-            }
-        );
+        //     this.http.post(url, null, { responseType: 'text' }).subscribe({
+        //         next: (response: string) => {
+        //             this.loading = false;
+        //             if (response && response !== 'invalid credentials') {
+        //                 // Store JWT token
+        //                 localStorage.setItem('token', response);
+        //                 this.messageService.add({
+        //                     severity: 'success',
+        //                     summary: 'Succès',
+        //                     detail: 'Connexion réussie'
+        //                 });
+        //
+        //             } else {
+        //                 this.messageService.add({
+        //                     severity: 'error',
+        //                     summary: 'Erreur',
+        //                     detail: 'Email ou mot de passe invalide'
+        //                 });
+        //             }
+        //         },
+        //         error: (error) => {
+        //             this.loading = false;
+        //             console.error('Erreur de connexion:', error);
+        //             this.messageService.add({
+        //                 severity: 'error',
+        //                 summary: 'Erreur',
+        //                 detail: 'La connexion a échoué. Veuillez réessayer.'
+        //             });
+        //         }
+        //     });
     }
 }

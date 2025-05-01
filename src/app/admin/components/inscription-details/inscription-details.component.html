@@ -1,0 +1,134 @@
+<p-dialog 
+    [(visible)]="visible"
+    (onHide)="closeModal()"
+    [style]="{width: '650px'}"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="p-fluid">
+    
+    <ng-template pTemplate="header">
+        <div class="flex flex-column align-items-center w-full text-center">
+            <span class="text-500 text-sm">Détails de l'inscription</span>
+        </div>
+    </ng-template>
+
+    <div class="surface-section" *ngIf="inscription">
+        <!-- First Section - Personal Information -->
+        <section class="p-3">
+            <div class="grid grid-cols-2 mb-3">
+                <span class="text-500 font-bold">Nom complet</span>
+                <span class="text-900">{{inscription.firstName}} {{inscription.lastName}}</span>
+            </div>
+            <div class="grid grid-cols-2 mb-3">
+                <span class="text-500 font-bold">Email</span>
+                <span class="text-primary">{{inscription.personalEmail}}</span>
+            </div>
+            <div class="grid grid-cols-2 mb-3">
+                <span class="text-500 font-bold">Téléphone</span>
+                <span class="text-900">{{inscription.phoneNumber}}</span>
+            </div>
+            <div class="grid grid-cols-2 mb-3">
+                <span class="text-500 font-bold">Date de naissance</span>
+                <span class="text-900">{{inscription.dateOfBirth | date:'dd/MM/yyyy'}}</span>
+            </div>
+            <div class="grid grid-cols-2 mb-3">
+                <span class="text-500 font-bold">Adresse</span>
+                <span class="text-900">{{inscription.address}} , {{inscription.city}} </span>
+            </div>
+        </section>
+
+        <div class="border-top-1 border-900"></div>
+
+        <!-- Second Section -->
+        <section class="p-3">
+            <div class="grid grid-cols-2 mb-3">
+                <span>Cours</span>
+                <span>{{inscription.courseId}}</span>
+            </div>
+            <span>test</span>
+        </section>
+
+        <div class="border-top-1 border-900"></div>
+
+        <!-- Third Section -->
+        <section class="px-2 py-3">
+            <span>test</span>
+        </section>
+
+        <div class="border-top-1 border-900"></div>
+
+        <!-- Fourth Section -->
+        <section class="px-2 py-3">
+            <div class="mb-3">
+                <span class="text-500 font-bold">Document du diplôme</span>
+            </div>
+            
+            <div class="pdf-container" style="height: 500px; width: 100%;">
+                <div *ngIf="isLoadingPdf" class="flex align-items-center justify-content-center">
+                    <p-progressSpinner></p-progressSpinner>
+                </div>
+                
+                <div *ngIf="pdfSrc" class="pdf-viewer-container">
+                    <ngx-extended-pdf-viewer
+                        [src]="pdfSrc"
+                        [height]="'400px'"
+                        [useBrowserLocale]="true"
+                        [textLayer]="true"
+                        [showToolbar]="true"
+                        [showSidebarButton]="true"
+                        [showFindButton]="true"
+                        [showPagingButtons]="true"
+                        [showZoomButtons]="true"
+                        [showPresentationModeButton]="true"
+                    >
+                    </ngx-extended-pdf-viewer>
+                </div>
+                
+                <div *ngIf="!isLoadingPdf && !pdfSrc" class="flex align-items-center justify-content-center">
+                    <p class="text-500">Aucun document disponible</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <button pButton 
+                    label="Rejeter" 
+                    icon="pi pi-times" 
+                    class="p-button-danger"
+                    (click)="onReject()"
+                    *ngIf="inscription?.status?.toLowerCase() === 'pending'">
+            </button>
+            <button pButton 
+                    label="Approuver" 
+                    icon="pi pi-check" 
+                    class="p-button-success"
+                    (click)="onApprove()"
+                    *ngIf="inscription?.status?.toLowerCase() === 'pending'">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<style>
+::ng-deep {
+    .customized-timeline {
+        .p-timeline-event-marker {
+            width: 1.5rem;
+            height: 1.5rem;
+            line-height: 1.5rem;
+            
+            i {
+                font-size: 0.875rem;
+                color: #ffffff;
+            }
+        }
+        
+        .p-timeline-event-connector {
+            background-color: #dee2e6;
+        }
+    }
+}
+</style>
