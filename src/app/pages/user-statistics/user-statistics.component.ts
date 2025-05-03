@@ -278,7 +278,7 @@ export class UserStatisticsComponent implements OnInit, OnDestroy {
       plugins: {
         title: {
           display: true,
-          text: 'Posts by Date',
+          text: 'Activity over time',
           color: '#495057',
           font: {
             size: 18,
