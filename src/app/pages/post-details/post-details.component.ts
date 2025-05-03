@@ -11,11 +11,7 @@ import { format } from 'date-fns';
 import { AuthService, User } from '../service/auth.service';
 import { NotificationService } from '../service/notification.service';
 import { CommentNotificationRequest } from '../../interfaces/CommentNotificationRequest';
-interface MentionUser {
-  id: number;
-  name: string;
-  avatar?: string;
-}
+
 
 interface UploadedFile {
   file: File;
@@ -154,12 +150,31 @@ export class PostDetailsComponent {
 
 
   // MENTION SYSTEM FUNCTIONS
-  loadMentionUsers(): void {
+  // loadMentionUsers(): void {
 
+  //   // In a real app, this would be an API call
+  //   this.authService.findAllUsers().subscribe((response: User[]) => {
+  //     this.mentionUsers = response.filter(user => user.id !== this.user.id); // Exclude the current user
+  //     this.filteredMentionUsers = [...this.mentionUsers];
+  //     console.log("Mention users: ", this.mentionUsers);
+  //   });
+  // }
+  loadMentionUsers(): void {
     // In a real app, this would be an API call
-    this.authService.findAllUsers().subscribe((response: User[]) => {
-      this.mentionUsers = response.filter(user => user.id !== this.user.id); // Exclude the current user
+    this.authService.findAllUsers().subscribe((response: any[]) => {
+      // Convert each backend user object into the DTO format
+      this.mentionUsers = response
+        .filter(user => user.id !== this.user.id) // Exclude the current user
+        .map(user => ({
+          id: user.email,
+          firstname: user.firstname,
+          lastname: user.lastname,
+          email: user.email,
+          profileImage: user.profilePicture // Map 'profilePicture' to 'profileImage'
+        }));
+      
       this.filteredMentionUsers = [...this.mentionUsers];
+      console.log("Mention users: ", this.mentionUsers);
     });
   }
 
@@ -197,8 +212,9 @@ export class PostDetailsComponent {
   }
   mentionnedUser!: User;
   addMention(user: User): void {
-    this.commentText += ` @${user.firstname} `;
+    this.commentText += ` @${user.firstname+user.lastname} `;
     this.mentionnedUser = user;
+    console.log("Mentionned user: ", this.mentionnedUser);
     this.showMentionDropdown = false;
     this.mentionSearchTerm = '';
     this.mentionned = true;
@@ -290,6 +306,7 @@ export class PostDetailsComponent {
               });
 
               if (this.mentionned) {
+                console.log("Mentionned user id : ", this.mentionnedUser.id);
                 this.notificatonService.createMentionNotification(this.mentionnedUser.id, this.post, this.user.firstname + ' ' + this.user.lastname).subscribe(() => {
                   console.log('Mention notification sent successfully');
                 });
@@ -335,6 +352,7 @@ export class PostDetailsComponent {
           });
 
           if (this.mentionned) {
+              console.log("Mentionned user id : ", this.mentionnedUser.id);
             this.notificatonService.createMentionNotification(this.mentionnedUser.id, this.post, this.user.firstname + ' ' + this.user.lastname).subscribe(() => {
               console.log('Mention notification sent successfully');
             });
