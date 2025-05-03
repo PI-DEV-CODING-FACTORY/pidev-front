@@ -83,10 +83,10 @@
                   + 1}}</span>
                 <div class="contributor-avatar rounded-full w-10 h-10 flex items-center justify-center mr-4"
                   [ngClass]="{'bg-amber-100 text-amber-700': i === 0, 'bg-gray-200 text-gray-700': i > 0}">
-                  {{contributor[0].username.charAt(0)}}
+                  {{contributor.user.firstname}}
                 </div>
                 <div>
-                  <div class="font-medium">{{contributor[0].username}}</div>
+                  <div class="font-medium">{{contributor.user.lastname}}</div>
 
                 </div>
               </div>

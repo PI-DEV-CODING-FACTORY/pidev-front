@@ -65,6 +65,8 @@ export class PostDetailsComponent {
       this.postService.findPostById(params['id']).subscribe((post: Post) => {
         this.post = post;
         this.getComments(post.id);
+        this.loadUserPost(post);
+
         console.log("Post details: ", this.post);
       });
     });
@@ -83,6 +85,7 @@ export class PostDetailsComponent {
   ngOnInit(): void {
     // Load mention users (could be from an API)
     this.loadMentionUsers();
+  
   }
   getRandomColor() {
     const letters = '0123456789ABCDEF';
@@ -92,6 +95,7 @@ export class PostDetailsComponent {
     }
     return color;
   }
+  usernames: { [email: string]: string } = {};
   getComments(postId: number) {
     this.postService.findCommentsByPostId(postId).subscribe((response: Post[]) => {
       // Trier les commentaires par date décroissante, avec la meilleure réponse en premier
@@ -100,7 +104,25 @@ export class PostDetailsComponent {
         if (this.post.bestAnswerId === a.id) return -1;
         if (this.post.bestAnswerId === b.id) return 1;
         // Sinon, trier par date décroissante
+
+        console.log("Comments Usernames: ", this.usernames);
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      this.comments.forEach(comment => {
+        const email = comment.user_id; // Or post.user.email if structured differently
+        if (!this.usernames[email]) {
+          this.authService.getUserByEmail(email).subscribe(
+
+            user => {
+            
+              this.usernames[email] = user.firstname + ' ' + user.lastname; // Assuming user has firstname and lastname properties
+            },
+            error => {
+              this.usernames[email] = 'Unknown'; // Fallback
+            }
+
+          );
+        }
       });
       console.log("Comments:", this.comments);
     });
@@ -133,21 +155,28 @@ export class PostDetailsComponent {
 
   // MENTION SYSTEM FUNCTIONS
   loadMentionUsers(): void {
+
     // In a real app, this would be an API call
     this.authService.findAllUsers().subscribe((response: User[]) => {
       this.mentionUsers = response.filter(user => user.id !== this.user.id); // Exclude the current user
       this.filteredMentionUsers = [...this.mentionUsers];
     });
-    // this.mentionUsers = [
-    //   { id: 1, name: 'John Doe', avatar: '/api/placeholder/30/30' },
-    //   { id: 2, name: 'Jane Smith', avatar: '/api/placeholder/30/30' },
-    //   { id: 3, name: 'Mike Johnson', avatar: '/api/placeholder/30/30' },
-    //   { id: 4, name: 'Sarah Williams', avatar: '/api/placeholder/30/30' },
-    //   { id: 5, name: 'David Brown', avatar: '/api/placeholder/30/30' }
-    // ];
-
   }
 
+  userPosted!: User;
+
+  loadUserPost(post: Post): void {
+
+    const email = post.user_id;
+    this.authService.getUserByEmail(email).subscribe(
+
+      user => {
+
+        this.userPosted = user;
+        console.log("UserPosted:" + this.userPosted);
+      });
+
+  }
   toggleMentionDropdown(): void {
     this.showMentionDropdown = !this.showMentionDropdown;
     if (this.showEmojiPicker) {
@@ -163,12 +192,12 @@ export class PostDetailsComponent {
 
     const searchTerm = this.mentionSearchTerm.toLowerCase();
     this.filteredMentionUsers = this.mentionUsers.filter(user =>
-      user.username.toLowerCase().includes(searchTerm)
+      user.firstname.toLowerCase().includes(searchTerm)
     );
   }
   mentionnedUser!: User;
   addMention(user: User): void {
-    this.commentText += ` @${user.username} `;
+    this.commentText += ` @${user.firstname} `;
     this.mentionnedUser = user;
     this.showMentionDropdown = false;
     this.mentionSearchTerm = '';
@@ -251,7 +280,7 @@ export class PostDetailsComponent {
         (imageName: string) => {
           this.isSubmitting = true;
           const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-          const post: Post = new Post(0, "", this.commentText, this.user, formattedDate, TypePost.response, this.post.id, "", imageName);
+          const post: Post = new Post(0, "", this.commentText, this.user.id, formattedDate, TypePost.response, this.post.id, "", imageName);
           if (post != null) {
             this.postService.addPost(post).subscribe((response: Post) => {
               this.messageService.add({
@@ -261,20 +290,23 @@ export class PostDetailsComponent {
               });
 
               if (this.mentionned) {
-                this.notificatonService.createMentionNotification(this.mentionnedUser, this.post, this.user.username).subscribe(() => {
+                this.notificatonService.createMentionNotification(this.mentionnedUser.id, this.post, this.user.firstname + ' ' + this.user.lastname).subscribe(() => {
                   console.log('Mention notification sent successfully');
                 });
-                if (this.post.user.id != this.user.id) {
-                  this.notificatonService.createCommentNotification(this.post.user, this.post, this.user.username).subscribe(() => {
+                if (this.post.user_id != this.user.id) {
+                  this.notificatonService.createCommentNotification(this.post.user_id, this.post, this.user.firstname + ' ' + this.user.lastname).subscribe(() => {
                     console.log('Comment notification sent successfully');
                   });
+
                 }
               }
               else {
-                if (this.post.user.id != this.user.id) {
-                  this.notificatonService.createCommentNotification(this.post.user, this.post, this.user.username).subscribe(() => {
+                if (this.post.user_id != this.user.id) {
+                
+                  this.notificatonService.createCommentNotification(this.post.user_id, this.post, this.user.firstname + ' ' + this.user.lastname).subscribe(() => {
                     console.log('Comment notification sent successfully');
                   });
+
                 }
               }
               console.log(response);
@@ -291,7 +323,7 @@ export class PostDetailsComponent {
     } else {
       this.isSubmitting = true;
       const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-      const post: Post = new Post(0, "", this.commentText, this.user, formattedDate, TypePost.response, this.post.id, "", '');
+      const post: Post = new Post(0, "", this.commentText, this.user.id, formattedDate, TypePost.response, this.post.id, "", '');
       console.log("Menttioned: ", this.mentionned);
       if (post != null) {
 
@@ -303,18 +335,25 @@ export class PostDetailsComponent {
           });
 
           if (this.mentionned) {
-            this.notificatonService.createMentionNotification(this.mentionnedUser, this.post, this.user.username).subscribe(() => {
+            this.notificatonService.createMentionNotification(this.mentionnedUser.id, this.post, this.user.firstname + ' ' + this.user.lastname).subscribe(() => {
               console.log('Mention notification sent successfully');
             });
-            if (this.post.user.id != this.user.id) {
-              this.notificatonService.createCommentNotification(this.post.user, this.post, this.user.username).subscribe(() => {
-                console.log('Comment notification sent successfully');
-              });
+            if (this.post.user_id != this.user.id) {
+           
+                this.notificatonService.createCommentNotification(this.post.user_id, this.post, this.user.firstname + ' ' + this.user.lastname).subscribe(() => {
+                  console.log('Comment notification sent successfully');
+                });
+        
+
             }
           }
           else {
-            if (this.post.user.id != this.user.id) {
-              this.notificatonService.createCommentNotification(this.post.user, this.post, this.user.username).subscribe(() => {
+         
+
+            if (this.post.user_id != this.user.id) {
+              console.log("User ID: ", this.post.user_id);
+              console.log("Current User ID: ", this.user.firstname + ' ' + this.user.lastname);
+              this.notificatonService.createCommentNotification(this.post.user_id, this.post, this.user.firstname + ' ' + this.user.lastname).subscribe(() => {
                 console.log('Comment notification sent successfully');
               });
             }
@@ -420,7 +459,7 @@ export class PostDetailsComponent {
     this.showAiSolutionModal = true;
     this.isLoadingAiSolution = true;
     this.aiSolution = null;
- 
+
     // Create a prompt for the AI based on the post content
     const prompt = `Please provide the best solution for this question: \n\n${this.post.title}\n\n${this.post.content}`;
 

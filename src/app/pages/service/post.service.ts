@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class PostService {
-  private apiServerUrl = 'http://localhost:8082';
+  private apiServerUrl = 'http://localhost:8081';
   private token = "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";
   constructor(private http: HttpClient, private authService: AuthService) { }
 
@@ -55,6 +55,7 @@ export class PostService {
 
   public findPostsByCurrentUser(): Observable<Post[]> {
     const currentUser = this.authService.currentUserValue;
+    console.log("findposts by user:"+currentUser!.id);
     return this.http.get<Post[]>(`${this.apiServerUrl}/post/user/${currentUser!.id}`);
   }
 

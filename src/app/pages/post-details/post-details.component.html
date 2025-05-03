@@ -16,7 +16,7 @@
 <div class="container animate__animated animate__fadeIn">
     <div class="d-flex justify-content-between align-items-center">
         <h2 id="post-title" class="animate__animated animate__fadeInDown">{{post.title}}</h2>
-        <button *ngIf="user && user.id !== post.user.id" class="btn btn-sm btn-danger"
+        <button *ngIf="user && user.id !== post.user_id" class="btn btn-sm btn-danger"
             (click)="reportPost(post); $event.stopPropagation()">
             <i class="fas fa-flag"></i> Report
         </button>
@@ -25,7 +25,7 @@
         <img class="post-image" [src]="post.image ? 'http://localhost:8081/images/' + post.image : ''" alt="Post Image">
     </div>
     <p id="post-content" class="animate__animated animate__fadeIn">{{post.content}}</p>
-    <p id="post-user" class="animate__animated animate__fadeIn" *ngIf="user!=null">Posted by {{post.user.username}}</p>
+    <p id="post-user" class="animate__animated animate__fadeIn" *ngIf="user!=null">Posted by {{userPosted.firstname+' '+userPosted.lastname}}</p>
     <div class="tags-container" *ngIf="post.tags.length!=0">
         <div *ngFor="let l of post.tags | split: ', '; let i = index" class="animate__animated animate__fadeIn"
             [style.animation-delay]="i * 0.1 + 's'">
@@ -41,7 +41,7 @@
                 <i class="far fa-heart"></i> <span id="like-count">0</span>
             </button>
         </div>
-        <div *ngIf="user && user.id === post.user.id" class="d-flex gap-2">
+        <div *ngIf="user && user.id === post.user_id" class="d-flex gap-2">
             <button class="btn btn-sm btn-outline-info rounded-pill" (click)="needHelp = true" *ngIf="!needHelp">
                 <i class="fas fa-question-circle"></i> Besoin d'aide
             </button>
@@ -69,14 +69,14 @@
                     <p class="comment-content">{{c.content}}</p>
                     <div class="comment-footer d-flex justify-content-between align-items-center">
                         <div>
-                            <small class="comment-author">Posted by {{c.user.username}}</small>
+                            <small class="comment-author">Posted by {{ usernames[c.user_id] }}</small>
                             <small>{{c.createdAt }}</small>
                         </div>
                         <div>
                             <span *ngIf="post.bestAnswerId === c.id" class="text-success" title="Best Answer">
                                 <i class="fas fa-check-circle"></i>
                             </span>
-                            <button *ngIf="user && user.id === post.user.id && post.bestAnswerId !== c.id"
+                            <button *ngIf="user && user.id === post.user_id && post.bestAnswerId !== c.id"
                                 class="btn btn-sm btn-outline-success ms-2" (click)="markAsBestAnswer(c.id)"
                                 title="Mark as best answer">
                                 <i class="fas fa-check"></i>
@@ -121,7 +121,7 @@
                             <div *ngFor="let user of filteredMentionUsers"
                                 class="mention-item d-flex align-items-center p-2" (click)="addMention(user)">
 
-                                <span>{{user.username}}</span>
+                                <span>{{user.firstname+' '+user.lastname}}</span>
                             </div>
                         </div>
                     </div>

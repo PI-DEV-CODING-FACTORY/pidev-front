@@ -9,7 +9,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService, User } from '../service/auth.service';
 import { UserStatisticsService } from '../service/user-statistics.service';
-import { PostService } from '../service/post.service';
+import { PostService } from '../service/post.service';  
+import { map, switchMap } from 'rxjs/operators';
 @Component({
   selector: 'app-user-statistics',
   imports: [MatProgressSpinnerModule, MatCardModule, MatIconModule, MatListModule, CommonModule, ChartModule,],
@@ -92,16 +93,32 @@ export class UserStatisticsComponent implements OnInit, OnDestroy {
     });
 
     // Load top contributors
-    this.userStatisticsService.getTopContributors().subscribe({
-      next: (data) => {
-        this.topContributors = data.map(contributor => ({
-          ...contributor,
-          activityScore: this.calculateActivityScore(contributor)
-        }));
-        this.topContributors.sort((a, b) => b.activityScore - a.activityScore);
+
+
+    this.userStatisticsService.getTopContributors().pipe(
+      
+      switchMap((data) => {
+        const contributorsWithUsers$ = data.map(contributor =>
+          this.authService.getUserByEmail(contributor[0]).pipe(
+          
+            map(user => ({
+              ...contributor,
+              user: user, // ou ...user si tu veux fusionner les champs
+              activityScore: this.calculateActivityScore(contributor)
+            }))
+            
+          )
+        );
+        return forkJoin(contributorsWithUsers$);
+      })
+    ).subscribe({
+      next: (contributors) => {
+        console.log('Top contributors data:', contributors),
+        this.topContributors = contributors.sort((a, b) => b.activityScore - a.activityScore);
       },
-      error: (error) => console.error('Error loading top contributors:', error)
+      error: (error) => console.error('Error loading top contributors or users:', error)
     });
+
 
 
     // Load top best answerers
@@ -183,7 +200,7 @@ export class UserStatisticsComponent implements OnInit, OnDestroy {
     const config: ChartConfiguration = {
       type: 'doughnut',
       data: data,
-      options: { 
+      options: {
         responsive: true,
         plugins: {
           legend: {

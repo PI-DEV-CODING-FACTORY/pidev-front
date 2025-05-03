@@ -97,10 +97,11 @@
                 <div class="post fade-in" (click)="goToPostDetails(post)">
                     <h5>{{ post.title }}</h5>
                     <p>{{ post.content }}</p>
-                    <p class="text-muted"><i class="fas fa-user-circle me-1"></i> Posted by
-                        {{post.user.username}} <i class="fas fa-clock me-1">
-
-                        </i> {{ post.createdAt }}</p>
+                    <p class="text-muted">
+                        <i class="fas fa-user-circle me-1"></i> Posted by
+                        {{ usernames[post.user_id] }}
+                        <i class="fas fa-clock me-1"></i> {{ post.createdAt }}
+                      </p>
 
                     <div class="d-flex flex-wrap" *ngIf="post.tags.length!=0">
                         <div *ngFor="let l of post.tags | split: ', '">

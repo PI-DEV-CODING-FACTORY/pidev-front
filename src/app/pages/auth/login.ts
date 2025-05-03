@@ -10,6 +10,10 @@ import { ToastModule } from 'primeng/toast';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 import { HttpClient } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
+import { AuthService } from '../service/auth.service';
+import { AuthenticationRequest } from '../../models/AuthenticationRequest';
+import { AuthenticationResponse } from '../../models/AuthenticationResponse';
+import { last } from 'rxjs';
 
 @Component({
     selector: 'app-login',
@@ -73,54 +77,113 @@ export class Login {
     constructor(
         private http: HttpClient,
         private router: Router,
-        private messageService: MessageService
-    ) {}
+        private messageService: MessageService,
+        private authService: AuthService,
+    ) { }
     email: string = '';
     password: string = '';
     checked: boolean = false;
     loading: boolean = false;
-    login() {
-        this.router.navigate(['/']);
-        //     if (!this.email || !this.password) {
-        //         this.messageService.add({
-        //             severity: 'error',
-        //             summary: 'Erreur',
-        //             detail: 'Veuillez saisir votre email et mot de passe'
-        //         });
-        //         return;
-        //     }
-        //     this.loading = true;
-        //     const url = `http://localhost:8080/auth/login?email=${this.email}&password=${this.password}`;
 
-        //     this.http.post(url, null, { responseType: 'text' }).subscribe({
-        //         next: (response: string) => {
-        //             this.loading = false;
-        //             if (response && response !== 'invalid credentials') {
-        //                 // Store JWT token
-        //                 localStorage.setItem('token', response);
-        //                 this.messageService.add({
-        //                     severity: 'success',
-        //                     summary: 'Succès',
-        //                     detail: 'Connexion réussie'
-        //                 });
-        //
-        //             } else {
-        //                 this.messageService.add({
-        //                     severity: 'error',
-        //                     summary: 'Erreur',
-        //                     detail: 'Email ou mot de passe invalide'
-        //                 });
-        //             }
-        //         },
-        //         error: (error) => {
-        //             this.loading = false;
-        //             console.error('Erreur de connexion:', error);
-        //             this.messageService.add({
-        //                 severity: 'error',
-        //                 summary: 'Erreur',
-        //                 detail: 'La connexion a échoué. Veuillez réessayer.'
-        //             });
-        //         }
-        //     });
+    // login() {
+    //     if (!this.email || !this.password) {
+    //         this.messageService.add({
+    //             severity: 'error',
+    //             summary: 'Erreur',
+    //             detail: 'Veuillez remplir tous les champs obligatoires'
+    //         });
+    //         return;
+    //     }
+
+    //     this.authService.login(this.email, this.password).subscribe(
+    //         (response) => {
+    //             this.messageService.add({
+    //                 severity: 'success',
+    //                 summary: 'Succès',
+    //                 detail: 'Connexion réussie!'
+    //             });
+    //             setTimeout(() => {
+    //                 this.router.navigate(['/']);
+    //             }, 1000);
+    //         },
+    //         (error) => {
+    //             this.messageService.add({
+    //                 severity: 'error',
+    //                 summary: 'Erreur',
+    //                 detail: 'Email ou mot de passe incorrect'
+    //             });
+    //         }
+    //     );
+    // }
+
+    login() {
+        if (!this.email || !this.password) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur',
+                detail: 'Veuillez remplir tous les champs'
+            });
+            return;
+        }
+
+        this.loading = true;
+        const request: AuthenticationRequest = {
+            email: this.email,
+            password: this.password
+        };
+
+        this.http.post<AuthenticationResponse>('http://localhost:8083/api/auth/login', request)
+            .subscribe({
+                next: (response) => {
+                    console.log('Auth Response:', response);
+
+                    if (!response.jwt) {
+                        console.error('No token in response:', response);
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Erreur',
+                            detail: 'Erreur d\'authentification: Token manquant'
+                        });
+                        this.loading = false;
+                        return;
+                    }
+
+                    localStorage.setItem('token', response.jwt);
+                    localStorage.setItem('user', JSON.stringify({
+                        email: response.email,
+                        firstname: response.firstname,
+                        lastname: response.lastname,
+                        role: response.role,
+                        profilePicture: response.profilePicture
+                    }));
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        id: response.email,
+                        firstname: response.firstname,
+                        lastname: response.lastname,
+                        email: response.email,
+                        profileImage: response.profilePicture
+                    }));
+
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Succès',
+                        detail: 'Connexion réussie'
+                    });
+
+                    setTimeout(() => {
+                        this.loading = false;
+                        this.router.navigate(['/']);
+                    }, 1500);
+                },
+                error: (error) => {
+                    console.error('Login error:', error);
+                    this.loading = false;
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Erreur',
+                        detail: error.error?.message || 'Email ou mot de passe incorrect'
+                    });
+                }
+            });
     }
 }

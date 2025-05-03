@@ -24,7 +24,7 @@ export class PostComponent {
   message: string = '';
   loggedIn: boolean = false;
   constructor(private router: Router, private postService: PostService, public voiceRecognitionService: VoiceRecognitionService, private messageService: MessageService, private authService: AuthService) {
-
+    
     if (this.inputSubject) {
       this.inputSubject.pipe(
         debounceTime(500),  // Attendez 500ms après la dernière frappe
@@ -109,7 +109,7 @@ export class PostComponent {
   ngOnInit() {
     this.getPosts();
     this.getTechnologies();
-
+    // this.loadUsernames();
   }
 
   startRecording() {
@@ -140,7 +140,27 @@ export class PostComponent {
     console.log('Message submitted:', this.message);
     this.message = '';
   }
-
+  usernames: { [email: string]: string } = {};
+  loadUsernames() {
+    
+    this.paginatedPosts.forEach(post => {
+      const email = post.user_id; // Or post.user.email if structured differently
+      if (!this.usernames[email]) {
+        this.authService.getUserByEmail(email).subscribe(
+        
+          user => {
+          
+            this.usernames[email] = user.firstname+' ' + user.lastname; // Assuming user has firstname and lastname properties
+          },
+          error => {
+            this.usernames[email] = 'Unknown'; // Fallback
+          }
+          
+        );
+      }
+    });
+    console.log(this.usernames);
+  }
   public getPosts(): void {
     // if (this.user != null) {
     //   this.postService.findAllPostsWithoutUser().subscribe((response: Post[]) => {
@@ -149,8 +169,10 @@ export class PostComponent {
     //   });
     // } else {
       this.postService.findAllPostss().subscribe((response: Post[]) => {
+        
         this.posts = response.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         console.log("Posts:", this.posts);
+        this.loadUsernames(); 
       });
     // }
 
@@ -198,13 +220,15 @@ export class PostComponent {
     }
 
 
+
     if (this.selectedFile != null) {
       const formData = new FormData();
       formData.append('file', this.selectedFile, this.selectedFile.name);
       this.postService.uploadImage(formData).subscribe(
         (imageName: string) => {
           const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-          const post: Post = new Post(0, title, details, this.user, formattedDate, TypePost.question, 0, this.technologie, imageName.toString());
+          console.log("User post:"+this.user);
+          const post: Post = new Post(0, title, details, this.user.id, formattedDate, TypePost.question, 0, this.technologie, imageName.toString());
           if (post != null) {
             this.postService.addPost(post).subscribe((response: Post) => {
               this.messageService.add({
@@ -228,7 +252,8 @@ export class PostComponent {
     } else {
       const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
       console.log(formattedDate);
-      const post: Post = new Post(0, title, details, this.user, formattedDate, TypePost.question, 0, this.technologie, '');
+      console.log("User post:"+this.user.id);
+      const post: Post = new Post(0, title, details, this.user.id, formattedDate, TypePost.question, 0, this.technologie, '');
 
       this.postService.addPost(post).subscribe((response: Post) => {
         this.messageService.add({
@@ -236,6 +261,8 @@ export class PostComponent {
           summary: 'Succès',
           detail: 'Post added sucessfully.'
         });
+
+        
         console.log(response);
         this.getPosts();
         this.getTechnologies();
@@ -280,8 +307,9 @@ export class PostComponent {
 
 
     const postsToPaginate = this.filteredPosts.length > 0 ? this.filteredPosts : this.posts;
-
+    
     return postsToPaginate.slice(startIndex, endIndex);
+  
   }
 
   get totalPages(): number {

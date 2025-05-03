@@ -60,7 +60,7 @@ import { AuthService } from '../service/auth.service';
                                 <label for="acceptTerms">J'accepte les conditions d'utilisation</label>
                             </div>
 
-                            <p-button label="S'inscrire" styleClass="w-full mb-4" (click)="register()"></p-button>
+                            <p-button label="S'inscrire" styleClass="w-full mb-4"></p-button>
                             
                             <div class="text-center">
                                 <span class="text-muted-color">Vous avez déjà un compte?</span>
@@ -82,46 +82,46 @@ export class Register {
 
     constructor(private authService: AuthService, private router: Router, private messageService: MessageService) {}
     
-    register() {
-        if (!this.username || !this.email || !this.password) {
-            console.log(this.username);
-            console.log(this.email);
-            console.log(this.password);
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Erreur',
-                detail: 'Veuillez remplir tous les champs obligatoires'
-            });
-            return;
-        }
+    // register() {
+    //     if (!this.username || !this.email || !this.password) {
+    //         console.log(this.username);
+    //         console.log(this.email);
+    //         console.log(this.password);
+    //         this.messageService.add({
+    //             severity: 'error',
+    //             summary: 'Erreur',
+    //             detail: 'Veuillez remplir tous les champs obligatoires'
+    //         });
+    //         return;
+    //     }
 
-        if (!this.acceptTerms) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Erreur',
-                detail: 'Vous devez accepter les conditions utilisation'
-            });
-            return;
-        }
+    //     if (!this.acceptTerms) {
+    //         this.messageService.add({
+    //             severity: 'error',
+    //             summary: 'Erreur',
+    //             detail: 'Vous devez accepter les conditions utilisation'
+    //         });
+    //         return;
+    //     }
 
-        this.authService.register(this.username, this.email, this.password).subscribe(
-            (response) => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Succès',
-                    detail: 'Inscription réussie! Vous pouvez maintenant vous connecter.'
-                });
-                setTimeout(() => {
-                    this.router.navigate(['/auth/login']);
-                }, 2000);
-            },
-            (error) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Erreur',
-                    detail: 'Erreur lors de l\'inscription. Veuillez réessayer.'
-                });
-            }
-        );
-    }
+    //     this.authService.register(this.username, this.email, this.password).subscribe(
+    //         (response) => {
+    //             this.messageService.add({
+    //                 severity: 'success',
+    //                 summary: 'Succès',
+    //                 detail: 'Inscription réussie! Vous pouvez maintenant vous connecter.'
+    //             });
+    //             setTimeout(() => {
+    //                 this.router.navigate(['/auth/login']);
+    //             }, 2000);
+    //         },
+    //         (error) => {
+    //             this.messageService.add({
+    //                 severity: 'error',
+    //                 summary: 'Erreur',
+    //                 detail: 'Erreur lors de l\'inscription. Veuillez réessayer.'
+    //             });
+    //         }
+    //     );
+    // }
 }
