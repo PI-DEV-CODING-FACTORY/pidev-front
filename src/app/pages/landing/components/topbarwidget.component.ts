@@ -43,7 +43,7 @@ import { ButtonModule } from 'primeng/button';
                     </a>
                 </li>
                 <li>
-                    <a (click)="router.navigate(['/landing'], { fragment: 'highlights' })" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
+                    <a (click)="scrollToContact()" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
                         <span>Contact</span>
                     </a>
                 </li>
@@ -70,6 +70,23 @@ export class TopbarWidget {
 
     scrollToFormations() {
         const element = document.getElementById('formations');
+        if (element) {
+            element.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+            
+            // Add smooth scroll class to html element
+            document.documentElement.classList.add('scroll-smooth');
+            
+            // Remove the class after animation
+            setTimeout(() => {
+                document.documentElement.classList.remove('scroll-smooth');
+            }, 1000);
+        }
+    }
+    scrollToContact() {
+        const element = document.getElementById('footer');
         if (element) {
             element.scrollIntoView({ 
                 behavior: 'smooth',

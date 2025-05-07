@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient,HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 
 
@@ -7,8 +7,8 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 export interface User {
   id: string;
   // username: string;
-  firstname:string;
-  lastname:string;
+  firstname: string;
+  lastname: string;
   email: string;
   profileImage?: string;
 }
@@ -22,7 +22,7 @@ export class AuthService {
   public currentUser: Observable<User | null>;
 
   // Set to false to use real API instead of mock data
-  
+
   constructor(private http: HttpClient) {
     // Initialize from localStorage if available
     const storedUser = localStorage.getItem('currentUser');
@@ -31,7 +31,13 @@ export class AuthService {
     );
     this.currentUser = this.currentUserSubject.asObservable();
   }
-
+  ngOnInit() {
+    const storedUser = localStorage.getItem('currentUser');
+    this.currentUserSubject = new BehaviorSubject<User | null>(
+      storedUser ? JSON.parse(storedUser) : null
+    );
+    this.currentUser = this.currentUserSubject.asObservable();
+  }
   public get currentUserValue(): User | null {
     return this.currentUserSubject.value;
   }
@@ -91,5 +97,5 @@ export class AuthService {
     });
   }
 
-  
+
 }

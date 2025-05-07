@@ -13,8 +13,6 @@ import { MessageService } from 'primeng/api';
 import { AuthService } from '../service/auth.service';
 import { AuthenticationRequest } from '../../models/AuthenticationRequest';
 import { AuthenticationResponse } from '../../models/AuthenticationResponse';
-import { last } from 'rxjs';
-
 @Component({
     selector: 'app-login',
     standalone: true,
@@ -45,7 +43,7 @@ import { last } from 'rxjs';
                                     />
                                 </g>
                             </svg>
-                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Bienvenue sur PrimeLand!</div>
+                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Bienvenue sur Coding Factory!</div>
                             <span class="text-muted-color font-medium">Connectez-vous pour continuer</span>
                         </div>
 
@@ -84,7 +82,6 @@ export class Login {
     password: string = '';
     checked: boolean = false;
     loading: boolean = false;
-
     // login() {
     //     if (!this.email || !this.password) {
     //         this.messageService.add({
@@ -163,7 +160,6 @@ export class Login {
                         email: response.email,
                         profileImage: response.profilePicture
                     }));
-
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Succès',
@@ -172,8 +168,8 @@ export class Login {
 
                     setTimeout(() => {
                         this.loading = false;
-                        this.router.navigate(['/']);
-                    }, 1500);
+                        this.router.navigate(['/admin/dashboard']);
+                    }, 2500);
                 },
                 error: (error) => {
                     console.error('Login error:', error);

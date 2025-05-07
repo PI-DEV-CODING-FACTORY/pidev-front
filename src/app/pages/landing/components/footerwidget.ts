@@ -8,7 +8,7 @@ import { Router, RouterModule } from '@angular/router';
         <div class="py-12 px-12 mx-0 mt-20 lg:mx-20">
             <div class="grid grid-cols-12 gap-4">
                 <div class="col-span-12 md:col-span-2">
-                    <a (click)="router.navigate(['/pages/landing'], { fragment: 'home' })" class="flex flex-wrap items-center justify-center md:justify-start md:mb-0 mb-6 cursor-pointer">
+                    <a (click)="router.navigate(['/'], { fragment: 'home' })" class="flex flex-wrap items-center justify-center md:justify-start md:mb-0 mb-6 cursor-pointer">
                         <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-14 mr-2">
                             <path
                                 fill-rule="evenodd"
@@ -26,11 +26,11 @@ import { Router, RouterModule } from '@angular/router';
                                 />
                             </g>
                         </svg>
-                        <h4 class="font-medium text-3xl text-surface-900 dark:text-surface-0">SAKAI</h4>
+                        <h4 class="font-medium text-3xl text-surface-900 dark:text-surface-0">Coding <br>Factory</h4>
                     </a>
                 </div>
 
-                <div class="col-span-12 md:col-span-10">
+                <div class="col-span-12 md:col-span-10" id="footer">
                     <div class="grid grid-cols-12 gap-8 text-center md:text-left">
                         <div class="col-span-12 md:col-span-3">
                             <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Company</h4>
