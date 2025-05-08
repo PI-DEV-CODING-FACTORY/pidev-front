@@ -6,8 +6,8 @@
   --secondary: #f50057;
   --secondary-light: #ff4081;
   --secondary-dark: #c51162;
-  --text-primary: #212121;
-  --text-secondary: #757575;
+  --text-primary: #ffffff;
+  --text-secondary: #f6f6f6;
   --background: #f5f7fa;
   --card-bg: #ffffff;
   --divider: #eeeeee;
@@ -16,7 +16,7 @@
   --info: #2196f3;
   --danger: #f44336;
   --border-radius: 10px;
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --shadow: 0 4px 20px rgba(250, 247, 247, 0.899);
   --transition: all 0.3s ease;
 }
 
@@ -291,7 +291,8 @@ body {
 .modal-content {
   background-color: var(--card-bg); /* Fond de contenu opaque */
   border-radius: 8px; /* Bords légèrement arrondis pour un aspect doux */
-  box-shadow: 0 4px 20px rgba(178, 52, 52, 0.1); /* Ombre subtile */
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1); /* Ombre subtile */
+  color: white;
   width: 90%;
   max-width: 600px;
   padding: 24px;
@@ -333,7 +334,7 @@ body {
   margin-bottom: 16px;
   font-size: 22px;
   font-weight: 600;
-  color: grey;
+  color: rgb(251, 251, 251);
   border-bottom: 1px solid var(--divider); /* Légère ligne sous le titre */
   padding-bottom: 8px;
 }

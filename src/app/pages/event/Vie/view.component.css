@@ -337,3 +337,99 @@ input:checked + .slider:before {
     background-color: rgba(0, 0, 0, 0.05);
   }
 }
+/* Ensure modal content is properly contained */
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden; /* Prevents content from overflowing */
+}
+
+/* Ensure actions are aligned inside modal */
+.modal-actions {
+  display: flex;
+  justify-content: center; /* Centers buttons */
+  gap: 10px;
+  flex-wrap: wrap; /* Allows buttons to wrap if needed */
+  padding: 15px;
+  border-top: 1px solid #ddd;
+  background-color: #f9f9f9;
+  width: 100%; /* Makes sure it stays inside modal */
+  position: relative;
+}
+
+/* Make sure button colors are correctly assigned */
+.modal-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Edit button */
+.modal-actions .edit-btn {
+  background-color: #007bff !important;
+  color: white;
+}
+
+.modal-actions .edit-btn:hover {
+  background-color: #0056b3 !important;
+}
+
+/* Delete button */
+.modal-actions .delete-btn {
+  background-color: #dc3545 !important;
+  color: white;
+}
+
+.modal-actions .delete-btn:hover {
+  background-color: #a71d2a !important;
+}
+
+/* Info button */
+.modal-actions .info-btn {
+  background-color: #17a2b8 !important;
+  color: white;
+}
+
+.modal-actions .info-btn:hover {
+  background-color: #117a8b !important;
+}
+
+/* Secondary buttons */
+.modal-actions .secondary-btn {
+  background-color: #6c757d !important;
+  color: white;
+}
+
+.modal-actions .secondary-btn:hover {
+  background-color: #545b62 !important;
+}
+
+
+/* Fix for small screens */
+@media (max-width: 500px) {
+  .modal-actions {
+      flex-direction: column;
+      align-items: center;
+  }
+
+  .modal-actions button {
+      width: 100%;
+      max-width: none;
+  }
+}
+

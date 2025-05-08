@@ -15,7 +15,7 @@
             <input type="checkbox"
                    [checked]="event.status === eventStatus.APPROVED"
                    (change)="updateEventStatus(event, event.status === eventStatus.APPROVED ? eventStatus.PENDING : eventStatus.APPROVED)">
-            <span class="slider round"></span>
+            <span class="slider"></span>
           </label>
         </div>
 
@@ -55,10 +55,21 @@
         <p>{{ event.prizes }}</p>
       </div>
 
-    
+      <!-- <div class="event-actions">
+        <button class="edit-btn" (click)="updateEvent(event)">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="delete-btn" (click)="deleteEvent(event.id)">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+        <button class="info-btn" (click)="createQuestionForm(event)">
+          <i class="fas fa-question-circle"></i> Add Questions
+        </button>
+      </div> -->
     </div>
   </div>
 </div>
+
 <!-- Modal for Event Details -->
 <div class="modal-overlay" *ngIf="selectedEvent" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
@@ -66,48 +77,42 @@
     <p><strong>Type:</strong> {{ selectedEvent.eventType }}</p>
     <p><strong>Description:</strong> {{ selectedEvent.description }}</p>
     <p><strong>Date:</strong> {{ selectedEvent.eventDate | date:'medium' }}</p>
-    <p><strong>Lieu:</strong> {{ selectedEvent.location }}</p>
-    <p><strong>Capacité:</strong> {{ selectedEvent.capacity }}</p>
-    <p><strong>Objectifs:</strong> {{ selectedEvent.objectives }}</p>
-    <p><strong>Prix:</strong> {{ selectedEvent.prizes }}</p>
+    <p><strong>Location:</strong> {{ selectedEvent.location }}</p>
+    <p><strong>Capacity:</strong> {{ selectedEvent.capacity }}</p>
+    <p><strong>Objectives:</strong> {{ selectedEvent.objectives }}</p>
+    <p><strong>Prizes:</strong> {{ selectedEvent.prizes }}</p>
 
     <!-- Questions Section -->
     <div class="event-questions">
-      <h3>Questions associées</h3>
+      <h3>Associated Questions</h3>
       <ul *ngIf="eventQuestions.length > 0; else noQuestions">
         <li *ngFor="let question of eventQuestions">
-          <strong>{{ question || 'Texte non disponible' }}</strong>
-          <span class="question-type">({{ question || 'Type inconnu' }})</span>
+          <strong>{{ question || 'Text not available' }}</strong>
+          <span class="question-type">({{ question || 'Unknown type' }})</span>
         </li>
       </ul>
       <ng-template #noQuestions>
-        <p>Aucune question trouvée pour cet événement.</p>
+        <p>No questions found for this event.</p>
       </ng-template>
     </div>
 
     <!-- Actions -->
     <div class="modal-actions">
-      <button class="primary-btn" (click)="updateEvent(selectedEvent)">
-        <i class="fas fa-edit"></i> Modifier
+      <button class="edit-btn" (click)="updateEvent(selectedEvent)">
+        <i class="fas fa-edit"></i> Edit
       </button>
-      <button class="danger-btn" (click)="deleteEvent(selectedEvent.id)">
-        <i class="fas fa-trash"></i> Supprimer
+      <button class="delete-btn" (click)="deleteEvent(selectedEvent.id)">
+        <i class="fas fa-trash"></i> Delete
       </button>
       <button class="info-btn" (click)="createQuestionForm(selectedEvent)">
-        <i class="fas fa-question-circle"></i> Ajouter un formulaire de questions
+        <i class="fas fa-question-circle"></i> Add Question Form
       </button>
-      <div class="action-group">
-        <button class="secondary-btn" *ngIf="selectedEvent.id !== undefined" (click)="openParticipantsModal(selectedEvent.id)">
-          <i class="fas fa-users"></i> Voir les participants
-        </button>
-        <button class="secondary-btn" *ngIf="selectedEvent.id !== undefined" (click)="openParticipantsPage(selectedEvent.id)">
-          <i class="fas fa-chart-line"></i> Voir les scores
-        </button>
-      </div>
+      <button class="secondary-btn" *ngIf="selectedEvent.id !== undefined" (click)="openParticipantsModal(selectedEvent.id)">
+        <i class="fas fa-users"></i> View Participants
+      </button>
+      <button class="secondary-btn" *ngIf="selectedEvent.id !== undefined" (click)="openParticipantsPage(selectedEvent.id)">
+        <i class="fas fa-chart-line"></i> View Scores
+      </button>
     </div>
-
-    
   </div>
 </div>
-
-

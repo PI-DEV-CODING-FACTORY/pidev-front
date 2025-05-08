@@ -4,6 +4,7 @@ import { EventParticipant } from '../EventParticipant';
 import { CommonModule } from '@angular/common';
 import { ParticipantService } from '../../../services/participant.service';
 import { FormsModule, NgModel } from '@angular/forms';
+import { Observable, take } from 'rxjs';
 
 @Component({
   selector: 'app-participants-modal',
@@ -12,7 +13,7 @@ import { FormsModule, NgModel } from '@angular/forms';
   styleUrl: './participants-modal.component.css'
 })
 export class ParticipantsModalComponent {
- 
+  participantScores: number[] = []; 
   eventId: number;
   // Déclare les propriétés pour l'événement et les participants
   participants: EventParticipant[];
@@ -21,6 +22,7 @@ export class ParticipantsModalComponent {
     this.eventId = data.eventId;
     this.participants = data.participants;
   }
+
   ngOnInit(): void {
     // Récupérer les questions depuis le service
     this.ps.getQuestions(this.eventId).subscribe((questions: string[]) => {
@@ -30,6 +32,19 @@ export class ParticipantsModalComponent {
         this.participantNotes.push([]); // Chaque participant a un tableau de notes
       });
     });
+    this.loadParticipantScores();
+  }
+  loadParticipantScores() {
+    this.participants.forEach((eventParticipant, index) => {
+      this.ps.getAverageScore(eventParticipant.participant.id)
+        .pipe(take(1)) // Prend seulement une valeur et évite les abonnements multiples
+        .subscribe(score => {
+          this.participantScores[index] = score;
+        });
+    });
+  }
+  isNoted(id:number): boolean{
+    return this.participantScores[id] !== undefined && this.participantScores[id] !== null;
   }
    // Fonction pour mettre à jour la note pour une réponse
    updateNote(participantIndex: number, answerIndex: number, note: number): void {
@@ -65,7 +80,7 @@ export class ParticipantsModalComponent {
       console.error('La moyenne des notes est invalide pour le participant', participant.participant?.name);
       return;  // On ne fait rien si la moyenne est invalide
     }
-  
+    console.log("moyene valide ", average)
     // Envoi de la moyenne au backend pour ce participant
     this.ps.saveParticipantScore(participant.id, average).subscribe({
       next: () => {
@@ -76,8 +91,10 @@ export class ParticipantsModalComponent {
       }
     });
   }
-  
-
+  getParticipantScore(participantId: number): Observable<number> {
+    const participant = this.participants[participantId];
+    return this.ps.getAverageScore(participant.id);
+}
   // Fonction pour fermer le modal
   close(): void {
     this.dialogRef.close();

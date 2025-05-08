@@ -1,0 +1,993 @@
+// Variables
+$primary-color: #1976d2;
+$accent-color: #ff4081;
+$warning-color: #f44336;
+$success-color: #4caf50;
+$background-color: #f5f7fa;
+$card-background: #ffffff;
+$text-primary: rgba(0, 0, 0, 0.87);
+$text-secondary: rgba(0, 0, 0, 0.6);
+$border-radius: 16px;
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+.team-selection-card {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.title-text {
+  margin-left: 0.5rem;
+  font-weight: 600;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.team-details {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+.participants-list {
+  margin-top: 1rem;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.participant-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.participant-name {
+  font-weight: 500;
+}
+
+.participant-email {
+  font-size: 0.875rem;
+  color: #555;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #888;
+  margin-top: 1rem;
+}
+
+.participants-actions {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+.participants-card {
+  max-width: 500px;
+  margin: 1rem auto;
+  padding: 1rem;
+  background: #fefefe;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+}
+
+.checkpoint-container {
+  width: 100%;
+}
+
+.checkpoint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.checkpoint-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+}
+
+.percentage-badge {
+  background-color: #3f51b5;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+
+// Global styles
+.team-management-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .header-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h1 {
+      margin-left: 16px;
+      font-size: 24px;
+      font-weight: 500;
+    }
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    
+    @media (max-width: 992px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .team-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: rgba($primary-color, 0.03);
+    border-radius: $border-radius;
+
+    .full-width {
+      width: 100%;
+    }
+  }
+
+  .teams-list {
+    margin-top: 24px;
+
+    .team-progress {
+      margin-left: 16px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background-color: rgba(0, 0, 0, 0.1);
+      font-size: 0.9em;
+
+      &.completed {
+        background-color: $success-color;
+        color: white;
+      }
+    }
+  }
+
+  .team-details {
+    padding: 16px;
+
+    .team-description {
+      font-style: italic;
+      color: $text-secondary;
+      margin-bottom: 16px;
+      padding: 8px;
+      background-color: rgba($primary-color, 0.03);
+    border-radius: 8px;
+    }
+
+    .section {
+      margin-top: 24px;
+
+      h4 {
+        margin-bottom: 16px;
+        color: $text-primary;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        
+        mat-icon {
+          color: $primary-color;
+        }
+      }
+      
+      h5 {
+        margin: 16px 0 8px;
+        color: $text-primary;
+        font-size: 16px;
+      }
+    }
+
+    .ai-checkpoint-section {
+      margin-bottom: 24px;
+      padding: 16px;
+      background-color: rgba($accent-color, 0.03);
+      border-radius: $border-radius;
+      
+      .ai-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+    }
+
+    .checkpoint-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 16px;
+      background-color: rgba($primary-color, 0.03);
+      border-radius: $border-radius;
+    }
+
+    .checkpoints-list {
+      margin-top: 16px;
+    }
+
+    .checkpoint-info {
+      display: flex;
+      gap: 16px;
+      color: $text-secondary;
+      font-size: 0.9em;
+      align-items: center;
+      
+      .percentage-badge {
+        background-color: $primary-color;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+      }
+      
+      .deadline {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: $text-secondary;
+    
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    
+    p {
+      font-size: 16px;
+      text-align: center;
+    }
+  }
+}
+
+// Card styles
+mat-card {
+  background: $card-background;
+  border-radius: $border-radius;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05) !important;
+  transition: $transition;
+  overflow: hidden;
+  height: 100%;
+
+  &:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .mat-mdc-card-header {
+    padding: 16px 24px;
+    background: linear-gradient(45deg, rgba($primary-color, 0.05), rgba($accent-color, 0.05));
+
+    .mat-mdc-card-title {
+      font-size: 1.25rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+
+      .mat-icon {
+        color: $primary-color;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+  
+  .mat-mdc-card-content {
+    padding: 16px 24px;
+  }
+}
+
+// Participants card
+.participants-card {
+  .participants-list {
+    max-height: 500px;
+    overflow-y: auto;
+    
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba($primary-color, 0.05);
+      border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: rgba($primary-color, 0.2);
+      border-radius: 4px;
+      
+      &:hover {
+        background: rgba($primary-color, 0.3);
+      }
+    }
+  }
+  
+  .participant-info {
+    display: flex;
+    flex-direction: column;
+    
+    .participant-name {
+      font-weight: 500;
+    }
+    
+    .participant-email {
+      font-size: 0.85em;
+      color: $text-secondary;
+    }
+  }
+  
+  .participants-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+// Return button
+.return-button.mat-mdc-raised-button {
+  align-self: flex-start;
+  margin-top: 24px;
+  padding: 8px 24px;
+  font-size: 1rem;
+  
+  &:hover {
+    background-color: darken($warning-color, 5%);
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mat-mdc-list-item {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+// Material overrides
+:host ::ng-deep {
+  .mdc-text-field--outlined {
+    background: rgba($primary-color, 0.02);
+    border-radius: 8px;
+}
+
+  .mat-mdc-raised-button {
+    border-radius: 8px;
+  }
+
+  .mat-mdc-progress-bar {
+    border-radius: 4px;
+}
+
+  .mdc-checkbox {
+    .mdc-checkbox__background {
+      border-radius: 4px;
+    }
+  }
+
+  .mat-mdc-list-item {
+    --mdc-list-list-item-container-color: transparent;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    height: auto;
+  }
+
+  textarea.mat-mdc-input-element {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .success-snackbar {
+    --mdc-snackbar-container-color: #{$success-color};
+    --mdc-snackbar-supporting-text-color: white;
+    --mat-mdc-snack-bar-button-color: white;
+  }
+
+  .error-snackbar {
+    --mdc-snackbar-container-color: #{$warning-color};
+    --mdc-snackbar-supporting-text-color: white;
+    --mat-mdc-snack-bar-button-color: white;
+  }
+
+  .warning-snackbar {
+    --mdc-snackbar-container-color: #ff9800;
+    --mdc-snackbar-supporting-text-color: white;
+    --mat-mdc-snack-bar-button-color: white;
+  }
+
+  .mat-mdc-snack-bar-container {
+    &.success-snackbar, &.error-snackbar, &.warning-snackbar {
+      .mdc-snackbar__surface {
+        border-radius: 8px;
+      }
+
+      .mat-mdc-snack-bar-action {
+        .mdc-button {
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+.checkpoint-tabs {
+  margin-top: 2rem;
+  
+  .mat-mdc-tab-body-content {
+    padding: 1.5rem;
+  }
+}
+
+.tab-icon {
+  margin-right: 8px;
+}
+
+.checkpoint-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+
+  button {
+    align-self: flex-start;
+  }
+}
+
+.ai-checkpoint-form {
+  .ai-description {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: rgba(63, 81, 181, 0.05);
+    border-radius: 4px;
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    p {
+      margin: 0;
+      color: rgba(0, 0, 0, 0.87);
+      line-height: 1.5;
+    }
+  }
+
+  .generate-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 24px;
+    height: 48px;
+
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+.ai-spinner {
+  margin: 1rem auto;
+}
+
+.grading-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba($primary-color, 0.02);
+  border-radius: $border-radius;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    mat-icon {
+      color: $primary-color;
+    }
+  }
+}
+
+.grade-form {
+  display: grid;
+  gap: 1.5rem;
+
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+}
+
+.grade-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.team-actions {
+  display: flex;
+  gap: 1rem;
+    justify-content: flex-end;
+  margin-top: 1.5rem;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.timeline-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba($primary-color, 0.02);
+  border-radius: $border-radius;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    mat-icon {
+      color: $primary-color;
+    }
+  }
+}
+
+.timeline-container {
+  position: relative;
+}
+
+.timeline-progress {
+  margin-bottom: 2rem;
+  position: relative;
+
+  .timeline-progress-bar {
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  .timeline-progress-label {
+    position: absolute;
+    right: 0;
+    top: -25px;
+    font-size: 0.875rem;
+    color: $text-secondary;
+  }
+}
+
+.timeline-items {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 2rem;
+  display: flex;
+  align-items: flex-start;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  &.completed {
+    .timeline-content {
+      opacity: 0.8;
+    }
+  }
+
+  &.current {
+    .timeline-content {
+      transform: scale(1.02);
+    }
+  }
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -2rem;
+  top: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.timeline-content {
+  flex: 1;
+  background: white;
+  padding: 1rem;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: $text-primary;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: $text-secondary;
+  }
+
+  .timeline-percentage {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: $primary-color;
+    background: rgba($primary-color, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+  }
+}
+
+.timeline-connector {
+  position: absolute;
+  left: -1.5rem;
+  top: 2rem;
+  bottom: -2rem;
+  width: 2px;
+  background: #e0e0e0;
+  z-index: 0;
+}
+
+.checkpoint-form-section,
+.ai-checkpoint-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba($primary-color, 0.02);
+  border-radius: $border-radius;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    mat-icon {
+      color: $primary-color;
+    }
+  }
+}
+
+// Checkpoint Management
+.checkpoint-management-card {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  .mat-card-header {
+    margin-bottom: 16px;
+  }
+  
+  .no-team-selected {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    margin: 16px 0;
+  }
+  
+  .tab-content {
+    padding: 16px 8px;
+  }
+  
+  .full-width {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+    
+    button {
+      min-width: 180px;
+    }
+  }
+  
+  .ai-loading {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    
+    mat-progress-spinner {
+      margin-right: 16px;
+    }
+    
+    p {
+      margin: 0;
+      color: #555;
+    }
+  }
+}
+
+// Checkpoints List
+.checkpoints-list-card {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  
+  .mat-progress-bar {
+    margin: 16px 0;
+  }
+  
+  .checkpoints-list {
+    margin-top: 16px;
+    
+    .mat-expansion-panel {
+      margin-bottom: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+  }
+  
+  .checkpoint-description {
+    color: #555;
+    line-height: 1.5;
+    white-space: pre-line;
+  }
+  
+  .checkpoint-deadline {
+    display: flex;
+    align-items: center;
+    margin: 16px 0;
+    color: #666;
+    
+    mat-icon {
+      margin-right: 8px;
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+    }
+  }
+  
+  .checkpoint-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
+}
+
+// Checkpoint Card
+.checkpoint-card {
+  margin: 16px 0;
+  
+  .mat-card-header {
+    margin-bottom: 12px;
+    
+    .mat-icon {
+      margin-right: 8px;
+      vertical-align: bottom;
+    }
+  }
+  
+  .no-team-selected {
+    padding: 24px;
+    text-align: center;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    color: #666;
+    
+    p {
+      margin: 0;
+      font-size: 16px;
+    }
+  }
+  
+  // Tab content styling
+  .tab-content {
+    padding: 16px 0;
+    
+    h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    
+    .ai-description {
+      margin-bottom: 16px;
+      color: #555;
+    }
+  }
+  
+  // Form layout
+  .full-width {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
+  
+  .half-width {
+    flex: 1;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+    
+    button {
+      min-width: 150px;
+    }
+  }
+  
+  // AI loading state
+  .ai-loading {
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
+    
+    mat-progress-spinner {
+      margin-right: 16px;
+    }
+    
+    span {
+      color: #666;
+    }
+  }
+  
+  // Checkpoints list
+  .checkpoints-list-section {
+    margin-top: 24px;
+    border-top: 1px solid #eee;
+    padding-top: 16px;
+    
+    h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    
+    .team-progress {
+      height: 8px;
+      border-radius: 4px;
+    }
+    
+    .progress-label {
+      text-align: right;
+      font-size: 14px;
+      color: #555;
+      margin: 4px 0 16px;
+    }
+    
+    mat-accordion {
+      mat-expansion-panel {
+        margin-bottom: 8px;
+        
+        mat-panel-description {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          
+          mat-icon {
+            margin-left: 8px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.event-checkpoints-card {
+  margin-top: 20px;
+
+  .event-checkpoint-form {
+    margin-bottom: 20px;
+  }
+
+  .event-checkpoints-list {
+    margin-top: 20px;
+
+    .percentage-badge {
+      background-color: #e0e0e0;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      margin-right: 10px;
+    }
+
+    .deadline {
+      font-size: 0.8em;
+      color: #666;
+    }
+  }
+}

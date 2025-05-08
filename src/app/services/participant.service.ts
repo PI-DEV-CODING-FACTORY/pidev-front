@@ -4,14 +4,17 @@ import { Observable } from 'rxjs';
 import { EventParticipant } from '../pages/event/EventParticipant';
 import { jsPDF } from 'jspdf';
 import * as QRCode from 'qrcode';
+import { Participant } from '../models/participant.model';
+import { environment } from '../../environments/environment';
+import { EventParticipant as EventParticipantModel } from '../models/event-participant.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ParticipantService {
 
-  private apiUrl = 'http://localhost:8089/examen';  // L'URL de ton backend Spring Boot
-  private aiUrl = 'http://localhost:8089/api/emails/send';
+  private apiUrl = `${environment.apiUrl}/participants`;
+  private emailUrl = 'http://localhost:8089/api/emails';  // Changed from aiUrl to emailUrl
   constructor(private http: HttpClient) {}
 
   getEvents(): Observable<Event[]> {
@@ -29,10 +32,14 @@ export class ParticipantService {
   }
 
   submitAnswers(participantData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/participants/answers`, participantData);
+    return this.http.post(`${this.apiUrl}/answers`, participantData);
   }
   getParticipants(eventId: number): Observable<EventParticipant[]> {
-    return this.http.get<EventParticipant[]>(`${this.apiUrl}/event/${eventId}`);
+    return this.http.get<EventParticipant[]>(`http://localhost:8089/examen/event/${eventId}`);
+  }
+
+  getParticipantsApproved(eventId: number): Observable<EventParticipant[]> {
+    return this.http.get<EventParticipant[]>(`http://localhost:8089/examen/event/${eventId}/approved`);
   }
   // Sauvegarder la moyenne des notes pour un participant
   saveParticipantScore(participantId: number, average: number): Observable<any> {
@@ -47,7 +54,7 @@ export class ParticipantService {
     return this.http.get<number>(`${this.apiUrl}/${participantId}/average-score`);
   }
   getParticipant(eventId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/event/${eventId}`);
+    return this.http.get<any[]>(`http://localhost:8089/examen/event/${eventId}`);
   }
    // Méthode pour envoyer un email aux participants sélectionnés
    sendEmail(emails: string[], subject: string, message: string): Observable<any> {
@@ -57,7 +64,7 @@ export class ParticipantService {
       message: message
     };
    
-    return this.http.post(this.aiUrl, emailRequest);
+    return this.http.post(this.emailUrl, emailRequest);
   }
    // Fonction pour générer le QR Code en base64
    generateQRCode(participantData: any): Promise<string> {
@@ -100,7 +107,7 @@ export class ParticipantService {
       formData.append('pdf', pdfBlob, 'participant_info.pdf');  // Ajouter le PDF en pièce jointe
 
       // Envoi du formulaire avec l'email et le fichier PDF à l'API backend
-      this.http.post('http://localhost:8089/api/emails/send', formData).subscribe({
+      this.http.post(this.emailUrl, formData).subscribe({
         next: (response) => {
           console.log('Email envoyé avec succès:', response);
         },
@@ -123,72 +130,55 @@ export class ParticipantService {
       });
   }
    // Fonction pour envoyer l'email avec le QR Code inclus dans le message HTML
-   sendEmailWithDesign(selectedEmails: string[], participantData: any): Observable<any> {
-    return new Observable(observer => {
-      this.generateQRCodeBase64(participantData.name).then((qrCodeUrl: string) => {
-        console.log('QR Code généré:', qrCodeUrl); // Vérification de l'URL en base64 du QR code
-        if (!qrCodeUrl || qrCodeUrl.startsWith('data:image/png;base64,')) {
-          console.log('QR Code est valide!');
-        } else {
-          console.log('QR Code invalide:', qrCodeUrl);
-        }
-        // HTML pour le contenu de l'email
-        const emailHtml = `
-       <html>
-  <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 40px;">
-    <table style="width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; border: 1px solid #ccc; box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);">
-      <tr>
-        <td style="text-align: center; padding: 20px; background-color: #4CAF50; border-radius: 8px 8px 0 0;">
-          <h2 style="color: #ffffff; font-size: 28px; font-weight: bold;">Votre Inscription à l'Événement</h2>
-          <p style="font-size: 16px; color: #ffffff;">Bonjour ${participantData.name},</p>
-        </td>
-      </tr>
-      <tr>
-        <td style="text-align: center; padding: 20px; background-color: #ffffff;">
-          <p style="font-size: 18px; color: #333333; font-weight: bold;">Voici votre récapitulatif de participation :</p>
-          <ul style="font-size: 16px; color: #555555; list-style-type: none; padding-left: 0; text-align: left; margin-top: 10px;">
-            <li><strong>Nom :</strong> ${participantData.name}</li>
-            <li><strong>Email :</strong> ${participantData.email}</li>
-          </ul>
-          <p style="font-size: 16px; color: #555555; margin-top: 20px;">Nous avons bien pris en compte votre inscription.</p>
-          <p style="font-size: 16px; color: #555555;">Scannez le QR code ci-dessous pour accéder à l'événement.</p>
-          
-          <!-- QR Code -->
-          <div style="text-align: center; margin-top: 20px;">
-          <a href="${qrCodeUrl}" target="_blank"> qr code  </a>
-            <img src="${qrCodeUrl}" alt="QR Code" style="width: 150px; height: 150px; border: 3px solid #4CAF50; border-radius: 8px; box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);" />
-         
-            </div>
-          
-          <p style="font-size: 14px; color: #777777; margin-top: 20px;">Ceci est un message généré automatiquement.</p>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>
-      `;
-      console.log('HTML de l\'email:', emailHtml);
-        // Préparation de l'email
-        const emailRequest = {
-          emails: selectedEmails,
-          subject: 'Notification Importante',
-          message: emailHtml
-        };
+   sendEmailWithDesign(emails: string[], participantData: any, eventId: number, participationId: number): Observable<any> {
+    const emailHtml = `
+      <html>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 40px;">
+          <table style="width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; border: 1px solid #ccc; box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);">
+            <tr>
+              <td style="text-align: center; padding: 20px; background-color: #4CAF50; border-radius: 8px 8px 0 0;">
+                <h2 style="color: #ffffff; font-size: 28px; font-weight: bold;">Votre Inscription à l'Événement</h2>
+                <p style="font-size: 16px; color: #ffffff;">Bonjour ${participantData.name},</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align: center; padding: 20px; background-color: #ffffff;">
+                <p style="font-size: 18px; color: #333333; font-weight: bold;">Voici votre récapitulatif de participation :</p>
+                <ul style="font-size: 16px; color: #555555; list-style-type: none; padding-left: 0; text-align: left; margin-top: 10px;">
+                  <li><strong>Nom :</strong> ${participantData.name}</li>
+                  <li><strong>Email :</strong> ${participantData.email}</li>
+                  <li><strong>ID Événement :</strong> ${eventId}</li>
+                  <li><strong>ID Participation :</strong> ${participationId}</li>
+                </ul>
+                <p style="font-size: 16px; color: #555555; margin-top: 20px;">Nous avons bien pris en compte votre inscription.</p>
+                <p style="font-size: 14px; color: #777777; margin-top: 20px;">Ceci est un message généré automatiquement.</p>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `;
 
-        // Envoi de l'email via l'API backend
-        this.http.post(this.aiUrl, emailRequest).subscribe({
-          next: (response) => {
-            observer.next(response);
-            observer.complete();
-          },
-          error: (error) => {
-            observer.error(error);
-          }
-        });
-      }).catch((error) => {
-        observer.error('Erreur lors de la génération du QR code: ' + error);
-      });
+    return this.http.post(`${this.emailUrl}/send`, {
+      emails: emails,
+      subject: 'Confirmation de participation',
+      message: emailHtml,
+      id: participationId
     });
   }
   
+  // Update participant's decision
+  updateParticipantDecision(participantId: number, decision: boolean): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${participantId}/decision`, { decision });
+  }
+
+  // Get participant by email
+  getParticipantByEmail(email: string): Observable<Participant> {
+    return this.http.get<Participant>(`${this.apiUrl}/email/${email}`);
+  }
+
+  getParticipantsByEventAndApproved(eventId: number): Observable<EventParticipantModel[]> {
+    console.log(`Fetching approved participants for event ${eventId} from: http://localhost:8089/examen/event/${eventId}/approved`);
+    return this.http.get<EventParticipantModel[]>(`http://localhost:8089/examen/event/${eventId}/approved`);
+  }
 }

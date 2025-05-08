@@ -4,26 +4,29 @@
 <div *ngIf="participants.length > 0; else noParticipants" class="participants-list">
   <div *ngFor="let eventParticipant of participants;let i = index;" class="participant-card">
     <div class="participant-header">
-      <strong>{{ eventParticipant.participant?.name || 'Nom non disponible' }}</strong>
-      <span class="participant-email">{{ eventParticipant.participant?.email || 'Email non disponible' }}</span>
+      <strong>{{ eventParticipant.participant.name || 'Nom non disponible' }}</strong>
+      <span class="participant-email">{{ eventParticipant.participant.email || 'Email non disponible' }}</span>
     </div>
     <p><strong>Réponses:</strong></p>
     <ul>
-      <li *ngFor="let answer of eventParticipant.answers;let idx = index; " class="answer-item">
-        <strong>Question:</strong> {{ questions[idx] }}<br />
-        <strong>Réponse:</strong> {{ answer }}
+      <li *ngFor="let answer of eventParticipant.answers; let idx = index;" class="answer-item">
+        <span class="question">🔹 Question: {{ questions[idx] }}</span>
+        <span class="response">✏️ Réponse: {{ answer }}</span>
+        
         <!-- Champ pour ajouter une note -->
-        <label for="note-{{i}}-{{idx}}">Note (1-5): </label>
-        <input 
+        <label for="note-{{i}}-{{idx}}" *ngIf="!isNoted(i)">Note (1-5):</label>
+        <input *ngIf="!isNoted(i)"
           type="number" 
           id="note-{{i}}-{{idx}}" 
           [(ngModel)]="participantNotes[i][idx]" 
           min="1" max="5" 
           (ngModelChange)="updateNote(i, idx, $event)" />
-    </li>
+      </li>
+      
     </ul>
-    <p><strong>Moyenne des notes :</strong> {{ calculateAverage(i) | number: '1.1-1' }}</p>
-    <button mat-button (click)="saveSingleParticipantScore(i)">Enregistrer les notes</button>
+    <p *ngIf="isNoted(i)"><strong>Moyenne des notes :</strong>{{participantScores[i]}}</p>
+    <p *ngIf="!isNoted(i)"><strong>Moyenne des notes :</strong> {{ calculateAverage(i) | number: '1.1-1' }}</p>
+    <button *ngIf="!isNoted(i)" mat-button (click)="saveSingleParticipantScore(i)">Enregistrer les notes</button>
   </div>
 </div>
 

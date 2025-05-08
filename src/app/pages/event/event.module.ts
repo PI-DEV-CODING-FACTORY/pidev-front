@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { EVENT_ROUTES } from './event.routes'; 
 import { HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule,FormsModule } from '@angular/forms';
 
 // Services
 import { EventService } from '../../services/event.service'; 
@@ -14,6 +14,7 @@ import { ProposalService } from '../../services/proposal.service';
   imports: [
     HttpClientModule,
     ReactiveFormsModule,
+    FormsModule,
     CommonModule,
     RouterModule.forChild(EVENT_ROUTES)
   ],

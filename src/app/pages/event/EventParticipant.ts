@@ -7,6 +7,7 @@ export interface EventParticipant {
       name: string;
       email: string;
       average_score: number;
+      status: string;
     };
     answers: string[];
     

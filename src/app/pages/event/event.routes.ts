@@ -18,5 +18,9 @@ export const EVENT_ROUTES: Routes = [
         path: 'viewUser', 
         loadComponent: () => import('./User/viewUser.component').then(m => m.AffichageComponent)
     },
+    { 
+        path: ':id/teams',
+        loadComponent: () => import('./team-management/team-management.component').then(m => m.TeamManagementComponent)
+    },
  
 ];
