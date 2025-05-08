@@ -48,6 +48,30 @@ interface CourseWithProgress extends CourseType {
                     </form>
                 </p-dialog>
             </div>
+
+            <!-- Recommended Courses Section -->
+            <div class="recommended-section">
+                <div class="section-title">Recommended for you</div>
+                <div class="courses-grid">
+                    <div *ngFor="let course of recommendedCourses" class="course-item">
+                        <p-card [header]="course.title" styleClass="course-card recommended-card">
+                            <div class="card-content">
+                                <p class="course-description">{{ course.description }}</p>
+
+                                <div class="tag-container">
+                                    <p-tag [value]="course.difficultyLevel" [severity]="getDifficultySeverity(course.difficultyLevel)"></p-tag>
+                                </div>
+
+                                <div class="card-footer">
+                                    <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>
+                                    <p-button label="Explore" icon="pi pi-arrow-right" [routerLink]="['/courses', course.id]" styleClass="p-button-rounded"></p-button>
+                                </div>
+                            </div>
+                        </p-card>
+                    </div>
+                </div>
+            </div>
+
             <div class="courses-grid">
                 <div *ngFor="let course of courses" class="course-item">
                     <p-card [header]="course.title" styleClass="course-card">
@@ -259,6 +283,42 @@ interface CourseWithProgress extends CourseType {
                     color: #e2e8f0;
                 }
             }
+
+            /* Add styles for recommended courses section */
+            .recommended-section {
+                margin-bottom: 3rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: #2c3e50;
+                margin-bottom: 1.25rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 2px solid #e9ecef;
+            }
+
+            :host ::ng-deep .recommended-card {
+                border-left: 4px solid #4caf50;
+            }
+
+            .course-description {
+                margin: 0.5rem 0 1rem;
+                color: #6c757d;
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+
+            .tag-container {
+                margin-bottom: 1rem;
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 768px) {
+                .section-title {
+                    text-align: center;
+                }
+            }
         `
     ]
 })
@@ -270,7 +330,128 @@ export class CoursesWidget implements OnInit {
     visible: boolean = false;
     courseForm: FormGroup;
 
-    // Add this property to your component
+    // Add recommended courses static data
+    recommendedCourses: CourseWithProgress[] = [
+        {
+            id: 1, // Changed from 'rec1' to 1
+            title: 'Introduction to Machine Learning',
+            description: 'Learn the fundamentals of machine learning algorithms',
+            difficultyLevel: 'INTERMEDIATE',
+            lessons: [
+                {
+                    id: 1,
+                    title: 'ML Basics',
+                    content: '',
+                    examples: '',
+                    createdAt: '',
+                    updatedAt: '',
+                    quizzes: [],
+                    studentProgresses: [],
+                    exampleHistories: []
+                }, // Changed from 'l1' to 1
+                {
+                    id: 2,
+                    title: 'Supervised Learning',
+                    content: '',
+                    examples: '',
+                    createdAt: '',
+                    updatedAt: '',
+                    quizzes: [],
+                    studentProgresses: [],
+                    exampleHistories: []
+                } // Changed from 'l2' to 2
+            ],
+            generatedByAi: false,
+            examples: '',
+            content: '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            quizzes: [],
+            studentProgresses: [],
+            exampleHistories: [],
+            progressPercentage: 0
+        },
+        {
+            id: 2, // Changed from 'rec2' to 2
+            title: 'Web Development with Angular',
+            description: 'Master Angular framework for frontend development',
+            difficultyLevel: 'BEGINNER',
+            lessons: [
+                {
+                    id: 3,
+                    title: 'Components',
+                    content: '',
+                    examples: '',
+                    createdAt: '',
+                    updatedAt: '',
+                    quizzes: [],
+                    studentProgresses: [],
+                    exampleHistories: []
+                }, // Changed from 'l3' to 3
+                {
+                    id: 4,
+                    title: 'Services',
+                    content: '',
+                    examples: '',
+                    createdAt: '',
+                    updatedAt: '',
+                    quizzes: [],
+                    studentProgresses: [],
+                    exampleHistories: []
+                } // Changed from 'l4' to 4
+            ],
+            generatedByAi: false,
+            examples: '',
+            content: '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            quizzes: [],
+            studentProgresses: [],
+            exampleHistories: [],
+            progressPercentage: 0
+        },
+        {
+            id: 3, // Changed from 'rec3' to 3
+            title: 'Advanced Data Structures',
+            description: 'Deep dive into complex data structures and algorithms',
+            difficultyLevel: 'ADVANCED',
+            lessons: [
+                {
+                    id: 5,
+                    title: 'Trees',
+                    content: '',
+                    examples: '',
+                    createdAt: '',
+                    updatedAt: '',
+                    quizzes: [],
+                    studentProgresses: [],
+                    exampleHistories: []
+                }, // Changed from 'l5' to 5
+                {
+                    id: 6,
+                    title: 'Graphs',
+                    content: '',
+                    examples: '',
+                    createdAt: '',
+                    updatedAt: '',
+                    quizzes: [],
+                    studentProgresses: [],
+                    exampleHistories: []
+                } // Changed from 'l6' to 6
+            ],
+            generatedByAi: false,
+            examples: '',
+            content: '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            quizzes: [],
+            studentProgresses: [],
+            exampleHistories: [],
+            progressPercentage: 0
+        }
+    ];
+
+    // Level options remain the same
     levelOptions = [
         { label: 'Beginner', value: 'BEGINNER' },
         { label: 'Medium', value: 'INTERMEDIATE' },
@@ -322,9 +503,8 @@ export class CoursesWidget implements OnInit {
             if (courseProgress && courseProgress.length > 0) {
                 // Calculate average score or completion percentage
                 const totalScore = courseProgress.reduce((sum, p) => {
-                    // You can customize this calculation based on your data model
-                    // For example, using score, or checking if lessons/quizzes are completed
-                    return sum + (p.score || 0);
+                    // Convert score to number if it's a string or use 0 if null/undefined
+                    return sum + (p.score ? Number(p.score) : 0);
                 }, 0);
 
                 // Calculate percentage based on your scoring system
