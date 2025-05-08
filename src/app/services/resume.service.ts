@@ -26,7 +26,7 @@ interface ApiResume {
     providedIn: 'root'
 })
 export class ResumeService {
-    private apiUrl = 'http://localhost:8089/api/resumes';
+    private apiUrl = 'http://localhost:8087/api/resumes';
 
     constructor(private http: HttpClient) {}
 
