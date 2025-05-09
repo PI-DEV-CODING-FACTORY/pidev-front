@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormGroup, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 import { CourseType, StudentProgress } from '../../../models/course.model';
-
+import { ApiResponse,Recommendation } from '../../../services/course.service';
 import { CourseService } from '../../../services/course.service';
 import { StudentProgressService } from '../../../services/student-progress.service';
 import { ButtonModule } from 'primeng/button';
@@ -331,125 +331,7 @@ export class CoursesWidget implements OnInit {
     courseForm: FormGroup;
 
     // Add recommended courses static data
-    recommendedCourses: CourseWithProgress[] = [
-        {
-            id: 1, // Changed from 'rec1' to 1
-            title: 'Introduction to Machine Learning',
-            description: 'Learn the fundamentals of machine learning algorithms',
-            difficultyLevel: 'INTERMEDIATE',
-            lessons: [
-                {
-                    id: 1,
-                    title: 'ML Basics',
-                    content: '',
-                    examples: '',
-                    createdAt: '',
-                    updatedAt: '',
-                    quizzes: [],
-                    studentProgresses: [],
-                    exampleHistories: []
-                }, // Changed from 'l1' to 1
-                {
-                    id: 2,
-                    title: 'Supervised Learning',
-                    content: '',
-                    examples: '',
-                    createdAt: '',
-                    updatedAt: '',
-                    quizzes: [],
-                    studentProgresses: [],
-                    exampleHistories: []
-                } // Changed from 'l2' to 2
-            ],
-            generatedByAi: false,
-            examples: '',
-            content: '',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            quizzes: [],
-            studentProgresses: [],
-            exampleHistories: [],
-            progressPercentage: 0
-        },
-        {
-            id: 2, // Changed from 'rec2' to 2
-            title: 'Web Development with Angular',
-            description: 'Master Angular framework for frontend development',
-            difficultyLevel: 'BEGINNER',
-            lessons: [
-                {
-                    id: 3,
-                    title: 'Components',
-                    content: '',
-                    examples: '',
-                    createdAt: '',
-                    updatedAt: '',
-                    quizzes: [],
-                    studentProgresses: [],
-                    exampleHistories: []
-                }, // Changed from 'l3' to 3
-                {
-                    id: 4,
-                    title: 'Services',
-                    content: '',
-                    examples: '',
-                    createdAt: '',
-                    updatedAt: '',
-                    quizzes: [],
-                    studentProgresses: [],
-                    exampleHistories: []
-                } // Changed from 'l4' to 4
-            ],
-            generatedByAi: false,
-            examples: '',
-            content: '',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            quizzes: [],
-            studentProgresses: [],
-            exampleHistories: [],
-            progressPercentage: 0
-        },
-        {
-            id: 3, // Changed from 'rec3' to 3
-            title: 'Advanced Data Structures',
-            description: 'Deep dive into complex data structures and algorithms',
-            difficultyLevel: 'ADVANCED',
-            lessons: [
-                {
-                    id: 5,
-                    title: 'Trees',
-                    content: '',
-                    examples: '',
-                    createdAt: '',
-                    updatedAt: '',
-                    quizzes: [],
-                    studentProgresses: [],
-                    exampleHistories: []
-                }, // Changed from 'l5' to 5
-                {
-                    id: 6,
-                    title: 'Graphs',
-                    content: '',
-                    examples: '',
-                    createdAt: '',
-                    updatedAt: '',
-                    quizzes: [],
-                    studentProgresses: [],
-                    exampleHistories: []
-                } // Changed from 'l6' to 6
-            ],
-            generatedByAi: false,
-            examples: '',
-            content: '',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            quizzes: [],
-            studentProgresses: [],
-            exampleHistories: [],
-            progressPercentage: 0
-        }
-    ];
+    recommendedCourses: CourseWithProgress[] = [];
 
     // Level options remain the same
     levelOptions = [
@@ -468,6 +350,7 @@ export class CoursesWidget implements OnInit {
 
     ngOnInit(): void {
         this.loadCoursesAndProgress();
+        this.loadRecommendedCourses();
     }
 
     loadCoursesAndProgress(): void {
@@ -490,6 +373,38 @@ export class CoursesWidget implements OnInit {
             },
             error: (error) => {
                 console.error('Error fetching courses:', error);
+            }
+        });
+    }
+
+    loadRecommendedCourses(): void {
+        const top_n = 3;
+        this.courseService.recommandCourse(top_n).subscribe({
+            next: (response: ApiResponse) => {
+                this.recommendedCourses = response.recommendations.map((item: Recommendation) => ({
+                    id: Math.floor(Math.random() * 1000), // Generate a unique ID
+                    title: item.formation,
+                    description: `Compétences: ${item.competences.join(', ')}. ` +
+                               `Centre d'intérêt: ${item.centre_interet || 'BEGINNER'}. ` +
+                               `Durée: ${item.duree || 0} mois. ` +
+                               `Note: ${item.note || 0}/5. ` +
+                               `Score de similarité: ${item.similarity_score.toFixed(2)}.`,
+                    difficultyLevel: 'BEGINNER', // Default to BEGINNER as a safe choice
+                    lessons: [],
+                    generatedByAi: true,
+                    examples: '',
+                    content: '',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    quizzes: [],
+                    studentProgresses: [],
+                    exampleHistories: [],
+                    progressPercentage: 0
+                }));
+            },
+            error: (err) => {
+                console.error('Error fetching recommended courses:', err);
+                this.recommendedCourses = [];
             }
         });
     }
