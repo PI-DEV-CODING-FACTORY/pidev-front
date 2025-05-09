@@ -42,6 +42,11 @@ import { ButtonModule } from 'primeng/button';
                         <span>Evenements</span>
                     </a>
                 </li>
+                 <li>
+                    <a (click)="router.navigate(['/prediction'], { fragment: 'features' })" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
+                        <span>Predict</span>
+                    </a>
+                </li>
                 <li>
                     <a (click)="scrollToContact()" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
                         <span>Contact</span>

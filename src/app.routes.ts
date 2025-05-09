@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
 import { SubscriptionComponent } from './app/pages/public/components/subscription/subscription.component';
 import { Component } from '@angular/core';
 import { FormationsWidget } from './app/pages/landing/components/formationswidget';
+import { PredictionComponent } from './app/pages/prediction.component';
 
 export const appRoutes: Routes = [
     {
@@ -80,6 +81,7 @@ export const appRoutes: Routes = [
             }
         ]
     },
+    {path: 'prediction', component: PredictionComponent},
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },
     { path: '**', redirectTo: '/notfound' }
