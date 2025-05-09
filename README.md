@@ -6,7 +6,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 #  🎓 Academic Management Platform
 This platform is designed to streamline the management of Final Year Projects (FYPs), course enrollment, participation in academic events, and includes a discussion forum to encourage technical exchanges between students. It aims to centralize student needs in a unified, modern, and scalable ecosystem.
 
-# Esprit_school_of_engineering.
+#Esprit_school_of_engineering.
 
 ✨ Key Features
 
