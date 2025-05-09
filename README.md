@@ -1,7 +1,24 @@
-# Sakai19
+# Coding Factory 
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.6.
 
+
+#  🎓 Academic Management Platform
+This platform is designed to streamline the management of Final Year Projects (FYPs), course enrollment, participation in academic events, and includes a discussion forum to encourage technical exchanges between students. It aims to centralize student needs in a unified, modern, and scalable ecosystem.
+
+✨ Key Features
+📝 FYP Management: Submit, track, and validate final year projects.
+
+📚 Course Enrollment: Browse available courses and register with ease.
+
+📅 Academic Events: View event calendars, register, and participate.
+
+💬 Integrated Forum: A space for students to collaborate and discuss technical topics.
+
+🤖 Artificial Intelligence: Personalized recommendations and smart assistance for students.
+
+⚙️ Technical Architecture
+The project is built on a robust microservices architecture using Spring Boot. It is designed to be modular, scalable, and easy to maintain.
 ## Development server
 
 To start a local development server, run:
