@@ -87,6 +87,7 @@
                     label="Rejeter" 
                     icon="pi pi-times" 
                     class="p-button-danger"
+                    [loading]="rejectLoading"
                     (click)="onReject()"
                     *ngIf="inscription?.status?.toLowerCase() === 'pending'">
             </button>
@@ -94,6 +95,7 @@
                     label="Approuver" 
                     icon="pi pi-check" 
                     class="p-button-success"
+                    [loading]="approveLoading"
                     (click)="onApprove()"
                     *ngIf="inscription?.status?.toLowerCase() === 'pending'">
             </button>

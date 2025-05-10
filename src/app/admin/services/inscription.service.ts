@@ -36,4 +36,12 @@ export class InscriptionService {
     getDocument(id: string): Observable<Blob> {
         return this.http.get(`${this.apiUrl}/${id}/document`, { responseType: 'blob' });
     }
+
+    approveInscription(id: string): Observable<string> {
+        return this.http.put(`${this.apiUrl}/${id}/approve`, {}, { responseType: 'text' });
+    }
+
+    rejectIncription(id:string):Observable<string>{
+        return this.http.put(`${this.apiUrl}/${id}/reject`, {}, { responseType: 'text' });
+    }
 }

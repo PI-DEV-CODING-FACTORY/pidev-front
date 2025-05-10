@@ -5,11 +5,11 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { TimelineModule } from 'primeng/timeline';
-import { Inscription } from '../../services/inscription.service';
-import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { Inscription, InscriptionService } from '../../services/inscription.service';
 import { HttpClient } from '@angular/common/http';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-inscription-details',
@@ -27,6 +27,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
     styleUrls: ['./inscription-details.component.scss']
 })
 export class InscriptionDetailsComponent implements OnChanges {
+    approveLoading: boolean = false;
+    rejectLoading: boolean = false;
     @Input() visible: boolean = false;
     @Output() visibleChange = new EventEmitter<boolean>();
     @Input() inscription: any;
@@ -38,7 +40,9 @@ export class InscriptionDetailsComponent implements OnChanges {
 
     constructor(
         private http: HttpClient,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        private inscriptionService: InscriptionService,
+        private messageService: MessageService
     ) {}
 
     ngOnChanges(changes: SimpleChanges) {
@@ -59,13 +63,53 @@ export class InscriptionDetailsComponent implements OnChanges {
     }
 
     onApprove() {
-        this.approve.emit(this.inscription);
-        this.closeModal();
+        this.approveLoading = true;
+        this.inscriptionService.approveInscription(this.inscription.id).subscribe({
+            next: (response) => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Succès',
+                    detail: 'Inscription approuvée'
+                });
+                this.closeModal();
+                this.approveLoading = false;
+                // Emit after showing message and closing modal
+                this.approve.emit(this.inscription);
+            },
+            error: (error) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erreur',
+                    detail: 'Erreur lors de l\'approbation de l\'inscription'
+                });
+                this.approveLoading = false;
+            }
+        });
     }
-
+    
     onReject() {
-        this.reject.emit(this.inscription);
-        this.closeModal();
+        this.rejectLoading = true;
+        this.inscriptionService.rejectIncription(this.inscription.id).subscribe({
+            next: (response) => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Succès',
+                    detail: 'Inscription rejetée'
+                });
+                this.closeModal();
+                this.rejectLoading = false;
+                // Emit after showing message and closing modal
+                this.reject.emit(this.inscription);
+            },
+            error: (error) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erreur',
+                    detail: 'Erreur lors du rejet de l\'inscription'
+                });
+                this.rejectLoading = false;
+            }
+        });
     }
 
     getStatusSeverity(status: string): string {

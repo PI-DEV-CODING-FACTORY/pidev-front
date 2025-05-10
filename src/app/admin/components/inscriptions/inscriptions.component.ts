@@ -112,12 +112,6 @@ export class InscriptionsComponent implements OnInit {
             const updatedInscriptions = [...this.inscriptions()];
             updatedInscriptions[index] = { ...updatedInscriptions[index], status: 'approved' };
             this.inscriptions.set(updatedInscriptions);
-            
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Inscription approved successfully'
-            });
         }
     }
 
@@ -128,12 +122,6 @@ export class InscriptionsComponent implements OnInit {
             const updatedInscriptions = [...this.inscriptions()];
             updatedInscriptions[index] = { ...updatedInscriptions[index], status: 'rejected' };
             this.inscriptions.set(updatedInscriptions);
-            
-            this.messageService.add({
-                severity: 'info',
-                summary: 'Rejected',
-                detail: 'Inscription has been rejected'
-            });
         }
     }
 }
