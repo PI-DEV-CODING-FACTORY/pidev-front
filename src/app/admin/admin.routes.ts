@@ -15,7 +15,11 @@ const routes: Routes = [
             {
                 path: 'inscriptions',
                 loadComponent: () => import('./components/inscriptions/inscriptions.component').then(m => m.InscriptionsComponent)
-            }
+            },
+            // {
+            //     path: 'reports',
+            //     loadComponent: () => import('./components/inscriptions/inscriptions.component').then(m => m.InscriptionsComponent)
+            // }
         ]
     }
 ];

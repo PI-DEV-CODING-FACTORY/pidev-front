@@ -71,6 +71,7 @@ export class DashboardComponent implements OnInit {
     ngOnInit() {
         this.initChartData();
         this.initFormationDistribution();
+        
     }
 
     private initFormationDistribution() {

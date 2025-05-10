@@ -158,6 +158,7 @@ export class Login {
                         firstname: response.firstname,
                         lastname: response.lastname,
                         email: response.email,
+                        role: response.role,
                         profileImage: response.profilePicture
                     }));
                     this.messageService.add({

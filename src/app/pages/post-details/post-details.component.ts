@@ -170,7 +170,8 @@ export class PostDetailsComponent {
           firstname: user.firstname,
           lastname: user.lastname,
           email: user.email,
-          profileImage: user.profilePicture // Map 'profilePicture' to 'profileImage'
+          profileImage: user.profilePicture ,
+          role:user.role// Map 'profilePicture' to 'profileImage'
         }));
       
       this.filteredMentionUsers = [...this.mentionUsers];
