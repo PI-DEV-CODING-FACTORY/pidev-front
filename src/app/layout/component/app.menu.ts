@@ -30,13 +30,17 @@ export class AppMenu {
             if (currentUser) {
                 this.user = currentUser;
                 console.log("Current user logged: ", currentUser);
+                console.log(this.user);
+                this.buildMenuForRole(this.user.role);
             } else {
                 // Handle the case where currentUser is null
                 console.error('User is not logged in');
             }
         });
 
-        console.log(this.user);
+
+    }
+    private buildMenuForRole(role: string): void {
         if (this.user!.role === "ADMIN") {
             {
                 this.model = [
@@ -121,7 +125,7 @@ export class AppMenu {
                             { label: 'Manage Proposals', icon: 'pi pi-fw pi-th-large', routerLink: ['/manage-proposals'] },
                             { label: 'Technical Tests', icon: 'pi pi-fw pi-file-edit', routerLink: ['/technical-tests'] },
                             { label: 'Saved PFEs', icon: 'pi pi-fw pi-bookmark', routerLink: ['/saved-pfes'] },
-                            { label: 'Student Interests', icon: 'pi pi-fw pi-heart', routerLink: ['/student-interests'] }
+                            // { label: 'Student Interests', icon: 'pi pi-fw pi-heart', routerLink: ['/student-interests'] }
                         ]
                     },
                     {
@@ -141,6 +145,11 @@ export class AppMenu {
                                 label: 'My Notes',
                                 icon: 'pi pi-file-edit',
                                 routerLink: ['/notes']
+                            },
+                            {
+                                label: "Predection de la duree d'une Formation",
+                                icon: 'pi pi-file-edit',
+                                routerLink: ['/prediction']
                             }
                         ]
                     },
@@ -177,10 +186,11 @@ export class AppMenu {
                         { label: 'Add PFE', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pfe/add'] },
                         // { label: 'Internship Offers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/internship-offers'] },
                         { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/proposals'] },
-                       // { label: 'Manage Proposals', icon: 'pi pi-fw pi-th-large', routerLink: ['/manage-proposals'] },
-                       // { label: 'Technical Tests', icon: 'pi pi-fw pi-file-edit', routerLink: ['/technical-tests'] },
-                      //  { label: 'Saved PFEs', icon: 'pi pi-fw pi-bookmark', routerLink: ['/saved-pfes'] },
+                        // { label: 'Manage Proposals', icon: 'pi pi-fw pi-th-large', routerLink: ['/manage-proposals'] },
+                        // { label: 'Technical Tests', icon: 'pi pi-fw pi-file-edit', routerLink: ['/technical-tests'] },
+                        //  { label: 'Saved PFEs', icon: 'pi pi-fw pi-bookmark', routerLink: ['/saved-pfes'] },
                         //{ label: 'Student Interests', icon: 'pi pi-fw pi-heart', routerLink: ['/student-interests'] }
+                        { label: 'Internship Offers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/internship-offers'] },
                     ]
                 },
                 {
@@ -200,6 +210,11 @@ export class AppMenu {
                             label: 'My Notes',
                             icon: 'pi pi-file-edit',
                             routerLink: ['/notes']
+                        },
+                        {
+                            label: "Prediction de la duree d'une Formation",
+                            icon: 'pi pi-chart-line',
+                            routerLink: ['/prediction']
                         }
                     ]
                 },
@@ -214,16 +229,14 @@ export class AppMenu {
                     label: 'PFE Management',
                     items: [
                         { label: 'Search PFEs', icon: 'pi pi-fw pi-search', routerLink: ['/pfe'] },
-                        { label: 'Internship Offers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/internship-offers'] },
+
                         { label: 'Manage Proposals', icon: 'pi pi-fw pi-th-large', routerLink: ['/manage-proposals'] },
                         { label: 'Technical Tests', icon: 'pi pi-fw pi-file-edit', routerLink: ['/technical-tests'] },
                         { label: 'Saved PFEs', icon: 'pi pi-fw pi-bookmark', routerLink: ['/saved-pfes'] },
-                        { label: 'Student Interests', icon: 'pi pi-fw pi-heart', routerLink: ['/student-interests'] }
+                        // { label: 'Student Interests', icon: 'pi pi-fw pi-heart', routerLink: ['/student-interests'] }
                     ]
                 },
             ]
         }
     }
-
-
 }

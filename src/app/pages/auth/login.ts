@@ -129,58 +129,96 @@ export class Login {
             password: this.password
         };
 
-        this.http.post<AuthenticationResponse>('http://localhost:8083/api/auth/login', request)
-            .subscribe({
-                next: (response) => {
-                    console.log('Auth Response:', response);
+        // this.http.post<AuthenticationResponse>('http://localhost:8083/api/auth/login', request)
+        //     .subscribe({
+        //         next: (response) => {
+        //             console.log('Auth Response:', response);
 
-                    if (!response.jwt) {
-                        console.error('No token in response:', response);
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Erreur',
-                            detail: 'Erreur d\'authentification: Token manquant'
-                        });
-                        this.loading = false;
-                        return;
-                    }
+        //             if (!response.jwt) {
+        //                 console.error('No token in response:', response);
+        //                 this.messageService.add({
+        //                     severity: 'error',
+        //                     summary: 'Erreur',
+        //                     detail: 'Erreur d\'authentification: Token manquant'
+        //                 });
+        //                 this.loading = false;
+        //                 return;
+        //             }
 
-                    localStorage.setItem('token', response.jwt);
-                    localStorage.setItem('user', JSON.stringify({
-                        email: response.email,
-                        firstname: response.firstname,
-                        lastname: response.lastname,
-                        role: response.role,
-                        profilePicture: response.profilePicture
-                    }));
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        id: response.email,
-                        firstname: response.firstname,
-                        lastname: response.lastname,
-                        email: response.email,
-                        role: response.role,
-                        profileImage: response.profilePicture
-                    }));
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Succès',
-                        detail: 'Connexion réussie'
-                    });
+        //             localStorage.setItem('token', response.jwt);
+        //             localStorage.setItem('user', JSON.stringify({
+        //                 email: response.email,
+        //                 firstname: response.firstname,
+        //                 lastname: response.lastname,
+        //                 role: response.role,
+        //                 profilePicture: response.profilePicture
+        //             }));
+        //             localStorage.setItem('currentUser', JSON.stringify({
+        //                 id: response.email,
+        //                 firstname: response.firstname,
+        //                 lastname: response.lastname,
+        //                 email: response.email,
+        //                 role: response.role,
+        //                 profileImage: response.profilePicture
+        //             }));
 
-                    setTimeout(() => {
-                        this.loading = false;
-                        this.router.navigate(['/admin/dashboard']);
-                    }, 2500);
-                },
-                error: (error) => {
-                    console.error('Login error:', error);
-                    this.loading = false;
+        //             this.messageService.add({
+        //                 severity: 'success',
+        //                 summary: 'Succès',
+        //                 detail: 'Connexion réussie'
+        //             });
+
+        //             setTimeout(() => {
+        //                 this.loading = false;
+        //                 this.router.navigate(['/admin/dashboard']);
+        //             }, 2500);
+        //         },
+        //         error: (error) => {
+        //             console.error('Login error:', error);
+        //             this.loading = false;
+        //             this.messageService.add({
+        //                 severity: 'error',
+        //                 summary: 'Erreur',
+        //                 detail: error.error?.message || 'Email ou mot de passe incorrect'
+        //             });
+        //         }
+        //     });
+        this.authService.login(request).subscribe(
+            (response) => {
+                console.log('Auth Response:', response);
+                if (!response.jwt) {
+                    console.error('No token in response:', response);
                     this.messageService.add({
                         severity: 'error',
                         summary: 'Erreur',
-                        detail: error.error?.message || 'Email ou mot de passe incorrect'
+                        detail: 'Erreur d\'authentification: Token manquant'
                     });
+                    this.loading = false;
+
                 }
-            });
+
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Succès',
+                    detail: 'Connexion réussie'
+                });
+
+                setTimeout(() => {
+                    this.loading = false;
+                    this.router.navigate(['/admin/dashboard']);
+                }, 2500);
+            }
+            , (error) => {
+                console.error('Login error:', error);
+                this.loading = false;
+
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erreur',
+                    detail: error.error?.message || 'Email ou mot de passe incorrect'
+                });
+            }
+
+        );
     }
 }
