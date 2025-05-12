@@ -1,0 +1,491 @@
+<div class="container px-4 py-6 mx-auto">
+  <!-- Loading Skeleton -->
+  <div *ngIf="loading" class="overflow-hidden bg-white shadow-lg rounded-xl">
+    <div class="p-6">
+      <p-skeleton height="3rem" width="50%" styleClass="mb-4"></p-skeleton>
+      <p-skeleton height="1.5rem" width="30%" styleClass="mb-6"></p-skeleton>
+      
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div class="col-span-2">
+          <p-skeleton height="2rem" width="40%" styleClass="mb-3"></p-skeleton>
+          <p-skeleton height="1rem" styleClass="mb-2"></p-skeleton>
+          <p-skeleton height="1rem" styleClass="mb-2"></p-skeleton>
+          <p-skeleton height="1rem" width="80%" styleClass="mb-5"></p-skeleton>
+          
+          <p-skeleton height="2rem" width="40%" styleClass="mb-3"></p-skeleton>
+          <div class="flex gap-2 mb-5">
+            <p-skeleton height="2rem" width="6rem" styleClass="mr-2"></p-skeleton>
+            <p-skeleton height="2rem" width="6rem" styleClass="mr-2"></p-skeleton>
+            <p-skeleton height="2rem" width="6rem"></p-skeleton>
+          </div>
+          
+          <p-skeleton height="2rem" width="40%" styleClass="mb-3"></p-skeleton>
+          <div class="flex items-center gap-2 mb-5">
+            <p-skeleton shape="circle" size="3rem"></p-skeleton>
+            <div class="flex-1">
+              <p-skeleton height="1.5rem" styleClass="mb-2"></p-skeleton>
+              <p-skeleton height="1rem" width="60%"></p-skeleton>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-span-1">
+          <p-skeleton height="15rem" styleClass="mb-4"></p-skeleton>
+          <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+          <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+          <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Processing State -->
+  <div *ngIf="!loading && pfe && pfe.processing" class="mb-6 overflow-hidden bg-white shadow-lg rounded-xl">
+    <div class="p-6 text-center">
+      <i class="mb-4 text-5xl text-blue-500 pi pi-spin pi-spinner"></i>
+      <h2 class="mb-2 text-2xl font-bold text-gray-800">Processing PFE Project</h2>
+      <p class="mb-4 text-gray-600">The project is currently being processed. Some features may be limited until processing is complete.</p>
+      <p-progressBar mode="indeterminate" [style]="{'height': '6px'}" styleClass="mb-4"></p-progressBar>
+    </div>
+  </div>
+  
+  <!-- PFE Details Content -->
+  <div *ngIf="!loading && pfe" class="overflow-hidden bg-white shadow-lg rounded-xl">
+    <!-- Header -->
+    <div class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-800">{{pfe.title}}</h1>
+            <p-tag 
+              [value]="pfe.status" 
+              [severity]="getStatusSeverity(pfe.status)"
+            ></p-tag>
+            <p-tag *ngIf="pfe.processing" severity="warn" value="Processing"></p-tag>
+          </div>
+          <p class="text-lg text-gray-600">{{pfe.description}}</p>
+        </div>
+        <div class="flex gap-2">
+          <button 
+            pButton 
+            type="button" 
+            label="Send Proposal" 
+            icon="pi pi-send" 
+            class="p-button-primary"
+            (click)="sendProposal()"
+            [disabled]="pfe.processing"
+          ></button>
+
+          <button 
+            pButton 
+            type="button" 
+            [label]="isSaved ? 'Unsave' : 'Save'"
+            [icon]="isSaved ? 'pi pi-bookmark-remove' : 'pi pi-bookmark'"
+            [class]="isSaved ? 'p-button-outlined p-button-danger' : 'p-button-outlined p-button-primary'"
+            (click)="toggleSavePfe()"
+            [disabled]="pfe.processing"
+          ></button>
+          <button 
+            pButton 
+            type="button" 
+            label="Edit" 
+            icon="pi pi-pencil" 
+            class="p-button-outlined"
+            (click)="editPfe()"
+            [disabled]="pfe.processing"
+          ></button>
+          <button 
+            pButton 
+            type="button" 
+            label="Delete" 
+            icon="pi pi-trash" 
+            class="p-button-outlined p-button-danger"
+            (click)="confirmDelete()"
+            [disabled]="pfe.processing"
+          ></button>
+          <button 
+            pButton 
+            type="button" 
+            label="Back" 
+            icon="pi pi-arrow-left" 
+            class="p-button-outlined p-button-secondary"
+            (click)="goBack()"
+          ></button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Content -->
+    <div class="p-6">
+      <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <!-- Main Content -->
+        <div class="col-span-2 space-y-8">
+          <!-- Technologies Section -->
+          <div>
+            <h2 class="pb-2 mb-4 text-xl font-bold text-gray-800 border-b border-gray-200">
+              Technologies
+            </h2>
+            <div class="flex flex-wrap gap-2">
+              <p-chip *ngFor="let tech of getTechnologiesArray(pfe)" [label]="tech" styleClass="text-sm"></p-chip>
+            </div>
+          </div>
+          
+          <!-- Links Section -->
+          <div>
+            <h2 class="pb-2 mb-4 text-xl font-bold text-gray-800 border-b border-gray-200">
+              Project Resources
+            </h2>
+            <div class="space-y-4">
+              <div *ngIf="pfe.githubUrl" class="flex items-center">
+                <div class="p-3 mr-4 bg-gray-100 rounded-full">
+                  <i class="text-xl text-gray-700 pi pi-github"></i>
+                </div>
+                <div>
+                  <h3 class="font-medium text-gray-800">GitHub Repository</h3>
+                  <a [href]="pfe.githubUrl" target="_blank" class="text-blue-600 hover:underline">
+                    {{pfe.githubUrl}}
+                  </a>
+                </div>
+              </div>
+              
+              <div *ngIf="pfe.videoUrl" class="flex items-center">
+                <div class="p-3 mr-4 bg-gray-100 rounded-full">
+                  <i class="text-xl text-gray-700 pi pi-video"></i>
+                </div>
+                <div>
+                  <h3 class="font-medium text-gray-800">Video Presentation</h3>
+                  <a [href]="pfe.videoUrl" target="_blank" class="text-blue-600 hover:underline">
+                    Watch Video
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- PDF Preview Section -->
+          <div *ngIf="pfe.rapportUrl">
+            <h2 class="pb-2 mb-4 text-xl font-bold text-gray-800 border-b border-gray-200">
+              Project Report
+            </h2>
+            <div class="overflow-hidden border border-gray-200 rounded-lg bg-gray-50">
+              <div class="flex items-center justify-between p-3 bg-gray-100 border-b border-gray-200">
+                <div class="flex items-center">
+                  <i class="mr-2 text-red-500 pi pi-file-pdf"></i>
+                  <span class="font-medium">Project Report</span>
+                </div>
+                <div>
+                  <a 
+                    *ngIf="pfe.rapportUrl"
+                    pButton 
+                    type="button" 
+                    icon="pi pi-eye" 
+                    class="p-button-text p-button-sm"
+                    pTooltip="View Report"
+                    [href]="pfe.rapportUrl"
+                    target="_blank"
+                  ></a>
+                  <button 
+                    pButton 
+                    type="button" 
+                    icon="pi pi-download" 
+                    class="p-button-text p-button-sm"
+                    pTooltip="Download Report"
+                    (click)="downloadReport()"
+                    [disabled]="!pfe.rapportUrl"
+                  ></button>
+                  <button 
+                    pButton 
+                    type="button" 
+                    [icon]="useIframe ? 'pi pi-desktop' : 'pi pi-file'"
+                    class="p-button-text p-button-sm"
+                    [pTooltip]="useIframe ? 'Switch to Object Viewer' : 'Switch to Iframe Viewer'"
+                    (click)="togglePdfViewer()"
+                  ></button>
+                </div>
+              </div>
+              
+              <div class="pdf-container" style="height: 500px; width: 100%;">
+                <!-- PDF Loading Indicator -->
+                <div *ngIf="pdfLoading" class="flex items-center justify-center h-full">
+                  <div class="p-6 text-center">
+                    <i class="mb-3 text-4xl text-blue-500 pi pi-spin pi-spinner"></i>
+                    <p class="text-gray-600">Loading PDF preview...</p>
+                  </div>
+                </div>
+                
+                <!-- PDF Iframe -->
+                <iframe 
+                  *ngIf="sanitizedReportUrl && !pdfLoadError && useIframe"
+                  [src]="sanitizedReportUrl" 
+                  width="100%" 
+                  height="100%" 
+                  frameborder="0"
+                  allowfullscreen
+                  class="w-full h-full"
+                  (load)="onPdfLoad()"
+                ></iframe>
+                
+                <!-- Alternative PDF Viewer using object tag -->
+                <object 
+                  *ngIf="pfe.rapportUrl && !pdfLoadError && !useIframe"
+                  [data]="pfe.rapportUrl" 
+                  type="application/pdf" 
+                  width="100%" 
+                  height="100%"
+                  class="w-full h-full"
+                  (load)="onPdfLoad()"
+                >
+                  <div class="flex items-center justify-center h-full bg-gray-100">
+                    <div class="p-6 text-center">
+                      <i class="mb-3 text-4xl text-yellow-500 pi pi-exclamation-circle"></i>
+                      <p class="mb-4 text-gray-600">Your browser doesn't support embedded PDFs. Please use the buttons above to view or download the report.</p>
+                      <a 
+                        [href]="pfe.rapportUrl" 
+                        target="_blank" 
+                        class="p-button p-component p-button-outlined p-button-info"
+                      >
+                        <span class="p-button-icon p-button-icon-left pi pi-eye"></span>
+                        <span class="p-button-label">View Report</span>
+                      </a>
+                    </div>
+                  </div>
+                </object>
+                
+                <!-- Fallback Message -->
+                <div *ngIf="(pdfLoadError || (!pfe.rapportUrl && !pdfLoading))" class="flex items-center justify-center h-full">
+                  <div class="p-6 text-center">
+                    <i class="mb-3 text-4xl text-yellow-500 pi pi-exclamation-circle"></i>
+                    <p class="mb-4 text-gray-600">PDF preview is not available. Please try the alternative viewer or use the buttons above.</p>
+                    <div class="flex flex-col justify-center gap-2 sm:flex-row">
+                      <a 
+                        [href]="pfe.rapportUrl" 
+                        target="_blank" 
+                        class="p-button p-component p-button-outlined p-button-info"
+                      >
+                        <span class="p-button-icon p-button-icon-left pi pi-eye"></span>
+                        <span class="p-button-label">View Report</span>
+                      </a>
+                      <button 
+                        pButton 
+                        type="button" 
+                        label="Download Report" 
+                        icon="pi pi-download" 
+                        class="p-button-outlined"
+                        (click)="downloadReport()"
+                      ></button>
+                      <button 
+                        *ngIf="pdfLoadError"
+                        pButton 
+                        type="button" 
+                        label="Try Alternative Viewer" 
+                        icon="pi pi-sync" 
+                        class="p-button-outlined p-button-help"
+                        (click)="togglePdfViewer()"
+                      ></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-span-1">
+          <div class="p-6 border border-gray-200 rounded-lg shadow-sm bg-gray-50">
+            <!-- Student Section -->
+            <div class="pb-4 mb-6 border-b border-gray-200">
+              <h2 class="mb-4 text-xl font-bold text-gray-800">
+                Student
+              </h2>
+              <div class="flex items-center gap-3">
+                <p-avatar 
+                  [label]="getStudentInitials()" 
+                  styleClass="bg-blue-500"
+                  shape="circle"
+                  size="large"
+                ></p-avatar>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">{{studentName}}</h3>
+                  <p class="text-sm text-gray-500">Project Creator</p>
+                </div>
+              </div>
+            </div>
+
+            <h2 class="pb-2 mb-4 text-xl font-bold text-gray-800 border-b border-gray-200">
+              Project Details
+            </h2>
+            
+            <div class="space-y-4">
+              <div>
+                <h3 class="text-sm font-medium text-gray-500">Student ID</h3>
+                <p class="font-medium text-gray-800">{{pfe.studentId}}</p>
+              </div>
+              
+              <div *ngIf="pfe.openFor">
+                <h3 class="text-sm font-medium text-gray-500">Open For</h3>
+                <span 
+                  [ngClass]="{
+                    'bg-blue-100 text-blue-800': pfe.openFor === 'INTERNSHIP',
+                    'bg-purple-100 text-purple-800': pfe.openFor === 'JOB',
+                    'bg-indigo-100 text-indigo-800': pfe.openFor === 'BOTH'
+                  }"
+                  class="inline-block px-3 py-1 mt-1 text-sm font-medium rounded-full"
+                >
+                  {{pfe.openFor}}
+                </span>
+              </div>
+              
+              
+              
+              <div *ngIf="pfe.createdAt">
+                <h3 class="text-sm font-medium text-gray-500">Created At</h3>
+                <p class="text-gray-800">{{pfe.createdAt | date:'medium'}}</p>
+              </div>
+              
+              <div *ngIf="pfe.updatedAt">
+                <h3 class="text-sm font-medium text-gray-500">Last Updated</h3>
+                <p class="text-gray-800">{{pfe.updatedAt | date:'medium'}}</p>
+              </div>
+              
+              <p-divider></p-divider>
+              
+              <div>
+                <h3 class="mb-2 text-sm font-medium text-gray-500">Actions</h3>
+                <div class="space-y-2">
+                  <button 
+                    pButton 
+                    type="button" 
+                    [label]="isSaved ? 'Remove from Saved' : 'Save to List'"
+                    [icon]="isSaved ? 'pi pi-bookmark-remove' : 'pi pi-bookmark'"
+                    [class]="isSaved ? 'w-full p-button-outlined p-button-danger' : 'w-full p-button-outlined p-button-primary'"
+                    (click)="toggleSavePfe()"
+                    [disabled]="pfe.processing"
+                  ></button>
+                  <button 
+                    pButton 
+                    type="button" 
+                    label="Send Proposal" 
+                    icon="pi pi-send" 
+                    class="w-full p-button-primary"
+                    (click)="sendProposal()"
+                    [disabled]="pfe.processing"
+                  ></button>
+                  <a 
+                    *ngIf="pfe.rapportUrl && !pfe.processing"
+                    pButton 
+                    type="button" 
+                    label="View Report" 
+                    icon="pi pi-eye" 
+                    class="w-full p-button-outlined p-button-info"
+                    [href]="pfe.rapportUrl"
+                    target="_blank"
+                  ></a>
+                  <button 
+                    *ngIf="!pfe.rapportUrl || pfe.processing"
+                    pButton 
+                    type="button" 
+                    label="View Report" 
+                    icon="pi pi-eye" 
+                    class="w-full p-button-outlined p-button-info"
+                    disabled
+                  ></button>
+                  <button 
+                    pButton 
+                    type="button" 
+                    label="Download Report" 
+                    icon="pi pi-download" 
+                    class="w-full p-button-outlined"
+                    [disabled]="!pfe.rapportUrl || pfe.processing"
+                    (click)="downloadReport()"
+                  ></button>
+                  <button 
+                    pButton 
+                    type="button" 
+                    label="Share Project" 
+                    icon="pi pi-share-alt" 
+                    class="w-full p-button-outlined p-button-secondary"
+                    [disabled]="pfe.processing"
+                    (click)="shareProject()"
+                  ></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Not Found Message -->
+  <div *ngIf="!loading && !pfe" class="p-8 overflow-hidden text-center bg-white shadow-lg rounded-xl">
+    <i class="mb-4 text-5xl text-yellow-500 pi pi-exclamation-circle"></i>
+    <h2 class="mb-2 text-2xl font-bold text-gray-800">PFE Project Not Found</h2>
+    <p class="mb-6 text-gray-600">The PFE project you're looking for doesn't exist or has been removed.</p>
+    <button 
+      pButton 
+      type="button" 
+      label="Go Back to Projects" 
+      icon="pi pi-arrow-left" 
+      class="p-button-primary"
+      (click)="navigateToPfeList()"
+    ></button>
+  </div>
+</div>
+
+<p-confirmDialog 
+  [style]="{width: '450px'}" 
+  header="Confirm Deletion" 
+  icon="pi pi-exclamation-triangle"
+  acceptButtonStyleClass="p-button-danger"
+  rejectButtonStyleClass="p-button-text"
+></p-confirmDialog>
+
+<p-toast position="top-right"></p-toast>
+
+<p-dialog 
+    [(visible)]="showProposalDialog" 
+    [modal]="true" 
+    header="Send Proposal" 
+    [style]="{ width: '500px' }"
+    [closeOnEscape]="true"
+    [closable]="!submittingProposal"
+    [draggable]="false"
+>
+    <div class="p-fluid">
+        <div class="mb-4">
+            <label for="message" class="block mb-2 font-medium text-gray-700">Message</label>
+            <textarea 
+                pTextarea 
+                id="message" 
+                [(ngModel)]="proposalMessage" 
+                [rows]="5" 
+                [autoResize]="true"
+                placeholder="Write your proposal message here..."
+                class="w-full"
+                [disabled]="submittingProposal"
+            ></textarea>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2">
+            <button 
+                pButton 
+                type="button" 
+                label="Cancel" 
+                class="p-button-outlined p-button-secondary"
+                (click)="cancelProposal()"
+                [disabled]="submittingProposal"
+            ></button>
+            <button 
+                pButton 
+                type="button" 
+                label="Send Proposal" 
+                icon="pi pi-send"
+                (click)="submitProposal()"
+                [loading]="submittingProposal"
+            ></button>
+        </div>
+    </ng-template>
+</p-dialog>

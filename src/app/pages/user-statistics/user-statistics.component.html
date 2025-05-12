@@ -1,0 +1,124 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="flex justify-center items-center h-96">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+  </div>
+
+  <div *ngIf="!isLoading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Statistical dashboard</h1>
+      <p class="mt-2 text-sm text-gray-600">Data visualization and user performance</p>
+    </div>
+
+    <!-- Stats Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Posts Stats -->
+      <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="p-3 bg-blue-50 rounded-lg">
+              <mat-icon class="text-blue-600">post_add</mat-icon>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Posts</p>
+              <h3 class="text-2xl font-bold text-gray-900">{{ totalPosts }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments Stats -->
+      <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="p-3 bg-purple-50 rounded-lg">
+              <mat-icon class="text-purple-600">question_answer</mat-icon>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Answers</p>
+              <h3 class="text-2xl font-bold text-gray-900">{{ totalComments }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Best Answers Stats -->
+      <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="p-3 bg-amber-50 rounded-lg">
+              <mat-icon class="text-amber-600">star</mat-icon>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-600">Best answers</p>
+              <h3 class="text-2xl font-bold text-gray-900">{{ totalBestAnswers }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+      <!-- Technologies Distribution Chart -->
+      <div class="md:col-span-5 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <!-- <h2 class="text-lg font-semibold text-gray-900 mb-4">Distribution des technologies</h2> -->
+        <div class="h-96">
+          <canvas id="technologiesChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Activity Chart -->
+      <div class="md:col-span-7 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <!-- <h2 class="text-lg font-semibold text-gray-900 mb-4">Activity over time</h2> -->
+        <div class="h-96">
+          <p-chart type="bar" [data]="chartData" [options]="chartOptions" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Contributors Section -->
+    <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-900">Top Contributeurs</h2>
+      </div>
+      <div class="divide-y divide-gray-100">
+        <div *ngFor="let contributor of topContributors; let i = index" class="p-6 hover:bg-gray-50 transition-colors">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full"
+                [ngClass]="{'bg-amber-100 text-amber-800': i === 0, 'bg-gray-100 text-gray-700': i > 0}">
+                <span class="font-semibold">{{ i + 1 }}</span>
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">{{ contributor.user.firstname }} {{ contributor.user.lastname }}
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-8">
+              <div class="text-center">
+                <p class="text-2xl font-bold text-blue-600">{{ contributor[1] }}</p>
+                <mat-icon class="text-blue-500 mr-1"
+                  style="font-size: 14px; width: 14px; height: 14px;">post_add</mat-icon>
+                <p class="text-sm text-gray-500">Posts</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-purple-600">{{ contributor[2] }}</p>
+                <mat-icon class="text-purple-500 mr-1"
+                  style="font-size: 14px; width: 14px; height: 14px;">comment</mat-icon>
+                <p class="text-sm text-gray-500">Answers</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-amber-600">{{ contributor[3] }}</p>
+                <mat-icon class="text-amber-500 mr-1"
+                  style="font-size: 14px; width: 14px; height: 14px;">star</mat-icon>
+                <p class="text-sm text-gray-500">Best</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
