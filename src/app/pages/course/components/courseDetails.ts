@@ -26,7 +26,7 @@ import { NgbdScrollSpyItems } from './ngbdscrollspyItems';
                         <p-skeleton height="1rem" width="85%" styleClass="mb-2"></p-skeleton>
                         <p-skeleton height="1rem" width="80%"></p-skeleton>
                     </div>
-                    
+
                     <!-- Skeleton for lessons -->
                     <div class="content-wrapper">
                         <div class="main-content">
@@ -41,7 +41,7 @@ import { NgbdScrollSpyItems } from './ngbdscrollspyItems';
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Skeleton for navigation -->
                         <div style="width: 250px">
                             <p-skeleton height="2rem" width="80%" styleClass="mb-2"></p-skeleton>
@@ -52,7 +52,7 @@ import { NgbdScrollSpyItems } from './ngbdscrollspyItems';
                     </div>
                 </div>
             </ng-container>
-            
+
             <ng-template #loadedContent>
                 <div class="course-details p-4">
                     <h2 class="text-2xl font-bold mb-4">{{ course?.title }}</h2>
@@ -63,17 +63,19 @@ import { NgbdScrollSpyItems } from './ngbdscrollspyItems';
             </ng-template>
         </div>
     `,
-    styles: [`
-        .content-wrapper {
-            display: flex;
-            gap: 2rem;
-            position: relative;
-        }
+    styles: [
+        `
+            .content-wrapper {
+                display: flex;
+                gap: 2rem;
+                position: relative;
+            }
 
-        .main-content {
-            flex: 1;
-        }
-    `]
+            .main-content {
+                flex: 1;
+            }
+        `
+    ]
 })
 export default class CourseDetailsComponent implements OnInit {
     course?: CourseType;
