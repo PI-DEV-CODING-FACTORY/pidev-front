@@ -74,11 +74,14 @@ interface CourseWithProgress extends CourseType {
 
                                     <div class="tag-container">
                                         <p-tag [value]="course.difficultyLevel" [severity]="getDifficultySeverity(course.difficultyLevel)"></p-tag>
-                                    </div>
-
-                                    <div class="card-footer">
+                                    </div>                                    <div class="card-footer">
                                         <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>
-                                        <p-button label="Explore" icon="pi pi-arrow-right" [routerLink]="['/courses', course.id]" styleClass="p-button-rounded"></p-button>
+                                        <p-button label="Explore" icon="pi pi-arrow-right" 
+                                            [routerLink]="['/courses', course.id]" 
+                                            styleClass="p-button-rounded"
+                                            [loading]="course.id === loadingCourseId"
+                                            (click)="startCourse(course.id)">
+                                        </p-button>
                                     </div>
                                 </div>
                             </p-card>
@@ -111,11 +114,13 @@ interface CourseWithProgress extends CourseType {
                                         <div class="progress-fill" [style.width.%]="course.progressPercentage || 0"></div>
                                     </div>
                                     <small class="progress-text">Progress: {{ course.progressPercentage || 0 }}%</small>
-                                </div>
-
-                                <div class="card-footer">
-                                    <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>
-                                    <p-button label="Start Learning" icon="pi pi-book" [routerLink]="['/courses', course.id]" styleClass="p-button-rounded"></p-button>
+                                </div>                                <div class="card-footer">
+                                    <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>                                    <p-button label="Start Learning" icon="pi pi-book" 
+                                        [routerLink]="['/courses', course.id]" 
+                                        styleClass="p-button-rounded"
+                                        [loading]="course.id === loadingCourseId"
+                                        (click)="startCourse(course.id)">
+                                    </p-button>
                                 </div>
                             </div>
                         </p-card>
@@ -380,6 +385,7 @@ export class CoursesWidget implements OnInit {
     // Loading states
     isCoursesLoading: boolean = true;
     isRecommendedLoading: boolean = true;
+    loadingCourseId: number | null = null;
 
     // Add recommended courses static data
     recommendedCourses: CourseWithProgress[] = [];
@@ -495,9 +501,7 @@ export class CoursesWidget implements OnInit {
 
     createCourseModal() {
         console.log('Create course modal');
-    }
-
-    getDifficultySeverity(difficulty: string): string {
+    }    getDifficultySeverity(difficulty: string): string {
         switch (difficulty) {
             case 'BEGINNER':
                 return 'success';
@@ -508,6 +512,16 @@ export class CoursesWidget implements OnInit {
             default:
                 return 'info';
         }
+    }
+
+    startCourse(courseId: number): void {
+        // Set the loading state for this specific course
+        this.loadingCourseId = courseId;
+        
+        // Simulate API request delay
+        setTimeout(() => {
+            this.loadingCourseId = null;
+        }, 1000); // Reset after navigation
     }
 
     showDialog() {
