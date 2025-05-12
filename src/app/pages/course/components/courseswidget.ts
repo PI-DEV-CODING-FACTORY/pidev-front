@@ -14,6 +14,7 @@ import { Dialog, DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 interface CourseWithProgress extends CourseType {
     progressPercentage?: number;
@@ -22,19 +23,16 @@ interface CourseWithProgress extends CourseType {
 @Component({
     selector: 'courses-widget',
     standalone: true,
-    imports: [CommonModule, RouterModule, ButtonModule, CardModule, TagModule, Dialog, ButtonModule, InputTextModule, ReactiveFormsModule, DropdownModule, SkeletonModule],
+    imports: [CommonModule, RouterModule, ButtonModule, CardModule, TagModule, Dialog, ButtonModule, InputTextModule, ReactiveFormsModule, DropdownModule, SkeletonModule, ProgressSpinnerModule],
     template: `
         <div class="widget-container">
             <div class="header-section">
                 <div class="title">Your courses</div>
                 <span class="subtitle">Choose a course and start your learning journey!</span>
-                <button (click)="createCourseModal()">Generate your costumized course</button>
-
-                <p-button (click)="showDialog()" label="Let AI Create Your Course!" />
+                <button (click)="createCourseModal()">Generate your costumized course</button> <p-button (click)="showDialog()" label="Let AI Create Your Course!" />
                 <p-dialog header="Create AI Course" [modal]="true" [(visible)]="visible" [style]="{ width: '30rem' }">
                     <span class="p-text-secondary block mb-8">Tell us what you want to learn.</span>
-                    <form [formGroup]="courseForm" (ngSubmit)="onSubmit()">
-                        <div class="form-field mb-4">
+                    <form [formGroup]="courseForm" (ngSubmit)="onSubmit()">                        <div class="form-field mb-4">
                             <label for="subject" class="form-label">Subject you want to learn</label>
                             <input pInputText id="subject" formControlName="subject" class="form-input" autocomplete="off" />
                         </div>
@@ -42,7 +40,13 @@ interface CourseWithProgress extends CourseType {
                             <label for="level" class="form-label">Your level</label>
                             <p-dropdown id="level" formControlName="level" [options]="levelOptions" optionLabel="label" optionValue="value" placeholder="Select level" [style]="{ width: '100%' }" appendTo="body"> </p-dropdown>
                         </div>
-                        <div class="flex justify-end gap-2">
+                        <div class="spinner-container" *ngIf="isFormSubmitting">
+                            <div class="spinner-content">
+                                <p-progressSpinner [style]="{ width: '60px', height: '60px' }" styleClass="custom-spinner" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+                                <div class="mt-3">Generating your course...</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2" *ngIf="!isFormSubmitting">
                             <p-button label="Cancel" severity="secondary" type="button" (click)="visible = false" />
                             <p-button type="submit" label="Save" />
                         </div>
@@ -266,16 +270,34 @@ interface CourseWithProgress extends CourseType {
             :host ::ng-deep .p-dropdown-items-wrapper {
                 max-height: 200px; /* Control the height of the dropdown list */
             }
-
             :host ::ng-deep .p-dropdown-item {
                 padding: 0.75rem 1rem;
                 font-size: 14px;
-            }
-
-            :host ::ng-deep .p-dialog {
+            }            :host ::ng-deep .p-dialog {
                 z-index: 1000;
             }
-
+            
+            :host ::ng-deep .custom-spinner .p-progress-spinner-circle {
+                stroke: #4caf50 !important;
+                animation-duration: 1s;
+            }
+            
+            /* Spinner container styles */
+            .spinner-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 1.5rem 0;
+                min-height: 100px;
+            }
+            
+            .spinner-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
             /* Ensure the dropdown opens properly in the dialog */
             :host ::ng-deep .p-dialog-content {
                 overflow: visible !important;
@@ -379,6 +401,7 @@ export class CoursesWidget implements OnInit {
     isCoursesLoading: boolean = true;
     isRecommendedLoading: boolean = true;
     loadingCourseId: number | null = null;
+    isFormSubmitting: boolean = false;
 
     // Add recommended courses static data
     recommendedCourses: CourseWithProgress[] = [];
@@ -521,14 +544,15 @@ export class CoursesWidget implements OnInit {
     showDialog() {
         this.visible = true;
     }
-
     onSubmit() {
         if (this.courseForm.valid) {
+            this.isFormSubmitting = true;
+
             const newCourse: Partial<CourseType> = {
                 title: 'not generated',
                 description: this.courseForm.value.subject,
                 generatedByAi: true,
-                difficultyLevel: 'BEGINNER',
+                difficultyLevel: this.courseForm.value.level || 'BEGINNER',
                 examples: '',
                 content: '',
                 createdAt: new Date().toISOString(),
@@ -542,6 +566,7 @@ export class CoursesWidget implements OnInit {
             this.courseService.createCourse(newCourse).subscribe({
                 next: (response) => {
                     console.log('Course created:', response);
+                    this.isFormSubmitting = false;
                     this.visible = false;
                     this.courseForm.reset();
                     // Refresh the courses list and log progress
@@ -549,6 +574,7 @@ export class CoursesWidget implements OnInit {
                 },
                 error: (error) => {
                     console.error('Error creating course:', error);
+                    this.isFormSubmitting = false;
                 }
             });
         }
