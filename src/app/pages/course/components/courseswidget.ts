@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormGroup, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 import { CourseType, StudentProgress } from '../../../models/course.model';
-import { ApiResponse,Recommendation } from '../../../services/course.service';
+import { ApiResponse, Recommendation } from '../../../services/course.service';
 import { CourseService } from '../../../services/course.service';
 import { StudentProgressService } from '../../../services/student-progress.service';
 import { ButtonModule } from 'primeng/button';
@@ -13,6 +13,7 @@ import { RouterModule } from '@angular/router';
 import { Dialog, DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
+import { SkeletonModule } from 'primeng/skeleton';
 
 interface CourseWithProgress extends CourseType {
     progressPercentage?: number;
@@ -21,7 +22,7 @@ interface CourseWithProgress extends CourseType {
 @Component({
     selector: 'courses-widget',
     standalone: true,
-    imports: [CommonModule, RouterModule, ButtonModule, CardModule, TagModule, Dialog, ButtonModule, InputTextModule, ReactiveFormsModule, DropdownModule],
+    imports: [CommonModule, RouterModule, ButtonModule, CardModule, TagModule, Dialog, ButtonModule, InputTextModule, ReactiveFormsModule, DropdownModule, SkeletonModule],
     template: `
         <div class="widget-container">
             <div class="header-section">
@@ -48,48 +49,78 @@ interface CourseWithProgress extends CourseType {
                     </form>
                 </p-dialog>
             </div>
-
             <!-- Recommended Courses Section -->
             <div class="recommended-section">
                 <div class="section-title">Recommended for you</div>
                 <div class="courses-grid">
-                    <div *ngFor="let course of recommendedCourses" class="course-item">
-                        <p-card [header]="course.title" styleClass="course-card recommended-card">
-                            <div class="card-content">
-                                <p class="course-description">{{ course.description }}</p>
-
-                                <div class="tag-container">
-                                    <p-tag [value]="course.difficultyLevel" [severity]="getDifficultySeverity(course.difficultyLevel)"></p-tag>
-                                </div>
-
-                                <div class="card-footer">
-                                    <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>
-                                    <p-button label="Explore" icon="pi pi-arrow-right" [routerLink]="['/courses', course.id]" styleClass="p-button-rounded"></p-button>
+                    <ng-container *ngIf="isRecommendedLoading; else recommendedContent">
+                        <!-- Skeleton loaders for recommended courses -->
+                        <div *ngFor="let i of [1, 2, 3]" class="course-item">
+                            <div class="skeleton-card">
+                                <p-skeleton height="2rem" width="70%" styleClass="mb-2"></p-skeleton>
+                                <p-skeleton height="10rem" styleClass="mb-2"></p-skeleton>
+                                <div class="skeleton-footer">
+                                    <p-skeleton height="2rem" width="40%"></p-skeleton>
+                                    <p-skeleton height="2rem" width="30%"></p-skeleton>
                                 </div>
                             </div>
-                        </p-card>
-                    </div>
+                        </div>
+                    </ng-container>
+                    <ng-template #recommendedContent>
+                        <div *ngFor="let course of recommendedCourses" class="course-item">
+                            <p-card [header]="course.title" styleClass="course-card recommended-card">
+                                <div class="card-content">
+                                    <p class="course-description">{{ course.description }}</p>
+
+                                    <div class="tag-container">
+                                        <p-tag [value]="course.difficultyLevel" [severity]="getDifficultySeverity(course.difficultyLevel)"></p-tag>
+                                    </div>
+
+                                    <div class="card-footer">
+                                        <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>
+                                        <p-button label="Explore" icon="pi pi-arrow-right" [routerLink]="['/courses', course.id]" styleClass="p-button-rounded"></p-button>
+                                    </div>
+                                </div>
+                            </p-card>
+                        </div>
+                    </ng-template>
                 </div>
             </div>
 
             <div class="courses-grid">
-                <div *ngFor="let course of courses" class="course-item">
-                    <p-card [header]="course.title" styleClass="course-card">
-                        <div class="card-content">
-                            <div class="progress-container">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" [style.width.%]="course.progressPercentage || 0"></div>
-                                </div>
-                                <small class="progress-text">Progress: {{ course.progressPercentage || 0 }}%</small>
-                            </div>
-
-                            <div class="card-footer">
-                                <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>
-                                <p-button label="Start Learning" icon="pi pi-book" [routerLink]="['/courses', course.id]" styleClass="p-button-rounded"></p-button>
+                <ng-container *ngIf="isCoursesLoading; else coursesContent">
+                    <!-- Skeleton loaders for courses -->
+                    <div *ngFor="let i of [1, 2, 3, 4, 5, 6]" class="course-item">
+                        <div class="skeleton-card">
+                            <p-skeleton height="2rem" width="70%" styleClass="mb-2"></p-skeleton>
+                            <p-skeleton height="1rem" width="100%" styleClass="mb-2"></p-skeleton>
+                            <p-skeleton height="0.5rem" width="80%" styleClass="mb-3"></p-skeleton>
+                            <div class="skeleton-footer">
+                                <p-skeleton height="2rem" width="40%"></p-skeleton>
+                                <p-skeleton height="2rem" width="30%"></p-skeleton>
                             </div>
                         </div>
-                    </p-card>
-                </div>
+                    </div>
+                </ng-container>
+                <ng-template #coursesContent>
+                    <div *ngFor="let course of courses" class="course-item">
+                        <p-card [header]="course.title" styleClass="course-card">
+                            <div class="card-content">
+                                <div class="progress-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" [style.width.%]="course.progressPercentage || 0"></div>
+                                    </div>
+                                    <small class="progress-text">Progress: {{ course.progressPercentage || 0 }}%</small>
+                                </div>
+
+                                <div class="card-footer">
+                                    <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>
+                                    <p-button label="Start Learning" icon="pi pi-book" [routerLink]="['/courses', course.id]" styleClass="p-button-rounded"></p-button>
+                                </div>
+                            </div>
+                        </p-card>
+                    </div>
+                </ng-template>
             </div>
         </div>
     `,
@@ -282,9 +313,7 @@ interface CourseWithProgress extends CourseType {
                     border-color: #4a5568;
                     color: #e2e8f0;
                 }
-            }
-
-            /* Add styles for recommended courses section */
+            } /* Add styles for recommended courses section */
             .recommended-section {
                 margin-bottom: 3rem;
             }
@@ -313,6 +342,24 @@ interface CourseWithProgress extends CourseType {
                 margin-bottom: 1rem;
             }
 
+            /* Skeleton card styles */
+            .skeleton-card {
+                background-color: #ffffff;
+                border-radius: 12px;
+                padding: 1.25rem;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .skeleton-footer {
+                display: flex;
+                justify-content: space-between;
+                margin-top: auto;
+            }
+
             /* Responsive adjustments */
             @media (max-width: 768px) {
                 .section-title {
@@ -329,6 +376,10 @@ export class CoursesWidget implements OnInit {
     courses!: CourseWithProgress[];
     visible: boolean = false;
     courseForm: FormGroup;
+
+    // Loading states
+    isCoursesLoading: boolean = true;
+    isRecommendedLoading: boolean = true;
 
     // Add recommended courses static data
     recommendedCourses: CourseWithProgress[] = [];
@@ -352,8 +403,8 @@ export class CoursesWidget implements OnInit {
         this.loadCoursesAndProgress();
         this.loadRecommendedCourses();
     }
-
     loadCoursesAndProgress(): void {
+        this.isCoursesLoading = true;
         this.courseService.fetchCoursesFromApi().subscribe({
             next: (data) => {
                 this.courses = data;
@@ -365,30 +416,35 @@ export class CoursesWidget implements OnInit {
 
                         // Calculate progress for each course
                         this.calculateCourseProgress(progress);
+                        this.isCoursesLoading = false;
                     },
                     error: (error) => {
                         console.error('Error fetching student progress:', error);
+                        this.isCoursesLoading = false;
                     }
                 });
             },
             error: (error) => {
                 console.error('Error fetching courses:', error);
+                this.isCoursesLoading = false;
             }
         });
     }
 
     loadRecommendedCourses(): void {
+        this.isRecommendedLoading = true;
         const top_n = 3;
         this.courseService.recommandCourse(top_n).subscribe({
             next: (response: ApiResponse) => {
                 this.recommendedCourses = response.recommendations.map((item: Recommendation) => ({
                     id: Math.floor(Math.random() * 1000), // Generate a unique ID
                     title: item.formation,
-                    description: `Compétences: ${item.competences.join(', ')}. ` +
-                               `Centre d'intérêt: ${item.centre_interet || 'BEGINNER'}. ` +
-                               `Durée: ${item.duree || 0} mois. ` +
-                               `Note: ${item.note || 0}/5. ` +
-                               `Score de similarité: ${item.similarity_score.toFixed(2)}.`,
+                    description:
+                        `Compétences: ${item.competences.join(', ')}. ` +
+                        `Centre d'intérêt: ${item.centre_interet || 'BEGINNER'}. ` +
+                        `Durée: ${item.duree || 0} mois. ` +
+                        `Note: ${item.note || 0}/5. ` +
+                        `Score de similarité: ${item.similarity_score.toFixed(2)}.`,
                     difficultyLevel: 'BEGINNER', // Default to BEGINNER as a safe choice
                     lessons: [],
                     generatedByAi: true,
@@ -401,10 +457,12 @@ export class CoursesWidget implements OnInit {
                     exampleHistories: [],
                     progressPercentage: 0
                 }));
+                this.isRecommendedLoading = false;
             },
             error: (err) => {
                 console.error('Error fetching recommended courses:', err);
                 this.recommendedCourses = [];
+                this.isRecommendedLoading = false;
             }
         });
     }
