@@ -15,7 +15,7 @@ import { NgbScrollSpyModule } from '@ng-bootstrap/ng-bootstrap';
 @Component({
     selector: 'ngbd-scrollspy-items',
     standalone: true,
-    imports: [NgbScrollSpyModule, CommonModule, NgbdAccordionToggle, LessonContentComponent, LessonNavigationComponent],
+    imports: [NgbScrollSpyModule, CommonModule, LessonContentComponent, LessonNavigationComponent],
     template: `
         <div class="content-wrapper">
             <div class="main-content">

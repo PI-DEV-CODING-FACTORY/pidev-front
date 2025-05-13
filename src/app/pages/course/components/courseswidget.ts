@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormGroup, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 import { CourseType, StudentProgress } from '../../../models/course.model';
-import { ApiResponse,Recommendation } from '../../../services/course.service';
+import { ApiResponse, Recommendation } from '../../../services/course.service';
 import { CourseService } from '../../../services/course.service';
 import { StudentProgressService } from '../../../services/student-progress.service';
 import { ButtonModule } from 'primeng/button';
@@ -13,6 +13,8 @@ import { RouterModule } from '@angular/router';
 import { Dialog, DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
+import { SkeletonModule } from 'primeng/skeleton';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 interface CourseWithProgress extends CourseType {
     progressPercentage?: number;
@@ -21,19 +23,16 @@ interface CourseWithProgress extends CourseType {
 @Component({
     selector: 'courses-widget',
     standalone: true,
-    imports: [CommonModule, RouterModule, ButtonModule, CardModule, TagModule, Dialog, ButtonModule, InputTextModule, ReactiveFormsModule, DropdownModule],
+    imports: [CommonModule, RouterModule, ButtonModule, CardModule, TagModule, Dialog, ButtonModule, InputTextModule, ReactiveFormsModule, DropdownModule, SkeletonModule, ProgressSpinnerModule],
     template: `
         <div class="widget-container">
             <div class="header-section">
                 <div class="title">Your courses</div>
                 <span class="subtitle">Choose a course and start your learning journey!</span>
-                <button (click)="createCourseModal()">Generate your costumized course</button>
-
-                <p-button (click)="showDialog()" label="Let AI Create Your Course!" />
+                <button (click)="createCourseModal()">Generate your costumized course</button> <p-button (click)="showDialog()" label="Let AI Create Your Course!" />
                 <p-dialog header="Create AI Course" [modal]="true" [(visible)]="visible" [style]="{ width: '30rem' }">
                     <span class="p-text-secondary block mb-8">Tell us what you want to learn.</span>
-                    <form [formGroup]="courseForm" (ngSubmit)="onSubmit()">
-                        <div class="form-field mb-4">
+                    <form [formGroup]="courseForm" (ngSubmit)="onSubmit()">                        <div class="form-field mb-4">
                             <label for="subject" class="form-label">Subject you want to learn</label>
                             <input pInputText id="subject" formControlName="subject" class="form-input" autocomplete="off" />
                         </div>
@@ -41,55 +40,89 @@ interface CourseWithProgress extends CourseType {
                             <label for="level" class="form-label">Your level</label>
                             <p-dropdown id="level" formControlName="level" [options]="levelOptions" optionLabel="label" optionValue="value" placeholder="Select level" [style]="{ width: '100%' }" appendTo="body"> </p-dropdown>
                         </div>
-                        <div class="flex justify-end gap-2">
+                        <div class="spinner-container" *ngIf="isFormSubmitting">
+                            <div class="spinner-content">
+                                <p-progressSpinner [style]="{ width: '60px', height: '60px' }" styleClass="custom-spinner" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+                                <div class="mt-3">Generating your course...</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2" *ngIf="!isFormSubmitting">
                             <p-button label="Cancel" severity="secondary" type="button" (click)="visible = false" />
                             <p-button type="submit" label="Save" />
                         </div>
                     </form>
                 </p-dialog>
             </div>
-
             <!-- Recommended Courses Section -->
             <div class="recommended-section">
                 <div class="section-title">Recommended for you</div>
                 <div class="courses-grid">
-                    <div *ngFor="let course of recommendedCourses" class="course-item">
-                        <p-card [header]="course.title" styleClass="course-card recommended-card">
-                            <div class="card-content">
-                                <p class="course-description">{{ course.description }}</p>
-
-                                <div class="tag-container">
-                                    <p-tag [value]="course.difficultyLevel" [severity]="getDifficultySeverity(course.difficultyLevel)"></p-tag>
-                                </div>
-
-                                <div class="card-footer">
-                                    <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>
-                                    <p-button label="Explore" icon="pi pi-arrow-right" [routerLink]="['/courses', course.id]" styleClass="p-button-rounded"></p-button>
+                    <ng-container *ngIf="isRecommendedLoading; else recommendedContent">
+                        <!-- Skeleton loaders for recommended courses -->
+                        <div *ngFor="let i of [1, 2, 3]" class="course-item">
+                            <div class="skeleton-card">
+                                <p-skeleton height="2rem" width="70%" styleClass="mb-2"></p-skeleton>
+                                <p-skeleton height="10rem" styleClass="mb-2"></p-skeleton>
+                                <div class="skeleton-footer">
+                                    <p-skeleton height="2rem" width="40%"></p-skeleton>
+                                    <p-skeleton height="2rem" width="30%"></p-skeleton>
                                 </div>
                             </div>
-                        </p-card>
-                    </div>
+                        </div>
+                    </ng-container>
+                    <ng-template #recommendedContent>
+                        <div *ngFor="let course of recommendedCourses" class="course-item">
+                            <p-card [header]="course.title" styleClass="course-card recommended-card">
+                                <div class="card-content">
+                                    <p class="course-description">{{ course.description }}</p>
+
+                                    <div class="tag-container">
+                                        <p-tag [value]="course.difficultyLevel" [severity]="getDifficultySeverity(course.difficultyLevel)"></p-tag>
+                                    </div>
+                                    <div class="card-footer">
+                                        <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>
+                                        <p-button label="Explore" icon="pi pi-arrow-right" [routerLink]="['/courses', course.id]" styleClass="p-button-rounded" [loading]="course.id === loadingCourseId" (click)="startCourse(course.id)"> </p-button>
+                                    </div>
+                                </div>
+                            </p-card>
+                        </div>
+                    </ng-template>
                 </div>
             </div>
 
             <div class="courses-grid">
-                <div *ngFor="let course of courses" class="course-item">
-                    <p-card [header]="course.title" styleClass="course-card">
-                        <div class="card-content">
-                            <div class="progress-container">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" [style.width.%]="course.progressPercentage || 0"></div>
-                                </div>
-                                <small class="progress-text">Progress: {{ course.progressPercentage || 0 }}%</small>
-                            </div>
-
-                            <div class="card-footer">
-                                <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>
-                                <p-button label="Start Learning" icon="pi pi-book" [routerLink]="['/courses', course.id]" styleClass="p-button-rounded"></p-button>
+                <ng-container *ngIf="isCoursesLoading; else coursesContent">
+                    <!-- Skeleton loaders for courses -->
+                    <div *ngFor="let i of [1, 2, 3, 4, 5, 6]" class="course-item">
+                        <div class="skeleton-card">
+                            <p-skeleton height="2rem" width="70%" styleClass="mb-2"></p-skeleton>
+                            <p-skeleton height="1rem" width="100%" styleClass="mb-2"></p-skeleton>
+                            <p-skeleton height="0.5rem" width="80%" styleClass="mb-3"></p-skeleton>
+                            <div class="skeleton-footer">
+                                <p-skeleton height="2rem" width="40%"></p-skeleton>
+                                <p-skeleton height="2rem" width="30%"></p-skeleton>
                             </div>
                         </div>
-                    </p-card>
-                </div>
+                    </div>
+                </ng-container>
+                <ng-template #coursesContent>
+                    <div *ngFor="let course of courses" class="course-item">
+                        <p-card [header]="course.title" styleClass="course-card">
+                            <div class="card-content">
+                                <div class="progress-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" [style.width.%]="course.progressPercentage || 0"></div>
+                                    </div>
+                                    <small class="progress-text">Progress: {{ course.progressPercentage || 0 }}%</small>
+                                </div>
+                                <div class="card-footer">
+                                    <span class="lessons-count">{{ course.lessons.length || 0 }} lessons</span>
+                                    <p-button label="Start Learning" icon="pi pi-book" [routerLink]="['/courses', course.id]" styleClass="p-button-rounded" [loading]="course.id === loadingCourseId" (click)="startCourse(course.id)"> </p-button>
+                                </div>
+                            </div>
+                        </p-card>
+                    </div>
+                </ng-template>
             </div>
         </div>
     `,
@@ -237,16 +270,34 @@ interface CourseWithProgress extends CourseType {
             :host ::ng-deep .p-dropdown-items-wrapper {
                 max-height: 200px; /* Control the height of the dropdown list */
             }
-
             :host ::ng-deep .p-dropdown-item {
                 padding: 0.75rem 1rem;
                 font-size: 14px;
-            }
-
-            :host ::ng-deep .p-dialog {
+            }            :host ::ng-deep .p-dialog {
                 z-index: 1000;
             }
-
+            
+            :host ::ng-deep .custom-spinner .p-progress-spinner-circle {
+                stroke: #4caf50 !important;
+                animation-duration: 1s;
+            }
+            
+            /* Spinner container styles */
+            .spinner-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 1.5rem 0;
+                min-height: 100px;
+            }
+            
+            .spinner-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
             /* Ensure the dropdown opens properly in the dialog */
             :host ::ng-deep .p-dialog-content {
                 overflow: visible !important;
@@ -282,9 +333,7 @@ interface CourseWithProgress extends CourseType {
                     border-color: #4a5568;
                     color: #e2e8f0;
                 }
-            }
-
-            /* Add styles for recommended courses section */
+            } /* Add styles for recommended courses section */
             .recommended-section {
                 margin-bottom: 3rem;
             }
@@ -313,6 +362,24 @@ interface CourseWithProgress extends CourseType {
                 margin-bottom: 1rem;
             }
 
+            /* Skeleton card styles */
+            .skeleton-card {
+                background-color: #ffffff;
+                border-radius: 12px;
+                padding: 1.25rem;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .skeleton-footer {
+                display: flex;
+                justify-content: space-between;
+                margin-top: auto;
+            }
+
             /* Responsive adjustments */
             @media (max-width: 768px) {
                 .section-title {
@@ -329,6 +396,12 @@ export class CoursesWidget implements OnInit {
     courses!: CourseWithProgress[];
     visible: boolean = false;
     courseForm: FormGroup;
+
+    // Loading states
+    isCoursesLoading: boolean = true;
+    isRecommendedLoading: boolean = true;
+    loadingCourseId: number | null = null;
+    isFormSubmitting: boolean = false;
 
     // Add recommended courses static data
     recommendedCourses: CourseWithProgress[] = [];
@@ -352,8 +425,8 @@ export class CoursesWidget implements OnInit {
         this.loadCoursesAndProgress();
         this.loadRecommendedCourses();
     }
-
     loadCoursesAndProgress(): void {
+        this.isCoursesLoading = true;
         this.courseService.fetchCoursesFromApi().subscribe({
             next: (data) => {
                 this.courses = data;
@@ -365,30 +438,35 @@ export class CoursesWidget implements OnInit {
 
                         // Calculate progress for each course
                         this.calculateCourseProgress(progress);
+                        this.isCoursesLoading = false;
                     },
                     error: (error) => {
                         console.error('Error fetching student progress:', error);
+                        this.isCoursesLoading = false;
                     }
                 });
             },
             error: (error) => {
                 console.error('Error fetching courses:', error);
+                this.isCoursesLoading = false;
             }
         });
     }
 
     loadRecommendedCourses(): void {
+        this.isRecommendedLoading = true;
         const top_n = 3;
         this.courseService.recommandCourse(top_n).subscribe({
             next: (response: ApiResponse) => {
                 this.recommendedCourses = response.recommendations.map((item: Recommendation) => ({
                     id: Math.floor(Math.random() * 1000), // Generate a unique ID
                     title: item.formation,
-                    description: `Compétences: ${item.competences.join(', ')}. ` +
-                               `Centre d'intérêt: ${item.centre_interet || 'BEGINNER'}. ` +
-                               `Durée: ${item.duree || 0} mois. ` +
-                               `Note: ${item.note || 0}/5. ` +
-                               `Score de similarité: ${item.similarity_score.toFixed(2)}.`,
+                    description:
+                        `Compétences: ${item.competences.join(', ')}. ` +
+                        `Centre d'intérêt: ${item.centre_interet || 'BEGINNER'}. ` +
+                        `Durée: ${item.duree || 0} mois. ` +
+                        `Note: ${item.note || 0}/5. ` +
+                        `Score de similarité: ${item.similarity_score.toFixed(2)}.`,
                     difficultyLevel: 'BEGINNER', // Default to BEGINNER as a safe choice
                     lessons: [],
                     generatedByAi: true,
@@ -401,10 +479,12 @@ export class CoursesWidget implements OnInit {
                     exampleHistories: [],
                     progressPercentage: 0
                 }));
+                this.isRecommendedLoading = false;
             },
             error: (err) => {
                 console.error('Error fetching recommended courses:', err);
                 this.recommendedCourses = [];
+                this.isRecommendedLoading = false;
             }
         });
     }
@@ -438,7 +518,6 @@ export class CoursesWidget implements OnInit {
     createCourseModal() {
         console.log('Create course modal');
     }
-
     getDifficultySeverity(difficulty: string): string {
         switch (difficulty) {
             case 'BEGINNER':
@@ -452,17 +531,28 @@ export class CoursesWidget implements OnInit {
         }
     }
 
+    startCourse(courseId: number): void {
+        // Set the loading state for this specific course
+        this.loadingCourseId = courseId;
+
+        // Simulate API request delay
+        setTimeout(() => {
+            this.loadingCourseId = null;
+        }, 1000); // Reset after navigation
+    }
+
     showDialog() {
         this.visible = true;
     }
-
     onSubmit() {
         if (this.courseForm.valid) {
+            this.isFormSubmitting = true;
+
             const newCourse: Partial<CourseType> = {
                 title: 'not generated',
                 description: this.courseForm.value.subject,
                 generatedByAi: true,
-                difficultyLevel: 'BEGINNER',
+                difficultyLevel: this.courseForm.value.level || 'BEGINNER',
                 examples: '',
                 content: '',
                 createdAt: new Date().toISOString(),
@@ -476,6 +566,7 @@ export class CoursesWidget implements OnInit {
             this.courseService.createCourse(newCourse).subscribe({
                 next: (response) => {
                     console.log('Course created:', response);
+                    this.isFormSubmitting = false;
                     this.visible = false;
                     this.courseForm.reset();
                     // Refresh the courses list and log progress
@@ -483,6 +574,7 @@ export class CoursesWidget implements OnInit {
                 },
                 error: (error) => {
                     console.error('Error creating course:', error);
+                    this.isFormSubmitting = false;
                 }
             });
         }

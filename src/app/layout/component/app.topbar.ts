@@ -9,6 +9,12 @@ import { animate, style, transition, trigger } from '@angular/animations';
 import { interval, Subject, Subscription, takeUntil } from 'rxjs';
 import { AuthService, User } from '../../pages/service/auth.service';
 import { NotificationService } from '../../pages/service/notification.service';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { FormsModule } from '@angular/forms';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 export interface Notification {
   id: number;
@@ -30,7 +36,8 @@ export interface Notification {
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+  imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, DialogModule, InputTextModule, ButtonModule, FormsModule, ToastModule],
+  providers: [MessageService],
   template: `
     <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
@@ -111,11 +118,15 @@ export interface Notification {
                     </ng-template>
                 </div>
             </div>
-            
-            <div class="layout-config-menu">
+              <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>
+                
+                <button type="button" class="layout-topbar-action" (click)="showReportDialog()" pTooltip="Submit Report" tooltipPosition="bottom">
+                    <i class="pi pi-flag"></i>
+                </button>
+                
                 <div class="relative">
                     <button
                         class="layout-topbar-action layout-topbar-action-highlight"
@@ -155,9 +166,64 @@ export interface Notification {
                         <span>Déconnexion</span>
                     </button>
                 </div>
+            </div>        </div>
+    </div>
+    
+    <!-- Report Dialog -->
+    <p-dialog 
+        [(visible)]="reportDialogVisible" 
+        [modal]="true" 
+        [resizable]="false"
+        [draggable]="false"
+        [style]="{width: '450px'}" 
+        header="Submit a Report" 
+        styleClass="report-dialog"
+        [closeOnEscape]="true"
+        [showHeader]="true"
+        [dismissableMask]="true"
+    >
+        <div class="report-form">
+            <div class="form-field">
+                <label for="reportTitle">Title</label>
+                <input 
+                    type="text" 
+                    pInputText 
+                    id="reportTitle" 
+                    [(ngModel)]="reportTitle" 
+                    placeholder="Enter report title" 
+                    class="w-full"
+                />
+            </div>            <div class="form-field">
+                <label for="reportContent">Description</label>                <textarea 
+                    pInputTextarea
+                    id="reportContent" 
+                    [(ngModel)]="reportContent" 
+                    placeholder="Describe your issue or suggestion in detail..." 
+                    class="w-full report-content-input"
+                    rows="5"
+                    autoResize="false"
+                ></textarea>
             </div>
         </div>
-    </div>
+        
+        <ng-template pTemplate="footer">
+            <p-button 
+                label="Cancel" 
+                icon="pi pi-times" 
+                styleClass="p-button-text" 
+                (click)="reportDialogVisible = false"
+            ></p-button>
+            <p-button 
+                label="Submit Report" 
+                icon="pi pi-send" 
+                [disabled]="!reportTitle || !reportContent"
+                (click)="submitReport()"
+                [loading]="submittingReport"
+            ></p-button>
+        </ng-template>
+    </p-dialog>
+    
+    <p-toast position="top-right"></p-toast>
   `,
   styles: [`
       .notifications-container {
@@ -325,6 +391,94 @@ export interface Notification {
       .empty-state i {
         font-size: 2rem;
         margin-bottom: 1rem;
+      }      /* Report Dialog Styles */
+      .report-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 0.5rem 0;
+      }
+
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .form-field label {
+        font-weight: 500;
+        color: var(--text-color);
+        font-size: 0.9rem;
+      }
+
+      :host ::ng-deep .report-dialog {
+        .p-dialog-header {
+          padding: 1.5rem 1.5rem 0.75rem;
+          border-bottom: 1px solid var(--surface-border);
+        }
+        
+        .p-dialog-content {
+          padding: 1.5rem;
+        }
+        
+        .p-dialog-footer {
+          padding: 1rem 1.5rem 1.5rem;
+          display: flex;
+          justify-content: flex-end;
+          gap: 0.5rem;
+          border-top: 1px solid var(--surface-border);
+        }        .p-inputtext {
+          padding: 0.75rem;
+          transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        
+        .p-inputtext:focus {
+          box-shadow: 0 0 0 1px var(--primary-color);
+          border-color: var(--primary-color);
+        }          .report-content-input {
+          height: 120px;
+          vertical-align: top;
+          text-align: left;
+          padding-top: 0.75rem;
+          padding-bottom: 0.75rem;
+          overflow-y: auto;
+          word-break: break-word;
+          white-space: normal;
+          resize: none;
+          vertical-align: text-top;
+          text-align: start;
+        }
+        
+        .report-content-input:focus {
+          caret-color: var(--primary-color);
+        }
+        
+        /* Style for placeholder positioning */
+        .report-content-input::placeholder {
+          position: absolute;
+          top: 0.75rem;
+          left: 0.75rem;
+          line-height: 1.2;
+          color: var(--text-secondary-color, #6c757d);
+          opacity: 0.7;
+        }
+        
+        .p-button {
+          transition: background-color 0.2s, transform 0.1s;
+        }
+        
+        .p-button:active:not(:disabled) {
+          transform: translateY(1px);
+        }
+        
+        .p-button-text {
+          color: var(--text-color-secondary);
+        }
+        
+        .p-button-text:hover {
+          background: var(--surface-hover);
+          color: var(--text-color);
+        }
       }
     `],
   animations: [
@@ -344,14 +498,20 @@ export class AppTopbar implements OnInit, OnDestroy {
   activeTab: 'all' | 'comments' | 'mentions' = 'all';
   user: User | null = null;
 
+  // Report dialog properties
+  reportDialogVisible: boolean = false;
+  reportTitle: string = '';
+  reportContent: string = '';
+  submittingReport: boolean = false;
+
   private destroy$ = new Subject<void>();
   private refreshSubscription: Subscription | null = null;
-
   constructor(
     public layoutService: LayoutService,
     private authService: AuthService,
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService
   ) { }
 
   ngOnInit() {
@@ -538,8 +698,50 @@ export class AppTopbar implements OnInit, OnDestroy {
       const hours = Math.floor(diff / 3600);
       return `Il y a ${hours} heure${hours > 1 ? 's' : ''}`;
     } else {
-      const days = Math.floor(diff / 86400);
-      return `Il y a ${days} jour${days > 1 ? 's' : ''}`;
+      const days = Math.floor(diff / 86400);      return `Il y a ${days} jour${days > 1 ? 's' : ''}`;
     }
+  }
+
+  /**
+   * Show the report dialog
+   */
+  showReportDialog(): void {
+    this.reportDialogVisible = true;
+    this.reportTitle = '';
+    this.reportContent = '';
+    this.submittingReport = false;
+  }
+
+  /**
+   * Submit a new report
+   */
+  submitReport(): void {
+    if (!this.reportTitle || !this.reportContent) {
+      return;
+    }
+
+    this.submittingReport = true;
+
+    // Simulate API call with setTimeout
+    setTimeout(() => {
+      // In a real application, you would call a service method here
+      // this.reportService.submitReport({
+      //   title: this.reportTitle,
+      //   content: this.reportContent,
+      //   userId: this.user?.id
+      // }).subscribe(...)
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Report Submitted',
+        detail: 'Your report has been submitted successfully. We will review it shortly.',
+        life: 5000
+      });
+
+      this.reportDialogVisible = false;
+      this.submittingReport = false;
+      this.reportTitle = '';
+      this.reportContent = '';
+    }, 1500);
   }
 }
