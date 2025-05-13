@@ -22,8 +22,10 @@ export class AppMenu {
         this.model = [
             {
                 label: 'Home',
-                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },{ label: 'Home', icon: 'pi pi-fw pi-home', routerLink: ['/event/viewUser'] }]
-                
+                items: [
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
+                    { label: 'Create event', icon: 'pi pi-fw pi-home', routerLink: ['/event/viewUser'] }
+                ]
             },
             {
                 label: 'Pfe',
@@ -31,10 +33,9 @@ export class AppMenu {
                     { label: 'Add a Pfe', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pfe/add'] },
                     { label: 'Internships', icon: 'pi pi-fw pi-briefcase', routerLink: ['/pfe/Internships'] },
                     { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/pfe/Proposals'] },
-                    { label: 'event', icon: 'pi pi-fw pi-briefcase', routerLink: ['/event'] },
-
+                    { label: 'event', icon: 'pi pi-fw pi-briefcase', routerLink: ['/event'] }
                 ]
-            },
+            }
             // {
             //     label: 'UI Components',
             //     items: [
