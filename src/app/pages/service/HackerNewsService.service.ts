@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
     providedIn: 'root'
 })
 export class HackerNewsService {
-    private apiUrl = 'http://localhost:8081/news'; // Adresse de votre backend Spring Boot
+    private apiUrl = 'http://localhost:8088/news'; // Adresse de votre backend Spring Boot
 
     constructor(private http: HttpClient) { }
 

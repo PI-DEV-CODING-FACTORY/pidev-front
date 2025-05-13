@@ -1,61 +1,134 @@
 <p-toast></p-toast>
 
 <div class="card">
-    <p-toolbar styleClass="mb-4">
-        <ng-template pTemplate="left">
-            <span class="text-xl font-bold">Inscriptions List</span>
-        </ng-template>
-    </p-toolbar>
+    <div class="flex justify-between items-center p-4 mb-4">
+        <h1 class="text-xl font-semibold text-gray-800">Inscriptions Management</h1>
+        <button pButton pRipple label="Refresh" icon="pi pi-refresh" class="text-green-500 bg-white border border-green-500 hover:bg-green-50" (click)="loadInscriptions()"></button>
+    </div>
+
+
 
     <p-table 
         #dt 
         [value]="inscriptions()" 
         [rows]="10" 
         [paginator]="true"
-        [globalFilterFields]="['firstName','lastName','courseId','createdAt','status']"
+        [globalFilterFields]="['firstName','lastName','courseId','createdAt','status', 'personalEmail', 'phoneNumber']"
         [tableStyle]="{'min-width': '75rem'}"
         [rowHover]="true"
         dataKey="id"
+        styleClass="p-datatable-sm custom-paginator-table"
+        [rowsPerPageOptions]="[5,10,25,50]"
+        [loading]="loading"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} inscriptions"
         [showCurrentPageReport]="true">
         <ng-template pTemplate="caption">
-            <div class="flex align-items-center justify-content-between">
-                <h5 class="m-0">Manage Inscriptions</h5>
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
-                </span>
+            <div class="mb-4">
+              
+                <div class="relative">
+                    
+                    <input 
+                        pInputText 
+                        type="text" 
+                        (input)="onGlobalFilter(dt, $event)" 
+                        placeholder="Search..." 
+                        class="px-16 py-2 pr-4 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                </div>
             </div>
         </ng-template>
         <ng-template pTemplate="header">
-            <tr>
-                <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName"></p-sortIcon></th>
-                <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
-                <th pSortableColumn="courseId">Course <p-sortIcon field="courseId"></p-sortIcon></th>
-                <th pSortableColumn="createdAt">Inscription Date <p-sortIcon field="createdAt"></p-sortIcon></th>
-                <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
-                <th>Actions</th>
+            <tr class="bg-white border-b">
+                <th pSortableColumn="firstName" class="px-4 py-3 font-medium text-left text-gray-700">
+                    First Name <p-sortIcon field="firstName"></p-sortIcon>
+                </th>
+                <th pSortableColumn="lastName" class="px-4 py-3 font-medium text-left text-gray-700">
+                    Last Name <p-sortIcon field="lastName"></p-sortIcon>
+                </th>
+                <th pSortableColumn="personalEmail" class="px-4 py-3 font-medium text-left text-gray-700">
+                    Email <p-sortIcon field="personalEmail"></p-sortIcon>
+                </th>
+                <th pSortableColumn="phoneNumber" class="px-4 py-3 font-medium text-left text-gray-700">
+                    Phone <p-sortIcon field="phoneNumber"></p-sortIcon>
+                </th>
+                <th pSortableColumn="courseId" class="px-4 py-3 font-medium text-left text-gray-700">
+                    Course <p-sortIcon field="courseId"></p-sortIcon>
+                </th>
+                <th pSortableColumn="createdAt" class="px-4 py-3 font-medium text-left text-gray-700">
+                    Date <p-sortIcon field="createdAt"></p-sortIcon>
+                </th>
+                <th pSortableColumn="status" class="px-4 py-3 font-medium text-left text-gray-700">
+                    Status <p-sortIcon field="status"></p-sortIcon>
+                </th>
+                <th class="px-4 py-3 font-medium text-left text-gray-700">
+                    Actions
+                </th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-inscription>
-            <tr>
-                <td>{{inscription.firstName}}</td>
-                <td>{{inscription.lastName}}</td>
-                <td>{{inscription.courseId || 'N/A'}}</td>
-                <td>{{inscription.createdAt ? (inscription.createdAt | date:'medium') : 'N/A'}}</td>
-                <td>
+            <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm text-gray-700">
+                    {{inscription.firstName}}
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-700">
+                    {{inscription.lastName}}
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-700">
+                    {{inscription.personalEmail}}
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-700">
+                    {{inscription.phoneNumber}}
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-700">
+                    {{inscription.courseId || 'N/A'}}
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-700">
+                    {{inscription.createdAt | date:'shortDate'}}
+                </td>
+                <td class="px-4 py-3 text-sm">
                     <p-tag [value]="inscription.status" [severity]="getSeverity(inscription.status)"></p-tag>
                 </td>
-                <td>
-                    <button pButton pRipple 
-                            icon="pi pi-eye" 
-                            class="p-button-rounded p-button-info mr-2" 
-                            (click)="onViewClick(inscription)">
-                    </button>
+                <td class="px-4 py-3 text-sm">
+                    <div class="flex space-x-2">
+                        <button pButton pRipple 
+                                icon="pi pi-eye" 
+                                class="text-blue-500 p-button-sm p-button-rounded p-button-text" 
+                                pTooltip="View Details"
+                                tooltipPosition="top"
+                                (click)="onViewClick(inscription)">
+                        </button>
+                        <button pButton pRipple 
+                                icon="pi pi-check" 
+                                class="text-green-500 p-button-sm p-button-rounded p-button-text" 
+                                pTooltip="Approve"
+                                tooltipPosition="top"
+                                [disabled]="inscription.status === 'Approved'"
+                                (click)="onApproveInscription(inscription)">
+                        </button>
+                        <button pButton pRipple 
+                                icon="pi pi-times" 
+                                class="text-red-500 p-button-sm p-button-rounded p-button-text" 
+                                pTooltip="Reject"
+                                tooltipPosition="top"
+                                [disabled]="inscription.status === 'Rejected'"
+                                (click)="onRejectInscription(inscription)">
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" class="p-5 text-center">
+                    <div class="flex flex-col items-center py-6">
+                        <i class="mb-3 text-4xl text-gray-400 pi pi-inbox"></i>
+                        <span class="text-gray-500">No inscriptions found</span>
+                    </div>
                 </td>
             </tr>
         </ng-template>
     </p-table>
+    
+
 
     <app-inscription-details
         [(visible)]="displayDialog"

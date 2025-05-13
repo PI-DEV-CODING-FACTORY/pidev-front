@@ -3,7 +3,6 @@ import { MenuItem } from 'primeng/api';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
-import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { interval, Subject, Subscription, takeUntil } from 'rxjs';
@@ -36,7 +35,7 @@ export interface Notification {
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, DialogModule, InputTextModule, ButtonModule, FormsModule, ToastModule],
+  imports: [RouterModule, CommonModule, StyleClassModule, DialogModule, InputTextModule, ButtonModule, FormsModule, ToastModule],
   providers: [MessageService],
   template: `
     <div class="layout-topbar">
@@ -71,7 +70,7 @@ export interface Notification {
                 </button>
                 <div class="notification-badge" [class.visible]="unreadCount > 0">{{ unreadCount }}</div>
                </div>
-                <div id="notificationPanel" class="notifications-panel hidden">
+                <div id="notificationPanel" class="hidden notifications-panel">
                     <div class="notifications-tabs">
                         <button 
                             [class.active]="activeTab === 'all'" 
@@ -127,7 +126,7 @@ export interface Notification {
                     <i class="pi pi-flag"></i>
                 </button>
                 
-                <div class="relative">
+                <!-- <div class="relative">
                     <button
                         class="layout-topbar-action layout-topbar-action-highlight"
                         pStyleClass="@next"
@@ -140,19 +139,19 @@ export interface Notification {
                         <i class="pi pi-palette"></i>
                     </button>
                     <app-configurator />
-                </div>
+                </div> -->
             </div>
 
             <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
                 <i class="pi pi-ellipsis-v"></i>
             </button>
 
-            <div class="layout-topbar-menu hidden lg:block">
+            <div class="hidden layout-topbar-menu lg:block">
                 <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
+                    <!-- <button type="button" class="layout-topbar-action">
                         <i class="pi pi-calendar"></i>
                         <span>Calendar</span>
-                    </button>
+                    </button> -->
                     <button type="button" class="layout-topbar-action">
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>

@@ -1,183 +1,201 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ask a Question - Staging Ground</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <style>
-
-    </style>
-</head>
-
-
-<!-- *ngIf="loggedIn" -->
-<div class="button-container animate__animated animate__fadeInDown" *ngIf="user!=null">
-    <button id="showFormBtn" class="btn btn-primary pulse" (click)="toggleQuestionForm()">
-        <i class="fas fa-question-circle me-2"></i> Ask a Question
+<!-- Post Forum Page with Tailwind CSS and PrimeNG -->
+<!-- Ask Question Button -->
+<div class="flex justify-end p-4 mx-auto max-w-7xl animate__animated animate__fadeInDown" *ngIf="user!=null">
+    <button id="showFormBtn" class="flex gap-2 items-center px-6 py-3 font-semibold text-white rounded-lg shadow-md transition-all duration-300 bg-primary hover:shadow-lg hover:-translate-y-1" (click)="toggleQuestionForm()">
+        <i class="pi pi-question-circle mr-2"></i> Ask a Question
     </button>
 </div>
-<div class="container d-none animate__animated animate__fadeIn" id="questionForm">
-
-    <div class="text-center mb-4">
-        <h2 class="fw-bold">Ask a Question in Forum</h2>
-        <p class="text-muted">A private space to help new users write their first questions.</p>
-    </div>
-    <div class="mb-3">
-        <label class="form-label fw-bold">Title</label>
-        <input type="text" class="title-input" #titleInput
-            placeholder="E.g. Is there an R function for finding the index of an element in a vector?" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label fw-bold">What are the details of your problem?</label>
-
-        <div class="toolbar">
-            <!-- <button class="btn btn-tool" title="Insert code"><i class="fas fa-code"></i></button> -->
-            <div class="input-group-append">
-                <button class="btn btn-tool" type="button" (click)="startRecording()"
-                    *ngIf="!voiceRecognitionService.isRecording">
-                    <i class="fas fa-microphone"></i>
-                </button>
-                <button class="btn btn-tool" type="button" (click)="stopRecording()"
-                    *ngIf="voiceRecognitionService.isRecording">
-                    <i class="fas fa-stop"></i>
-                </button>
-            </div>
-
-            <button class="btn btn-tool" title="Upload image" (click)="fileInput.click()">
-                <i class="fas fa-image me-2"></i> <span class="d-none d-md-inline">
-                    {{ selectedFileName||'Upload Image' }}</span>
+<!-- Question Form Dialog -->
+<div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" *ngIf="questionFormVisible">
+    <div class="bg-white rounded-xl shadow-xl w-11/12 max-w-4xl p-6 animate__animated animate__fadeIn">
+        <div class="flex justify-between items-center mb-4 border-b pb-4">
+            <h2 class="text-2xl font-bold text-gray-800">Ask a Question in Forum</h2>
+            <button class="text-gray-500 hover:text-gray-700" (click)="questionFormVisible = false">
+                <i class="pi pi-times text-xl"></i>
             </button>
-            <input type="file" id="image" accept="image/*" (change)="onFileSelected($event)" #fileInput class="d-none">
-
         </div>
-    </div>
-    <div class="input-group">
-        <textarea class="form-control" #detailsInput id="details" rows="5" (input)="handleType($event)"
-            [(ngModel)]="message" (keyup.enter)="submitMessage($event)" (paste)="handleType($event)"
-            placeholder="Introduce the problem and expand on what you put in the title. Minimum 20 characters."></textarea>
+        
+        <p class="text-gray-500 mb-6">A private space to help new users write their first questions.</p>
+        
+        <div class="mb-6">
+            <label class="block mb-2 font-bold text-gray-700">Title</label>
+            <input type="text" class="px-4 py-3 w-full rounded-lg border border-gray-300 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                #titleInput placeholder="E.g. Is there an R function for finding the index of an element in a vector?" />
+        </div>
 
-    </div>
+        <div class="mb-6">
+            <label class="block mb-2 font-bold text-gray-700">What are the details of your problem?</label>
 
+            <div class="flex gap-3 p-3 mb-4 bg-gray-50 rounded-lg border border-gray-200">
+                <button class="p-2 text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-100 transition-colors" 
+                    (click)="startRecording()" *ngIf="!voiceRecognitionService.isRecording">
+                    <i class="pi pi-microphone text-lg"></i>
+                </button>
+                <button class="p-2 text-red-700 bg-red-100 rounded-md border border-red-300 hover:bg-red-200 transition-colors" 
+                    (click)="stopRecording()" *ngIf="voiceRecognitionService.isRecording">
+                    <i class="pi pi-stop text-lg"></i>
+                </button>
 
-    <div class="d-none mt-2" id="badge">
-        <span class="indicator" id="language-indicator" style="background-color: gray;"></span>
-        <span id="language-detected"></span>
-    </div>
+                <button class="flex gap-2 items-center px-3 py-2 text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-100 transition-colors" 
+                    (click)="fileInput.click()">
+                    <i class="pi pi-image"></i> <span class="hidden md:inline">{{ selectedFileName||'Upload Image' }}</span>
+                </button>
+                <input type="file" id="image" accept="image/*" (change)="onFileSelected($event)" #fileInput class="hidden">
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <textarea class="px-4 py-3 w-full rounded-lg border border-gray-300 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                #detailsInput id="details" rows="5" (input)="handleType($event)" [(ngModel)]="message" 
+                (keyup.enter)="submitMessage($event)" (paste)="handleType($event)" 
+                placeholder="Introduce the problem and expand on what you put in the title. Minimum 20 characters."></textarea>
+        </div>
 
-    <div class="text-end mt-3" *ngIf="user!=null">
-        <button class="btn-post" (click)="postQuestion()"> <i class="fas fa-paper-plane me-2"></i> Post
-            Question</button>
+        <div class="hidden mt-3 mb-3" id="badge">
+            <div class="inline-flex items-center px-3 py-1 bg-gray-100 rounded-full">
+                <span class="inline-block mr-2 w-3 h-3 rounded-full" id="language-indicator" style="background-color: gray;"></span>
+                <span id="language-detected" class="text-sm font-medium"></span>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-6 pt-4 border-t">
+            <button class="px-4 py-2 text-gray-700 bg-white rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center gap-2" 
+                (click)="questionFormVisible = false">
+                <i class="pi pi-times"></i> Cancel
+            </button>
+            <button class="px-6 py-2 text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2" 
+                (click)="postQuestion()" *ngIf="user!=null">
+                <i class="pi pi-send"></i> Post Question
+            </button>
+        </div>
     </div>
 </div>
-<div class="container animate__animated animate__fadeIn">
-    <!-- Post Section -->
-    <div class=" post-section">
-        <!-- En-tête avec titre et champ de filtrage -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="section-title mb-0">Recent Posts</h3>
+<!-- Posts Container -->
+<div class="p-6 mx-auto mt-8 max-w-full w-11/12 bg-white rounded-xl shadow-md transition-all duration-300 hover:shadow-lg animate__animated animate__fadeIn">
+    <!-- Post Section Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-gray-800 relative after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-16 after:h-1 after:bg-primary after:transition-all after:duration-300 hover:after:w-full">Recent Posts</h3>
 
-            <!-- Champ de filtrage par technologie -->
-            <div class="filter-section" *ngIf="technologiesGetted.length!=0">
-                <select class="form-select" id="technologySelect" (change)="filterPosts($event)">
-                    <option value="">All Technologies</option>
-
-                    <option *ngFor="let tech of technologiesGetted" [value]="tech">{{ tech }}</option>
-                </select>
-            </div>
+        <!-- Technology Filter -->
+        <div class="w-48" *ngIf="technologiesGetted.length!=0">
+            <select class="px-3 py-2 w-full rounded-lg border border-gray-300 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                id="technologySelect" (change)="filterPosts($event)">
+                <option value="">All Technologies</option>
+                <option *ngFor="let tech of technologiesGetted" [value]="tech">{{ tech }}</option>
+            </select>
         </div>
-        <!-- Liste des posts filtrés -->
-        <div class="posts-container">
+    </div>
+    
+    <!-- Posts List -->
+    <div class="space-y-6">
+        <div *ngFor="let post of paginatedPosts" 
+            class="p-5 bg-white rounded-lg border-l-4 border-transparent shadow-sm transition-all duration-300 cursor-pointer hover:border-l-primary hover:shadow-md hover:-translate-y-1 animate__animated animate__fadeIn" 
+            (click)="goToPostDetails(post)">
+            <h5 class="mb-3 text-lg font-semibold text-primary">{{ post.title }}</h5>
+            <p class="mb-3 text-gray-700">{{ post.content }}</p>
+            <p class="text-sm text-gray-500">
+                <i class="mr-1 pi pi-user"></i> Posted by {{ usernames[post.user_id] }}
+                <i class="mr-1 ml-3 pi pi-clock"></i> {{ post.createdAt }}
+            </p>
 
-            <div *ngFor="let post of paginatedPosts">
-                <div class="post fade-in" (click)="goToPostDetails(post)">
-                    <h5>{{ post.title }}</h5>
-                    <p>{{ post.content }}</p>
-                    <p class="text-muted">
-                        <i class="fas fa-user-circle me-1"></i> Posted by
-                        {{ usernames[post.user_id] }}
-                        <i class="fas fa-clock me-1"></i> {{ post.createdAt }}
-                    </p>
-
-                    <div class="d-flex flex-wrap" *ngIf="post.tags.length!=0">
-                        <div *ngFor="let l of post.tags | split: ', '">
-                            <div style="margin-top: 10px;" id="badge">
-                                <span class="indicator" id="language-indicator"
-                                    [style.background-color]="getRandomColor()"></span>
-                                <span id="language-detected">{{l}}</span>
-                            </div>
-                        </div>
+            <!-- Tags -->
+            <div class="flex flex-wrap mt-3" *ngIf="post.tags.length!=0">
+                <div *ngFor="let l of post.tags | split: ', '" class="mr-2 mb-2">
+                    <div class="inline-flex items-center px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 hover:bg-gray-200 hover:-translate-y-1">
+                        <span class="inline-block mr-2 w-3 h-3 rounded-full" [style.background-color]="getRandomColor()"></span>
+                        <span class="text-sm font-medium">{{l}}</span>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Message si aucun post -->
-        <div *ngIf="posts.length===0" class="d-flex justify-content-center align-items-center">
-            <div class="text-center">
-                <p class="text-muted">No posts found</p>
+    </div>
+    
+    <!-- Empty State -->
+    <div *ngIf="posts.length===0" class="flex justify-center items-center py-12">
+        <div class="text-center">
+            <i class="pi pi-inbox text-gray-300 text-5xl mb-3"></i>
+            <p class="text-gray-500">No posts found</p>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav class="mt-6" *ngIf="posts.length > itemsPerPage" aria-label="Page navigation">
+        <ul class="flex justify-center">
+            <li [ngClass]="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }">
+                <a class="inline-flex justify-center items-center w-10 h-10 rounded-l-lg border border-gray-300 transition-colors duration-300 hover:bg-gray-100" 
+                    (click)="goToPage(currentPage - 1)" aria-label="Previous">
+                    <i class="pi pi-chevron-left"></i>
+                </a>
+            </li>
+            <li *ngFor="let page of getPagesArray()">
+                <a class="inline-flex justify-center items-center w-10 h-10 border border-gray-300 transition-colors duration-300 hover:bg-gray-100" 
+                    [ngClass]="{ 'bg-primary text-white hover:bg-primary-dark': page === currentPage }" 
+                    (click)="goToPage(page)">{{ page }}</a>
+            </li>
+            <li [ngClass]="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }">
+                <a class="inline-flex justify-center items-center w-10 h-10 rounded-r-lg border border-gray-300 transition-colors duration-300 hover:bg-gray-100" 
+                    (click)="goToPage(currentPage + 1)" aria-label="Next">
+                    <i class="pi pi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+<!-- Chatbot Container -->
+<div class="hidden overflow-hidden fixed right-5 bottom-20 z-50 w-full max-w-sm bg-white rounded-xl shadow-lg transition-all duration-300" id="chatbot" style="display: none; flex-direction: column;">
+    <!-- Chatbot Header -->
+    <div class="flex justify-between items-center p-4 text-white bg-primary">
+        <h5 class="flex gap-2 items-center m-0 font-semibold"><i class="pi pi-android"></i> Staging Ground Assistant</h5>
+        <button class="text-xl text-white bg-transparent border-none cursor-pointer" id="closeChatBtn" (click)="closeChatBot()">
+            <i class="pi pi-times"></i>
+        </button>
+    </div>
+    
+    <!-- Chat Messages -->
+    <div class="flex overflow-y-auto flex-col p-4 h-80" #chatBox>
+        <div *ngFor="let msg of messages" 
+            [ngClass]="{'justify-end': msg.sender === 'user', 'justify-start': msg.sender === 'bot'}"
+            class="flex mb-3">
+            <div *ngIf="msg.sender === 'bot'" class="flex flex-shrink-0 justify-center items-center mr-2 w-8 h-8 bg-gray-200 rounded-full">
+                <i class="text-gray-600 pi pi-android"></i>
+            </div>
+            <div [ngClass]="{'bg-primary text-white rounded-bl-xl rounded-tl-xl rounded-tr-xl': msg.sender === 'user', 
+                              'bg-gray-100 text-gray-800 rounded-br-xl rounded-tr-xl rounded-tl-xl': msg.sender === 'bot'}"
+                class="px-4 py-2 max-w-[80%] break-words">
+                {{ msg.text }}
             </div>
         </div>
-
-        <!-- Pagination -->
-        <nav class="mt-4" *ngIf="posts.length > itemsPerPage" aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                <li class="page-item disabled" [ngClass]="{ disabled: currentPage === 1 }">
-                    <a class="page-link" (click)="goToPage(currentPage - 1)" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                <li *ngFor="let page of getPagesArray()" class="page-item" [ngClass]="{ active: page === currentPage }">
-                    <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
-                </li>
-                <li class="page-item" [ngClass]="{ disabled: currentPage === totalPages }">
-                    <a class="page-link" (click)="goToPage(currentPage + 1)" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-    </div>
-</div>
-<div class="chat-container d-none" id="chatbot">
-    <div class="chat-header">
-        <h5><i class="fas fa-robot me-2"></i> Staging Ground Assistant</h5>
-        <button class="chat-close" id="closeChatBtn" (click)="closeChatBot()"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="chat-box" #chatBox>
-        <div *ngFor="let msg of messages" [ngClass]="{'user': msg.sender === 'user', 'bot': msg.sender === 'bot'}"
-            class="message">
-            <div class="avatar"><i class="fas fa-robot"></i></div>
-            <div class="bubble">{{ msg.text }}</div>
-        </div>
+        
         <!-- Typing Indicator -->
-        <div *ngIf="isBotTyping" class="message bot">
-            <div class="bubble typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
+        <div *ngIf="isBotTyping" class="flex justify-start mb-3">
+            <div class="flex flex-shrink-0 justify-center items-center mr-2 w-8 h-8 bg-gray-200 rounded-full">
+                <i class="text-gray-600 pi pi-android"></i>
+            </div>
+            <div class="flex items-center px-4 py-2 text-gray-800 bg-gray-100 rounded-tl-xl rounded-tr-xl rounded-br-xl">
+                <span class="mx-0.5 w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
+                <span class="mx-0.5 w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                <span class="mx-0.5 w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
             </div>
         </div>
     </div>
-
-
-    <div class="input-container">
-        <input type="text" class="chat-input" [(ngModel)]="userInput" (keypress)="handleKeyPress($event)"
-            placeholder="Type a question..." />
-        <button (click)="sendMessage()" class="send-btn"><i class="fas fa-paper-plane"></i> Send</button>
+    
+    <!-- Chat Input -->
+    <div class="flex p-3 bg-white border-t border-gray-200">
+        <input type="text" class="flex-1 px-4 py-2 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+            [(ngModel)]="userInput" (keypress)="handleKeyPress($event)" placeholder="Type a question..." />
+        <button (click)="sendMessage()" class="flex gap-2 items-center px-4 py-2 text-white rounded-r-lg transition-colors duration-300 bg-primary hover:bg-primary-dark">
+            <i class="pi pi-send"></i> <span class="hidden sm:inline">Send</span>
+        </button>
     </div>
 </div>
 
-<div class="button-chatbot">
-    <button id="showChatbotBtn" class="btn btn-primary" (click)="toggleChatbot()"> <i class="fa fa-comment-dots"></i>
-        <!-- Font Awesome chat icon --></button>
+<!-- Chatbot Toggle Button -->
+<div class="fixed right-5 bottom-5 z-50">
+    <button id="showChatbotBtn" 
+        class="flex justify-center items-center w-12 h-12 text-white rounded-full shadow-lg transition-all duration-300 bg-primary hover:shadow-xl hover:-translate-y-1" 
+        (click)="toggleChatbot()">
+        <i class="pi pi-comments text-xl"></i>
+    </button>
 </div>
+
 <p-toast></p-toast>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-
-</html>

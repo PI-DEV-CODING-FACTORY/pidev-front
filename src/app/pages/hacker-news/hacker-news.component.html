@@ -1,47 +1,70 @@
-<div class="container py-5">
-  <!-- Header Section -->
-  <div class="news-header animate__animated animate__fadeIn animate__slow">
-    <div class="d-flex justify-content-between align-items-center">
-      <h1><i class="fas fa-newspaper me-2"></i> Latest News</h1>
-      <button class="btn btn-light refresh-button" id="refreshBtn" (click)="refreshNews()">
-        <i class="pi pi-refresh"></i> Refresh
-      </button>
+<div class="w-full max-w-7xl mx-auto bg-white">
+  <!-- Hero Header Section -->
+  <div class="bg-gradient-to-r from-orange-500 to-orange-700 p-8 md:p-12 rounded-b-3xl mb-8 relative overflow-hidden shadow-lg">
+    <div class="absolute top-[-50%] right-[-50%] w-full h-full bg-white/10 transform rotate-12 pointer-events-none"></div>
+    <div class="relative z-10 text-center max-w-3xl mx-auto">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">Hacker News</h1>
+      <p class="text-white/90 text-lg md:text-xl font-light mb-8">Discover the latest in technology, programming, and startups</p>
+      <p-button icon="pi pi-refresh" label="Refresh Feed" (click)="refreshNews()" styleClass="p-button-rounded"></p-button>
     </div>
-    <p class="mt-2 mb-0 text-white-50">Stay updated with the latest stories from around the world</p>
   </div>
 
-  <!-- News List Section -->
-  <div class="animate__animated animate__fadeIn animate__delay-1s" id="newsList">
-    <!-- Loading state will be shown initially -->
-    <div id="loadingState" *ngIf="newsList.length===0">
-      <div class="card p-4 mb-3">
-        <div class="skeleton-loader" style="width: 80%;"></div>
-        <div class="skeleton-loader" style="width: 40%;"></div>
-        <div class="skeleton-loader" style="width: 60%;"></div>
-      </div>
-      <div class="card p-4 mb-3">
-        <div class="skeleton-loader" style="width: 70%;"></div>
-        <div class="skeleton-loader" style="width: 35%;"></div>
-        <div class="skeleton-loader" style="width: 55%;"></div>
-      </div>
-      <div class="card p-4 mb-3">
-        <div class="skeleton-loader" style="width: 75%;"></div>
-        <div class="skeleton-loader" style="width: 45%;"></div>
-        <div class="skeleton-loader" style="width: 65%;"></div>
-      </div>
+  <!-- Main Content Section -->
+  <div class="px-4 md:px-6 pb-12">
+    <!-- Loading state -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center min-h-[400px]">
+      <p-progressSpinner styleClass="w-16 h-16" strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
+      <p class="mt-6 text-gray-600 text-lg font-medium">Fetching the latest stories...</p>
     </div>
-    <!-- Actual news items -->
-    <div id="newsItems" *ngFor="let news of newsList">
-      <div class="card news-card p-0 animate__animated animate__fadeInUp">
-        <div class="card-body">
-          <span class="news-type type-story">{{ news.type }}</span>
-          <h5><a [href]="news.url" class="news-title">{{ news.title }}</a></h5>
-          <div class="d-flex justify-content-between align-items-center mt-3">
-            <span class="author-badge"><i class="fas fa-user me-1"></i> {{ news.by }}</span>
+
+    <!-- News Feed -->
+    <div *ngIf="!loading && newsList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      <div *ngFor="let news of newsList; let i = index" class="animate-fadeIn" [style.animation-delay]="i * 0.1 + 's'" style="opacity: 0">
+        <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 h-full flex flex-col">
+          <!-- Featured image -->
+          <div class="relative h-48 overflow-hidden">
+            <img [src]="news.imageUrl" alt="News thumbnail" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+            <div class="absolute top-4 right-4 z-10">
+              <p-tag [value]="news.type || 'story'" [severity]="news.type === 'job' ? 'success' : (news.type === 'poll' ? 'warning' : 'info')"></p-tag>
+            </div>
+          </div>
+          
+          <!-- News content -->
+          <div class="p-6 flex-1 flex flex-col">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 line-clamp-2 min-h-[3rem] hover:text-orange-600 transition-colors">{{ news.title }}</h3>
+            
+            <div class="flex justify-between items-center mb-4 text-sm text-gray-500">
+              <span class="flex items-center">
+                <i class="pi pi-user text-orange-500 mr-1.5"></i> {{ news.by }}
+              </span>
+              <div class="flex gap-4">
+                <span class="flex items-center">
+                  <i class="pi pi-comments text-orange-500 mr-1.5"></i> {{ news.descendants || 0 }}
+                </span>
+                <span class="flex items-center">
+                  <i class="pi pi-star-fill text-orange-500 mr-1.5"></i> {{ news.score || 0 }}
+                </span>
+              </div>
+            </div>
+            
+            <p *ngIf="news.text" class="text-gray-600 line-clamp-3 mb-6" [innerHTML]="news.text"></p>
+            
+            <div class="mt-auto flex justify-end">
+              <a [href]="news.url" target="_blank" class="no-underline">
+                <p-button label="Read Article" icon="pi pi-external-link" styleClass="p-button-rounded p-button-outlined"></p-button>
+              </a>
+            </div>
           </div>
         </div>
       </div>
-
+    </div>
+    
+    <!-- Empty state -->
+    <div *ngIf="!loading && newsList.length === 0" class="flex flex-col items-center justify-center p-16 text-center bg-gray-50 rounded-xl my-8">
+      <i class="pi pi-inbox text-6xl text-gray-400 mb-6"></i>
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">No News Available</h3>
+      <p class="text-gray-600 mb-8 max-w-md">We couldn't find any news stories. Try refreshing or check back later.</p>
+      <p-button label="Refresh" icon="pi pi-refresh" styleClass="p-button-rounded" (click)="refreshNews()"></p-button>
     </div>
   </div>
 </div>

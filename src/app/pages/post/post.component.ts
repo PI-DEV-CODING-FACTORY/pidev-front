@@ -12,9 +12,38 @@ import { VoiceRecognitionService } from '../service/voice-recognition.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AuthService, User } from '../service/auth.service';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextarea } from 'primeng/inputtextarea';
+import { DropdownModule } from 'primeng/dropdown';
+import { ChipModule } from 'primeng/chip';
+import { FileUploadModule } from 'primeng/fileupload';
+import { TagModule } from 'primeng/tag';
+import { CardModule } from 'primeng/card';
+import { DividerModule } from 'primeng/divider';
+import { PaginatorModule } from 'primeng/paginator';
+import { AvatarModule } from 'primeng/avatar';
 @Component({
   selector: 'app-post',
-  imports: [CommonModule, FormsModule, SplitPipe, ToastModule,],
+  standalone: true,
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    SplitPipe, 
+    ToastModule,
+    DialogModule,
+    ButtonModule,
+    InputTextModule,
+    DropdownModule,
+    ChipModule,
+    TagModule,
+    CardModule,
+    DividerModule,
+    PaginatorModule,
+    AvatarModule,
+    FileUploadModule
+  ],
   templateUrl: './post.component.html',
   styleUrl: './post.component.scss',
   providers: [MessageService]
@@ -23,6 +52,8 @@ export class PostComponent {
   user!: User;
   message: string = '';
   loggedIn: boolean = false;
+  questionFormVisible: boolean = false;
+  selectedFileName: string = 'Upload Image';
   constructor(private router: Router, private postService: PostService, public voiceRecognitionService: VoiceRecognitionService, private messageService: MessageService, private authService: AuthService) {
     
     if (this.inputSubject) {
@@ -50,7 +81,7 @@ export class PostComponent {
 
                 const badge = document.getElementById('badge');
                 if (badge) {
-                  badge.classList.toggle("d-none");
+                  badge.classList.toggle("hidden");
                 }
                 const languageDetectedElement = document.getElementById('language-detected');
                 if (languageDetectedElement) {
@@ -97,7 +128,7 @@ export class PostComponent {
 
   selectedPost: any;
   selectedFile: File | null = null;
-  selectedFileName: string | undefined;
+  // selectedFileName is already defined above
   public goToPostDetails(post: Post): void {
     if (post && post.id) {
       console.log(`Navigating to details of post with ID: ${post.id}`);
@@ -294,11 +325,7 @@ export class PostComponent {
   }
 
   toggleQuestionForm() {
-    const form = document.getElementById("questionForm");
-
-    if (form) {
-      form.classList.toggle("d-none");
-    }
+    this.questionFormVisible = !this.questionFormVisible;
   }
 
   get paginatedPosts(): Post[] {
@@ -378,8 +405,12 @@ export class PostComponent {
 
     if (chat) {
       this.scrollToBottomPage();
-      chat.classList.toggle("d-none");
-
+      chat.classList.toggle("hidden");
+      if (chat.classList.contains("hidden")) {
+        chat.style.display = "none";
+      } else {
+        chat.style.display = "flex";
+      }
     }
   }
   scrollToBottomPage() {
@@ -417,7 +448,7 @@ export class PostComponent {
     } else {
       const badge = document.getElementById('badge');
       if (badge) {
-        badge.classList.add("d-none");
+        badge.classList.add("hidden");
       }
     }
 
@@ -439,7 +470,8 @@ export class PostComponent {
   closeChatBot() {
     const chat = document.getElementById("chatbot");
     if (chat) {
-      chat.classList.add("d-none");
+      chat.classList.add("hidden");
+      chat.style.display = "none";
     }
   }
 }

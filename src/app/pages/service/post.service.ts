@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class PostService {
-  private apiServerUrl = 'http://localhost:8081';
+  private apiServerUrl = 'http://localhost:8088';
   private token = "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";
   constructor(private http: HttpClient, private authService: AuthService) { }
 

@@ -41,7 +41,7 @@ export class UsersListComponent implements OnInit {
     selectedUsers: User[] = [];
     submitted: boolean = false;
     statuses: any[] = ['Active', 'Inactive', 'Pending'];
-    roles: any[] = ['Admin', 'Student', 'Teacher'];
+    roles: any[] = ['ADMIN', 'STUDENT', 'COMPANY'];
 
     @ViewChild('dt') dt: Table | undefined;
 

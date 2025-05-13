@@ -24,12 +24,12 @@ export enum Roles {
 export class AppMenu {
     model: MenuItem[] = [];
     user: User | null = null;
-    constructor(private authService: AuthService) { }
+    constructor(private authService: AuthService) {}
     ngOnInit() {
         this.authService.currentUser.subscribe((currentUser: User | null) => {
             if (currentUser) {
                 this.user = currentUser;
-                console.log("Current user logged: ", currentUser);
+                console.log('Current user logged: ', currentUser);
                 console.log(this.user);
                 this.buildMenuForRole(this.user.role);
             } else {
@@ -37,11 +37,9 @@ export class AppMenu {
                 console.error('User is not logged in');
             }
         });
-
-
     }
     private buildMenuForRole(role: string): void {
-        if (this.user!.role === "ADMIN") {
+        if (this.user!.role === 'ADMIN') {
             {
                 this.model = [
                     {
@@ -53,47 +51,27 @@ export class AppMenu {
                                 icon: 'pi pi-fw pi-home',
                                 routerLink: ['/admin/dashboard']
                             },
+
                             {
                                 label: 'Manage Users',
-                                icon: 'pi pi-fw pi-users',
-                                items: [
-                                    {
-                                        label: 'All Users',
-                                        icon: 'pi pi-fw pi-list',
-                                        routerLink: ['/admin/users']
-                                    },
-                                    {
-                                        label: 'Admins',
-                                        icon: 'pi pi-fw pi-user',
-                                        routerLink: ['/admin/users/admins']
-                                    },
-                                    {
-                                        label: 'Students',
-                                        icon: 'pi pi-fw pi-user',
-                                        routerLink: ['/admin/users/students']
-                                    },
-                                    {
-                                        label: 'Teachers',
-                                        icon: 'pi pi-fw pi-user',
-                                        routerLink: ['/admin/users/teachers']
-                                    }
-                                ]
+                                icon: 'pi pi-fw pi-list',
+                                routerLink: ['/admin/users']
                             },
                             {
                                 label: 'Inscriptions',
                                 icon: 'pi pi-fw pi-file',
                                 routerLink: ['/admin/inscriptions']
-                            },
-                            {
-                                label: 'Reports',
-                                icon: 'pi pi-fw pi-chart-bar',
-                                routerLink: ['/admin/reports']
-                            },
-                            {
-                                label: 'Settings',
-                                icon: 'pi pi-fw pi-cog',
-                                routerLink: ['/admin/settings']
                             }
+                            // {
+                            //     label: 'Reports',
+                            //     icon: 'pi pi-fw pi-chart-bar',
+                            //     routerLink: ['/admin/reports']
+                            // },
+                            // {
+                            //     label: 'Settings',
+                            //     icon: 'pi pi-fw pi-cog',
+                            //     routerLink: ['/admin/settings']
+                            // }
                         ]
                     },
                     {
@@ -101,9 +79,8 @@ export class AppMenu {
                         items: [
                             // { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/admin/dashboard'] },
                             { label: 'Discussion Forum', icon: 'pi pi-comments', routerLink: ['/pages/post'] },
-                            ...(this.user != null ? [{ label: 'Own Posts', icon: 'pi pi-user-edit', routerLink: ['/pages/userPosts'] }] : []),
                             { label: 'News', icon: 'pi pi-globe', routerLink: ['/pages/hackerNews'] },
-                            { label: 'Statistics', icon: 'pi pi-chart-bar', routerLink: ['/pages/userStatistics'] },
+                            { label: 'Statistics', icon: 'pi pi-chart-bar', routerLink: ['/pages/userStatistics'] }
                             // ...(user == null
                             //     ? [
                             //           {
@@ -116,63 +93,18 @@ export class AppMenu {
                         ]
                     },
                     {
-                        label: 'PFE Management',
-                        items: [
-                            { label: 'Search PFEs', icon: 'pi pi-fw pi-search', routerLink: ['/pfe'] },
-                            { label: 'Add PFE', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pfe/add'] },
-                            // { label: 'Internship Offers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/internship-offers'] },
-                            { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/proposals'] },
-                            { label: 'Manage Proposals', icon: 'pi pi-fw pi-th-large', routerLink: ['/manage-proposals'] },
-                            { label: 'Technical Tests', icon: 'pi pi-fw pi-file-edit', routerLink: ['/technical-tests'] },
-                            { label: 'Saved PFEs', icon: 'pi pi-fw pi-bookmark', routerLink: ['/saved-pfes'] },
-                            // { label: 'Student Interests', icon: 'pi pi-fw pi-heart', routerLink: ['/student-interests'] }
-                        ]
-                    },
-                    {
-                        label: 'Learning',
+                        label: 'Courses',
                         items: [
                             {
                                 label: 'create course',
                                 icon: 'pi pi-book',
                                 routerLink: ['/courses/create']
-                            },
-                            {
-                                label: 'My Courses',
-                                icon: 'pi pi-book',
-                                routerLink: ['/courses']
-                            },
-                            {
-                                label: 'My Notes',
-                                icon: 'pi pi-file-edit',
-                                routerLink: ['/notes']
-                            },
-                            {
-                                label: "Prédiction de la durée de formation",
-                                icon: 'pi pi-file-edit',
-                                routerLink: ['/prediction']
-                            }
-                        ]
-                    
-                    },
-                    {
-                        label: 'AI',
-                        icon: 'pi pi-brain',
-                        items: [
-                            {
-                                label: 'Predict Duration',
-                                icon: 'pi pi-clock',
-                                routerLink: ['/ai/predict-duration']
-                            },
-                            {
-                                label: 'Recommend Course',
-                                icon: 'pi pi-book',
-                                routerLink: ['/ai/competence-recommendations']
                             }
                         ]
                     }
                 ];
             }
-        } else if (this.user!.role === "STUDENT") {
+        } else if (this.user!.role === 'STUDENT') {
             this.model = [
                 {
                     label: 'Forum',
@@ -181,7 +113,7 @@ export class AppMenu {
                         { label: 'Discussion Forum', icon: 'pi pi-comments', routerLink: ['/pages/post'] },
                         ...(this.user != null ? [{ label: 'Own Posts', icon: 'pi pi-user-edit', routerLink: ['/pages/userPosts'] }] : []),
                         { label: 'News', icon: 'pi pi-globe', routerLink: ['/pages/hackerNews'] },
-                        { label: 'Statistics', icon: 'pi pi-chart-bar', routerLink: ['/pages/userStatistics'] },
+                        { label: 'Statistics', icon: 'pi pi-chart-bar', routerLink: ['/pages/userStatistics'] }
                         // ...(user == null
                         //     ? [
                         //           {
@@ -196,25 +128,15 @@ export class AppMenu {
                 {
                     label: 'PFE Management',
                     items: [
-                        //{ label: 'Search PFEs', icon: 'pi pi-fw pi-search', routerLink: ['/pfe'] },
                         { label: 'Add PFE', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pfe/add'] },
-                        // { label: 'Internship Offers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/internship-offers'] },
                         { label: 'Proposals', icon: 'pi pi-fw pi-list-check', routerLink: ['/proposals'] },
-                        // { label: 'Manage Proposals', icon: 'pi pi-fw pi-th-large', routerLink: ['/manage-proposals'] },
-                        // { label: 'Technical Tests', icon: 'pi pi-fw pi-file-edit', routerLink: ['/technical-tests'] },
-                        //  { label: 'Saved PFEs', icon: 'pi pi-fw pi-bookmark', routerLink: ['/saved-pfes'] },
-                        //{ label: 'Student Interests', icon: 'pi pi-fw pi-heart', routerLink: ['/student-interests'] }
-                        { label: 'Internship Offers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/internship-offers'] },
+                        { label: 'Technical Tests', icon: 'pi pi-fw pi-file-edit', routerLink: ['/technical-tests'] },
+                        // { label: 'Internship Offers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/internship-offers'] }
                     ]
                 },
                 {
-                    label: 'Learning',
+                    label: 'Courses',
                     items: [
-                        {
-                            label: 'create course',
-                            icon: 'pi pi-book',
-                            routerLink: ['/courses/create']
-                        },
                         {
                             label: 'My Courses',
                             icon: 'pi pi-book',
@@ -224,49 +146,42 @@ export class AppMenu {
                             label: 'My Notes',
                             icon: 'pi pi-file-edit',
                             routerLink: ['/notes']
-                        },
-                        {
-                            label: "Prédiction de la durée de formation",
-                            icon: 'pi pi-chart-line',
-                            routerLink: ['/prediction']
                         }
                     ]
                 },
-{
-    label: 'AI',
-    icon: 'pi pi-brain',
-    items: [
-        {
-            label: 'Predict Duration',
-            icon: 'pi pi-clock',
-            routerLink: ['/ai/predict-duration']
-        },
-        {
-            label: 'Recommend Course',
-            icon: 'pi pi-book',
-            routerLink: ['/ai/recommend-course']
-        }
-    ]
-}
-
-
+                {
+                    label: 'AI',
+                    icon: 'pi pi-brain',
+                    items: [
+                        {
+                            label: 'Predict Duration',
+                            icon: 'pi pi-clock',
+                            routerLink: ['/ai/predict-duration']
+                        },
+                        {
+                            label: 'Recommend Course',
+                            icon: 'pi pi-book',
+                            routerLink: ['/ai/competence-recommendations']
+                        }
+                    ]
+                }
             ];
-        }
-        else if (this.user!.role === "COMPANY") {
-
+        } else if (this.user!.role === 'COMPANY') {
             this.model = [
                 {
                     label: 'PFE Management',
                     items: [
                         { label: 'Search PFEs', icon: 'pi pi-fw pi-search', routerLink: ['/pfe'] },
 
+                        // { label: 'Internship Offers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/internship-offers'] },
+
                         { label: 'Manage Proposals', icon: 'pi pi-fw pi-th-large', routerLink: ['/manage-proposals'] },
-                        { label: 'Technical Tests', icon: 'pi pi-fw pi-file-edit', routerLink: ['/technical-tests'] },
-                        { label: 'Saved PFEs', icon: 'pi pi-fw pi-bookmark', routerLink: ['/saved-pfes'] },
+
+                        { label: 'Saved PFEs', icon: 'pi pi-fw pi-bookmark', routerLink: ['/saved-pfes'] }
                         // { label: 'Student Interests', icon: 'pi pi-fw pi-heart', routerLink: ['/student-interests'] }
                     ]
-                },
-            ]
+                }
+            ];
         }
     }
 }

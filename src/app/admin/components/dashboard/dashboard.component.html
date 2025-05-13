@@ -1,139 +1,198 @@
-<div class="grid">
+<div class="p-4 md:p-6 bg-gray-50 min-h-screen">
+    <!-- Dashboard Header -->
+    <div class="mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Tableau de bord</h1>
+        <p class="text-gray-500">Bienvenue dans votre espace d'administration</p>
+    </div>
+
     <!-- Stats Cards -->
-    <div class="col-12 flex justify-between gap-6 mb-4">
-        <div class="flex-1">
-            <p-card styleClass="h-full shadow-lg hover:shadow-xl transition-shadow duration-200">
-                <div class="flex flex-column gap-2 p-2">
-                    <span class="text-500 text-sm">Nombre d'Étudiants</span>
-                    <span class="text-3xl font-bold">{{totalStudents}}</span>
-                    <span class="text-green-500 text-sm flex items-center gap-1">
-                        <i class="pi pi-arrow-up"></i>
-                        +12% ce semestre
-                    </span>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Students Card -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="text-gray-500 text-sm font-medium">Nombre d'Étudiants</div>
+                    <div class="p-2 rounded-full bg-indigo-50 text-indigo-600">
+                        <i class="pi pi-users text-xl"></i>
+                    </div>
                 </div>
-            </p-card>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800">{{totalStudents}}</h2>
+                        <div class="flex items-center text-green-500 text-sm mt-2">
+                            <i class="pi pi-arrow-up mr-1"></i>
+                            <span>+12% ce semestre</span>
+                        </div>
+                    </div>
+                    <div class="h-12 w-24 flex items-end">
+                        <!-- Mini chart could go here -->
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="flex-1">
-            <p-card styleClass="h-full shadow-lg hover:shadow-xl transition-shadow duration-200">
-                <div class="flex flex-column gap-2 p-2">
-                    <span class="text-500 text-sm">Candidatures Actives</span>
-                    <span class="text-3xl font-bold">{{activeApplications}}</span>
-                    <span class="text-blue-500 text-sm flex items-center gap-1">
-                        <i class="pi pi-sync" style="font-size: 0.8rem"></i>
-                        En cours
-                    </span>
+
+        <!-- Applications Card -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="text-gray-500 text-sm font-medium">Candidatures Actives</div>
+                    <div class="p-2 rounded-full bg-blue-50 text-blue-600">
+                        <i class="pi pi-file-edit text-xl"></i>
+                    </div>
                 </div>
-            </p-card>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800">{{activeApplications}}</h2>
+                        <div class="flex items-center text-blue-500 text-sm mt-2">
+                            <i class="pi pi-sync mr-1"></i>
+                            <span>En cours</span>
+                        </div>
+                    </div>
+                    <div class="h-12 w-24 flex items-end">
+                        <!-- Mini chart could go here -->
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="flex-1">
-            <p-card styleClass="h-full shadow-lg hover:shadow-xl transition-shadow duration-200">
-                <div class="flex flex-column gap-2 p-2">
-                    <span class="text-500 text-sm">Formations Disponibles</span>
-                    <span class="text-3xl font-bold">{{coursesCount}}</span>
-                    <span class="text-green-500 text-sm flex items-center gap-1">
-                        <i class="pi pi-plus"></i>
-                        +5 nouvelles formations
-                    </span>
+
+        <!-- Courses Card -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="text-gray-500 text-sm font-medium">Formations Disponibles</div>
+                    <div class="p-2 rounded-full bg-green-50 text-green-600">
+                        <i class="pi pi-book text-xl"></i>
+                    </div>
                 </div>
-            </p-card>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800">{{coursesCount}}</h2>
+                        <div class="flex items-center text-green-500 text-sm mt-2">
+                            <i class="pi pi-plus mr-1"></i>
+                            <span>+5 nouvelles formations</span>
+                        </div>
+                    </div>
+                    <div class="h-12 w-24 flex items-end">
+                        <!-- Mini chart could go here -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Enrollment Activity Chart -->
-    <div class="col-12">
-        <p-card header="Activité des Inscriptions">
-            <div class="flex justify-content-between mb-3">
-                <div class="flex align-items-center">
-                    <span class="mr-2">•</span>
-                    <span class="text-500">Inscrits</span>
-                    <span class="mx-2">•</span>
-                    <span class="text-500">Candidatures</span>
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-gray-800">Activité des Inscriptions</h2>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-indigo-500 mr-2"></div>
+                        <span class="text-sm text-gray-600">Inscrits</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-blue-300 mr-2"></div>
+                        <span class="text-sm text-gray-600">Candidatures</span>
+                    </div>
                 </div>
-                <p-dropdown [options]="[2023, 2022, 2021]" [(ngModel)]="yearFilter"></p-dropdown>
+                <div class="relative">
+                    <p-dropdown [options]="[2023, 2022, 2021]" [(ngModel)]="yearFilter" styleClass="p-dropdown-sm"></p-dropdown>
+                </div>
             </div>
-            <p-chart type="bar" [data]="enrollmentData" [options]="{ plugins: { legend: { display: false } } }"></p-chart>
-        </p-card>
+        </div>
+        <div class="h-80">
+            <p-chart type="bar" [data]="enrollmentData" [options]="chartOptions"></p-chart>
+        </div>
     </div>
 
     <!-- Charts Section -->
-    <div class="col-12 grid mt-4">
-        <div class="col-12 md:col-5">
-            <div class="mb-4">
-                <p-card header="Étudiants par Formation" styleClass="h-full shadow-lg">
-                    <p-chart type="polarArea" 
-                             [data]="formationDistributionData" 
-                             [options]="{ 
-                                 responsive: true,
-                                 maintainAspectRatio: false,
-                                 plugins: { 
-                                     legend: { 
-                                         position: 'bottom',
-                                         labels: {
-                                             usePointStyle: true,
-                                             font: { size: 11 }
-                                         }
-                                     }
-                                 }
-                             }"
-                             height="200">
-                    </p-chart>
-                </p-card>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Distribution Chart -->
+        <div class="bg-white rounded-xl shadow-md p-6 lg:col-span-1">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Étudiants par Formation</h2>
+            <div class="h-64">
+                <p-chart type="polarArea" 
+                         [data]="formationDistributionData" 
+                         [options]="distributionChartOptions">
+                </p-chart>
             </div>
+        </div>
 
-            <div class="mb-4">
-                <p-card header="Taux de Réussite" styleClass="h-full shadow-lg">
-                    <p-chart type="line" 
-                             [data]="successRateData" 
-                             [options]="{
-                                 responsive: true,
-                                 maintainAspectRatio: false,
-                                 plugins: {
-                                     legend: {
-                                         position: 'bottom',
-                                         labels: {
-                                             usePointStyle: true,
-                                             font: { size: 11 }
-                                         }
-                                     }
-                                 }
-                             }"
-                             height="200">
-                    </p-chart>
-                </p-card>
+        <!-- Success Rate Chart -->
+        <div class="bg-white rounded-xl shadow-md p-6 lg:col-span-1">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Taux de Réussite</h2>
+            <div class="h-64">
+                <p-chart type="line" 
+                         [data]="successRateData" 
+                         [options]="lineChartOptions">
+                </p-chart>
             </div>
         </div>
 
         <!-- Latest Applications -->
-        <div class="col-12 md:col-7 mt-4 md:mt-0">
-            <p-card header="Dernières Candidatures" styleClass="h-full shadow-lg">
-                <p-table [value]="latestApplications" [rows]="5" [paginator]="true" styleClass="p-datatable-sm">
+        <div class="bg-white rounded-xl shadow-md p-6 lg:col-span-1">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-800">Dernières Candidatures</h2>
+                <button pButton icon="pi pi-plus" label="Voir tout" class="p-button-text p-button-sm text-indigo-600"></button>
+            </div>
+            
+            <div class="overflow-hidden">
+                <p-table [value]="latestApplications" [rows]="5" [paginator]="true" 
+                         styleClass="p-datatable-sm p-datatable-hoverable-rows">
                     <ng-template pTemplate="header">
-                        <tr>
-                            <th>Étudiant</th>
-                            <th>ID Candidature</th>
-                            <th>Date</th>
-                            <th>Formation</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
+                        <tr class="bg-gray-50">
+                            <th class="text-gray-600 font-medium text-sm">Étudiant</th>
+                            <th class="text-gray-600 font-medium text-sm">ID Candidature</th>
+                            <th class="text-gray-600 font-medium text-sm">Date</th>
+                            <th class="text-gray-600 font-medium text-sm">Formation</th>
+                            <th class="text-gray-600 font-medium text-sm">Statut</th>
+                            <th class="text-gray-600 font-medium text-sm">Actions</th>
                         </tr>
                     </ng-template>
                     <ng-template pTemplate="body" let-application>
-                        <tr>
-                            <td>{{application.student}}</td>
-                            <td>{{application.applicationId}}</td>
-                            <td>{{application.date}}</td>
-                            <td>{{application.course}}</td>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150">
+                            <td class="py-3">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3">
+                                        {{application.student.charAt(0)}}
+                                    </div>
+                                    <span class="font-medium">{{application.student}}</span>
+                                </div>
+                            </td>
+                            <td class="text-gray-600 text-sm">{{application.applicationId}}</td>
+                            <td class="text-gray-600 text-sm">{{application.date}}</td>
+                            <td class="text-gray-600 text-sm">{{application.course}}</td>
                             <td>
-                                <span [class]="'status-badge status-' + application.status.toLowerCase()">
+                                <span *ngIf="application.status === 'En attente'" 
+                                      class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    {{application.status}}
+                                </span>
+                                <span *ngIf="application.status === 'Terminé'" 
+                                      class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    {{application.status}}
+                                </span>
+                                <span *ngIf="application.status === 'Annulé'" 
+                                      class="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                     {{application.status}}
                                 </span>
                             </td>
                             <td>
-                                <button pButton icon="pi pi-ellipsis-v" class="p-button-text"></button>
+                                <button pButton icon="pi pi-ellipsis-v" class="p-button-text p-button-rounded p-button-sm"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="6" class="text-center py-6">
+                                <div class="flex flex-col items-center justify-center">
+                                    <i class="pi pi-inbox text-gray-300 text-5xl mb-3"></i>
+                                    <span class="text-gray-500">Aucune candidature trouvée</span>
+                                </div>
                             </td>
                         </tr>
                     </ng-template>
                 </p-table>
-            </p-card>
+            </div>
         </div>
     </div>
+</div>
