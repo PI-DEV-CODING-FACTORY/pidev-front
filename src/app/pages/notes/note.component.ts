@@ -9,6 +9,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { ResumeService } from '../../services/resume.service'; // Import the ResumeService
+import { SkeletonModule } from 'primeng/skeleton';
 
 interface NotesByCategory {
     courseName: string;
@@ -23,12 +24,40 @@ interface NotesByCategory {
 @Component({
     selector: 'app-note',
     standalone: true,
-    imports: [CommonModule, HttpClientModule, FormsModule],
+    imports: [CommonModule, HttpClientModule, FormsModule, SkeletonModule],
     template: `
         <div class="notes-container">
             <h2>My Notes</h2>
 
-            <div *ngIf="loading" class="loading">Loading notes...</div>
+            <div *ngIf="loading" class="skeleton-container">
+                <!-- Skeleton for 2 courses -->
+                <div *ngFor="let i of [1, 2]" class="course-container skeleton-course">
+                    <!-- Course header skeleton -->
+                    <div class="course-header">
+                        <p-skeleton height="2rem" width="40%" styleClass="mb-2"></p-skeleton>
+                        <p-skeleton height="2rem" width="100px"></p-skeleton>
+                    </div>
+
+                    <!-- Skeleton for 2 lessons per course -->
+                    <div *ngFor="let j of [1, 2]" class="lesson-container skeleton-lesson">
+                        <p-skeleton height="1.5rem" width="30%" styleClass="mb-3"></p-skeleton>
+
+                        <!-- Skeleton for notes grid -->
+                        <div class="notes-grid">
+                            <div *ngFor="let k of [1, 2, 3]" class="note-card skeleton-note">
+                                <div class="note-header">
+                                    <p-skeleton height="1rem" width="40%" styleClass="mb-2"></p-skeleton>
+                                </div>
+                                <p-skeleton height="4rem" styleClass="mb-2"></p-skeleton>
+                                <div class="note-actions skeleton-actions">
+                                    <p-skeleton height="2rem" width="40%"></p-skeleton>
+                                    <p-skeleton height="2rem" width="40%"></p-skeleton>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div *ngIf="error" class="error">
                 {{ error }}
@@ -343,6 +372,32 @@ interface NotesByCategory {
                 .notes-grid {
                     grid-template-columns: 1fr;
                 }
+            }
+
+            /* Skeleton Loader Styles */
+            .skeleton-container {
+                padding: 20px 0;
+            }
+
+            .skeleton-course {
+                margin-bottom: 30px;
+            }
+
+            .skeleton-lesson {
+                margin-bottom: 25px;
+            }
+
+            .skeleton-note {
+                height: 180px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .skeleton-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: auto;
             }
 
             /* Modal Styles */
