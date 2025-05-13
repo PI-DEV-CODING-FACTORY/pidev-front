@@ -6,7 +6,7 @@ import { QuizType } from '../models/course.model';
     providedIn: 'root'
 })
 export class QuizService {
-    private apiUrl = 'http://localhost:8087/api/quizzes';
+    private apiUrl = 'http://localhost:8089/api/quizzes';
 
     constructor(private http: HttpClient) {}
 

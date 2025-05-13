@@ -7,7 +7,7 @@ import { ExampleHistoryType } from '../models/course.model';
     providedIn: 'root'
 })
 export class ExampleService {
-    private apiUrl = 'http://localhost:8087/api/example-histories';
+    private apiUrl = 'http://localhost:8089/api/example-histories';
 
     constructor(private http: HttpClient) {}
 
