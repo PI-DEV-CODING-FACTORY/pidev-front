@@ -21,8 +21,8 @@ export interface Recommendation {
 })
 
 export class CourseService {
-    private apiUrl = 'http://localhost:8087/api/courses';
-    private recommendationApiUrl = 'http://localhost:8088/recommendations/';
+    private apiUrl = 'http://localhost:8089/api/courses';
+    private recommendationApiUrl = 'http://localhost:8000/recommendations/';
 
     constructor(private http: HttpClient) {}
 

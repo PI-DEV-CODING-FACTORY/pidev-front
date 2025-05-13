@@ -1,4 +1,5 @@
 import { Documentation } from './documentation/documentation';
+import { PredictionComponent } from './prediction.component';
 import { Crud } from './crud/crud';
 import { Empty } from './empty/empty';
 import { Course } from './course/course';
@@ -29,6 +30,7 @@ export default [
         path: 'pfe',
         loadChildren: () => import('./pfe/pfe.routes').then((m) => m.PFE_ROUTES)
     },
+    { path: 'prediction', component: PredictionComponent },
     { path: 'post', component: PostComponent },
    
     { path: 'postDetails/:id', component: PostDetailsComponent },

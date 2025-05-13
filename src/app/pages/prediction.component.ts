@@ -9,8 +9,21 @@ import { ReactiveFormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="prediction-container">
-      <h2>Prédiction de la Durée de Formation</h2>
+    <div class="container mx-auto px-4 py-6">
+  <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    <!-- Header -->
+    <div class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">Prédiction de la durée de formation</h1>
+          <p class="mt-2 text-lg text-gray-600">Estimez la durée idéale de votre formation selon votre profil</p>
+        </div>
+      </div>
+    </div>
+    <!-- Content -->
+    <div class="p-6">
+      <div class="prediction-container">
+        <h2>Prédiction de la Durée de Formation</h2>
       <form [formGroup]="predictionForm" (ngSubmit)="onSubmit()" class="prediction-form">
         <div class="form-group">
           <label for="age">Age</label>
@@ -234,7 +247,7 @@ export class PredictionComponent {
         'Content-Type': 'application/json'
       });
 
-      this.http.post('http://localhost:5000/predict', formData, { headers })
+      this.http.post('http://localhost:5544/predict', formData, { headers })
         .subscribe({
           next: (response: any) => {
             this.prediction = response;

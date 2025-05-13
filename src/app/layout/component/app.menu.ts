@@ -147,7 +147,7 @@ export class AppMenu {
                                 routerLink: ['/notes']
                             },
                             {
-                                label: "Predection de la duree d'une Formation",
+                                label: "Prédiction de la durée de formation",
                                 icon: 'pi pi-file-edit',
                                 routerLink: ['/prediction']
                             }
@@ -212,7 +212,7 @@ export class AppMenu {
                             routerLink: ['/notes']
                         },
                         {
-                            label: "Prediction de la duree d'une Formation",
+                            label: "Prédiction de la durée de formation",
                             icon: 'pi pi-chart-line',
                             routerLink: ['/prediction']
                         }
