@@ -37,7 +37,6 @@ export default [
     { path: 'userPosts', component: UserPostsComponent },
     { path: 'userStatistics', component: UserStatisticsComponent },
     { path: 'hackerNews', component: HackerNewsComponent },
-    
-  
+    { path: 'ai', loadChildren: () => import('./ai/ai.routes').then((m) => m.AI_ROUTES) },
     { path: '**', redirectTo: '/notfound' }
 ] as Routes;

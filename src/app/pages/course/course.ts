@@ -1,9 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CoursesWidget } from './components/courseswidget';
-import CourseDetailsComponent from './components/courseDetails';
 import { RouterModule } from '@angular/router';
-import { NgbdScrollSpyItems } from './components/ngbdscrollspyItems';
-import { NgbdAccordionToggle } from './components/ngbdAccordiontoggle';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Renderer2 } from '@angular/core';
@@ -14,7 +10,7 @@ import { ExampleType } from '../../models/example.model';
 @Component({
     selector: 'app-course',
     standalone: true,
-    imports: [CoursesWidget, CourseDetailsComponent, RouterModule, NgbdScrollSpyItems, NgbdAccordionToggle, FormsModule, CommonModule],
+    imports: [RouterModule, FormsModule, CommonModule],
     template: `
         <div class="card">
             <router-outlet></router-outlet>

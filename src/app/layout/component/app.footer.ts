@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
     selector: 'app-footer',
     template: `<div class="layout-footer">
         Coding Factory by
-        <a href="/" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline">Binary Brains</a>
+        <a href="/" target="_blank" rel="noopener noreferrer" class="font-bold text-primary hover:underline">Binary Brains</a>
     </div>`
 })
 export class AppFooter {}

@@ -152,10 +152,24 @@ export class AppMenu {
                                 routerLink: ['/prediction']
                             }
                         ]
+                    
                     },
-
-
-                    // Other commented menu items...
+                    {
+                        label: 'AI',
+                        icon: 'pi pi-brain',
+                        items: [
+                            {
+                                label: 'Predict Duration',
+                                icon: 'pi pi-clock',
+                                routerLink: ['/ai/predict-duration']
+                            },
+                            {
+                                label: 'Recommend Course',
+                                icon: 'pi pi-book',
+                                routerLink: ['/ai/competence-recommendations']
+                            }
+                        ]
+                    }
                 ];
             }
         } else if (this.user!.role === "STUDENT") {
@@ -218,6 +232,22 @@ export class AppMenu {
                         }
                     ]
                 },
+{
+    label: 'AI',
+    icon: 'pi pi-brain',
+    items: [
+        {
+            label: 'Predict Duration',
+            icon: 'pi pi-clock',
+            routerLink: ['/ai/predict-duration']
+        },
+        {
+            label: 'Recommend Course',
+            icon: 'pi pi-book',
+            routerLink: ['/ai/recommend-course']
+        }
+    ]
+}
 
 
             ];

@@ -78,6 +78,10 @@ export const appRoutes: Routes = [
             {
                 path: 'saved-pfes',
                 loadComponent: () => import('./app/pages/pfe/saved/saved-pfes.component').then((m) => m.SavedPfesComponent)
+            },
+            {
+                path: 'ai',
+                loadChildren: () => import('./app/pages/ai/ai.module').then((m) => m.AiModule)
             }
         ]
     },
