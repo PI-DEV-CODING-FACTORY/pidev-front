@@ -62,7 +62,7 @@ import { CommentNotificationRequest } from '../../interfaces/CommentNotification
     providedIn: 'root'
 })
 export class NotificationService {
-    private apiUrl = 'http://localhost:8081/notification';
+    private apiUrl = 'http://localhost:8088/notification';
 
     constructor(private http: HttpClient) { }
 

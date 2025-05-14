@@ -22,10 +22,11 @@
         </button>
     </div>
     <div class="post-image-container animate__animated animate__fadeIn" *ngIf="post.image">
-        <img class="post-image" [src]="post.image ? 'http://localhost:8081/images/' + post.image : ''" alt="Post Image">
+        <img class="post-image" [src]="post.image ? 'http://localhost:8088/images/' + post.image : ''" alt="Post Image">
     </div>
     <p id="post-content" class="animate__animated animate__fadeIn">{{post.content}}</p>
-    <p id="post-user" class="animate__animated animate__fadeIn" *ngIf="user!=null">Posted by {{userPosted.firstname+' '+userPosted.lastname}}</p>
+    <p id="post-user" class="animate__animated animate__fadeIn" *ngIf="user!=null">Posted by {{userPosted.firstname+'
+        '+userPosted.lastname}}</p>
     <div class="tags-container" *ngIf="post.tags.length!=0">
         <div *ngFor="let l of post.tags | split: ', '; let i = index" class="animate__animated animate__fadeIn"
             [style.animation-delay]="i * 0.1 + 's'">
@@ -63,7 +64,7 @@
                 [style.animation-delay]="i * 0.1 + 's'">
                 <div class="card-body">
                     <div class="post-image-container animate__animated animate__fadeIn" *ngIf="c.image">
-                        <img class="post-image" [src]="c.image ? 'http://localhost:8081/images/' + c.image : ''"
+                        <img class="post-image" [src]="c.image ? 'http://localhost:8088/images/' + c.image : ''"
                             alt="Post Image">
                     </div>
                     <p class="comment-content">{{c.content}}</p>

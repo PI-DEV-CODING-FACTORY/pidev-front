@@ -24,7 +24,7 @@ export enum Roles {
 export class AppMenu {
     model: MenuItem[] = [];
     user: User | null = null;
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService) { }
     ngOnInit() {
         this.authService.currentUser.subscribe((currentUser: User | null) => {
             if (currentUser) {
@@ -79,6 +79,7 @@ export class AppMenu {
                         items: [
                             // { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/admin/dashboard'] },
                             { label: 'Discussion Forum', icon: 'pi pi-comments', routerLink: ['/pages/post'] },
+                             ...(this.user != null ? [{ label: 'Own Posts', icon: 'pi pi-user-edit', routerLink: ['/pages/userPosts'] }] : []),
                             { label: 'News', icon: 'pi pi-globe', routerLink: ['/pages/hackerNews'] },
                             { label: 'Statistics', icon: 'pi pi-chart-bar', routerLink: ['/pages/userStatistics'] }
                             // ...(user == null
