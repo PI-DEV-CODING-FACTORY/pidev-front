@@ -21,7 +21,7 @@ export interface UserStatistics {
     providedIn: 'root'
 })
 export class UserStatisticsService {
-    private apiServerUrl = 'http://localhost:8081/post';
+    private apiServerUrl = 'http://localhost:8088/post';
 
     constructor(private http: HttpClient) { }
 
